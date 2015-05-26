@@ -1,0 +1,40 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="iron-dropdown-overlay.html">
+
+<dom-module id="iron-dropdown">
+  <template>
+    <div on-tap="_onTriggerTap" class="content dropdown-trigger">
+      <content select="[dropdown-trigger]"></content>
+    </div>
+    <iron-dropdown-overlay id="overlay">
+      <content select="[dropdown-content]"></content>
+    </iron-dropdown-overlay>
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'iron-dropdown',
+
+        properties: {
+
+          /**
+           * True if the menu is open.
+           */
+          opened: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
+          }
+        },
+
+        _onTriggerTap: function() {
+          this.$.overlay.open();
+        }
+      });
+    })();
+  </script>
+</dom-module>
+
