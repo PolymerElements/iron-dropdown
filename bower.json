@@ -16,7 +16,7 @@
     "type": "git",
     "url": "git://github.com/PolymerElements/iron-dropdown"
   },
-  "license": "MIT",
+  "license": "http://polymer.github.io/LICENSE.txt",
   "homepage": "https://github.com/PolymerElements/iron-dropdown",
   "dependencies": {
     "polymer": "polymer/polymer#^0.9.0",
