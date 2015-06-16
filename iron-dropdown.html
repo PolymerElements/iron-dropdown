@@ -1,13 +1,52 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../iron-behaviors/iron-control-state.html">
 <link rel="import" href="iron-dropdown-overlay.html">
+
+<!--
+`<iron-dropdown>` is a generalized element that is useful when you have
+hidden content (`.dropdown-content`) that is revealed when an input action
+is performed by the user on a given element (`.dropdown-trigger`).
+
+Examples of elements that might be implemented using an `iron-dropdown`
+include comboboxes, menubuttons, selects. The list goes on.
+
+The `<iron-dropdown>` element exposes attributes that allow the position
+of the `.dropdown-content` relative to the `.dropdown-trigger` to be
+configured.
+
+    <iron-dropdown horizontal-align="right" vertical-align="top">
+      <button class="dropdown-trigger">Open</button>
+      <div class="dropdown-content">Hello!</div>
+    </iron-dropdown>
+
+In the above example, the `<div>` with class `.dropdown-content` will be
+hidden until the `<button>` with class `.dropdown-trigger` is clicked.
+
+@demo demo/index.html
+-->
 
 <dom-module id="iron-dropdown">
   <template>
     <div on-tap="_onTriggerTap" class="content dropdown-trigger">
-      <content select="[dropdown-trigger]"></content>
+      <content select=".dropdown-trigger"></content>
     </div>
-    <iron-dropdown-overlay id="overlay">
-      <content select="[dropdown-content]"></content>
+    <iron-dropdown-overlay
+      id="overlay"
+      opened="{{opened}}"
+      on-iron-overlay-opened="_focusContent">
+      <content select=".dropdown-content"></content>
     </iron-dropdown-overlay>
   </template>
 
@@ -18,6 +57,12 @@
       Polymer({
         is: 'iron-dropdown',
 
+        behaviors: [
+          Polymer.IronControlState,
+          Polymer.IronA11yKeysBehavior,
+          Polymer.IronResizableBehavior
+        ],
+
         properties: {
 
           /**
@@ -27,11 +72,126 @@
             type: Boolean,
             value: false,
             reflectToAttribute: true
+          },
+
+          /**
+           * The orientation against which to align the dropdown content
+           * horizontally relative to the dropdown trigger.
+           */
+          horizontalAlign: {
+            type: String,
+            value: 'left'
+          },
+
+          /**
+           * The orientation against which to align the dropdown content
+           * vertically relative to the dropdown trigger.
+           */
+          verticalAlign: {
+            type: String,
+            value: 'bottom'
+          },
+
+          _triggerRectMemo: {
+            type: Object
           }
         },
 
+        hostAttributes: {
+          'aria-haspopup': 'true'
+        },
+
+        listeners: {
+          'iron-resize': '_onIronResize'
+        },
+
+        observers: [
+          '_updateOverlayPosition(verticalAlign, horizontalAlign)',
+          '_syncDisabled(disabled)'
+        ],
+
+        keyBindings: {
+          'up down': 'open',
+        },
+
+        /**
+         * A read only reference to the element that is currently being used
+         * as the trigger element.
+         */
+        get triggerElement() {
+          return Polymer.dom(this).queryDistributedElements('.dropdown-trigger')[0] || this;
+        },
+
+        /**
+         * A read only reference to the element that is currently being used as
+         * the content element.
+         */
+        get contentElement() {
+          return Polymer.dom(this).queryDistributedElements('.dropdown-content')[0]
+        },
+
+        open: function() {
+          this.opened = true;
+        },
+
+        close: function() {
+          this.opened = false;
+        },
+
+        get _triggerRect() {
+          if (!this._triggerRectMemo) {
+            this._triggerRectMemo = this.triggerElement.getBoundingClientRect();
+          }
+
+          return this._triggerRectMemo;
+        },
+
+        get _horizontalAlignTargetValue() {
+          if (this.horizontalAlign === 'right') {
+            return this._triggerRect.right;
+          }
+
+          return this._triggerRect.left;
+        },
+
+        get _verticalAlignTargetValue() {
+          if (this.verticalAlign === 'top') {
+            return this._triggerRect.top;
+          }
+
+          return this._triggerRect.bottom;
+        },
+
         _onTriggerTap: function() {
-          this.$.overlay.open();
+          this._updateOverlayPosition();
+          this.opened = true;
+        },
+
+        _onIronResize: function() {
+          this._triggerRectMemo = null;
+
+          if (this.opened) {
+            this._updateOverlayPosition();
+          }
+        },
+
+        _syncDisabled: function(disabled) {
+          if (this.triggerElement) {
+            this.triggerElement.disabled = disabled;
+          }
+
+          this.opened = false;
+        },
+
+        _updateOverlayPosition: function() {
+          this.$.overlay.style.left = this._horizontalAlignTargetValue + 'px';
+          this.$.overlay.style.top = this._verticalAlignTargetValue + 'px';
+        },
+
+        _focusContent: function() {
+          if (this.contentElement) {
+            this.contentElement.focus();
+          }
         }
       });
     })();

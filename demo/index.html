@@ -1,5 +1,6 @@
 <!doctype html>
 <!--
+@license
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
 This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
 The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
@@ -14,15 +15,139 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <link rel="import" href="../iron-dropdown.html">
-  <link rel="import" href="../../paper-menu/paper-menu.html">
+  <link rel="import" href="../../paper-styles/demo-pages.html">
+  <style>
+
+    ul {
+      display: inline-block;
+      position: relative;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      margin: 0.25em 0;
+      padding: 0.25em;
+      border-radius: 3px;
+    }
+
+    [vertical-align="top"] ul {
+      margin-top: 0;
+    }
+
+    [horizontal-align="right"] ul {
+      margin-left: 0.25em;
+    }
+
+    li {
+      display: block;
+      position: relative;
+      margin: 0;
+      padding: 0;
+    }
+
+    a {
+      display: block;
+      position: relative;
+      padding: 1em;
+      text-decoration: none;
+    }
+
+    li:not(:last-of-type) {
+      border-bottom: 1px solid #eee;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      border: 1px solid #ccc;
+      background-color: #eee;
+      margin: 1em;
+      padding: 1em;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    button:focus {
+      outline: none;
+      border-color: blue;
+    }
+  </style>
 </head>
 <body>
-  <iron-dropdown>
-    <button dropdown-trigger>Tap</button>
-    <paper-menu tabindex="0" dropdown-content>
-      <a href="javascript:console.log('lorem')">Lorem</a>
-      <a href="javascript:console.log('ipsum')">Ipsum</a>
-    </paper-menu>
-  </iron-dropdown>
+  <template is="dom-bind" id="Demo">
+    <div class="horizontal-section flex layout horizontal">
+      <iron-dropdown>
+        <button class="dropdown-trigger">Basic</button>
+        <ul class="dropdown-content">
+          <template is="dom-repeat" items="[[shortList]]">
+            <li><a href="javascript:void(0)">[[item]]</a></li>
+          </template>
+        </ul>
+      </iron-dropdown>
+      <iron-dropdown>
+        <button class="dropdown-trigger">Overflowing</button>
+        <ul class="dropdown-content" tabindex="0">
+          <template is="dom-repeat" items="[[longList]]">
+            <li><a href="javascript:void(0)">[[item]]</a></li>
+          </template>
+        </ul>
+      </iron-dropdown>
+      <iron-dropdown vertical-align="top">
+        <button class="dropdown-trigger">Top-left Aligned</button>
+        <ul class="dropdown-content">
+          <template is="dom-repeat" items="[[longList]]">
+            <li><a href="javascript:void(0)">[[item]]</a></li>
+          </template>
+        </ul>
+      </iron-dropdown>
+      <iron-dropdown horizontal-align="right" vertical-align="top">
+        <button class="dropdown-trigger">Top-right Aligned</button>
+        <ul class="dropdown-content">
+          <template is="dom-repeat" items="[[shortList]]">
+            <li><a href="javascript:void(0)">[[item]]</a></li>
+          </template>
+        </ul>
+      </iron-dropdown>
+      <iron-dropdown disabled>
+        <button class="dropdown-trigger">Disabled</button>
+        <ul class="dropdown-content">
+          <template is="dom-repeat" items="[[shortList]]">
+            <li><a href="javascript:void(0)">[[item]]</a></li>
+          </template>
+        </ul>
+      </iron-dropdown>
+    </div>
+  </template>
+  <script>
+    Demo.shortList = ['foo', 'bar', 'baz', 'vim', 'qux', 'lur', 'kek'];
+    Demo.longList = [
+      'allosaurus',
+      'brontosaurus',
+      'carcharodontosaurus',
+      'diplodocus',
+      'ekrixinatosaurus',
+      'fukuiraptor',
+      'gallimimus',
+      'hadrosaurus',
+      'iguanodon',
+      'jainosaurus',
+      'kritosaurus',
+      'liaoceratops',
+      'megalosaurus',
+      'nemegtosaurus',
+      'ornithomimus',
+      'protoceratops',
+      'quetecsaurus',
+      'rajasaurus',
+      'stegosaurus',
+      'triceratops',
+      'utahraptor',
+      'vulcanodon',
+      'wannanosaurus',
+      'xenoceratops',
+      'yandusaurus',
+      'zephyrosaurus'
+    ];
+  </script>
 </body>
 </html>
