@@ -16,8 +16,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <link rel="import" href="../iron-dropdown.html">
   <link rel="import" href="../../paper-styles/demo-pages.html">
-  <style>
-
+  <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+  <style is="custom-style">
     ul {
       display: inline-block;
       position: relative;
@@ -61,7 +61,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     button {
       border: 1px solid #ccc;
       background-color: #eee;
-      margin: 1em;
       padding: 1em;
       border-radius: 3px;
       cursor: pointer;
@@ -71,11 +70,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       outline: none;
       border-color: blue;
     }
+
+    iron-dropdown {
+      margin: 1em;
+    }
+
+    .horizontal-section {
+      @apply(--layout-vertical);
+    }
   </style>
 </head>
 <body>
   <template is="dom-bind" id="Demo">
-    <div class="horizontal-section flex layout horizontal">
+    <div class="horizontal-section">
       <iron-dropdown>
         <button class="dropdown-trigger">Basic</button>
         <ul class="dropdown-content">
