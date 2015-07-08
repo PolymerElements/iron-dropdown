@@ -38,6 +38,15 @@ hidden until the `<button>` with class `.dropdown-trigger` is clicked.
 -->
 
 <dom-module id="iron-dropdown">
+  <style>
+    :host {
+      display: inline-block;
+    }
+
+    .content.dropdown-trigger {
+      display: inline-block;
+    }
+  </style>
   <template>
     <div on-tap="_onTriggerTap" class="content dropdown-trigger">
       <content select=".dropdown-trigger"></content>
