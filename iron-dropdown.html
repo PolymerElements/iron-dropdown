@@ -135,6 +135,7 @@ method is called on the element.
           /**
            * We memoize the positionTarget bounding rectangle so that we can
            * limit the number of times it is queried per resize / relayout.
+           * @type {?Object}
            */
           _positionRectMemo: {
             type: Object
@@ -239,7 +240,7 @@ method is called on the element.
           this.$.contentWrapper.classList.remove('animating');
           if (this.opened) {
             Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this);
-          } else if (!this.cancelled) {
+          } else if (!this.canceled) {
             Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this);
           }
         },
@@ -271,8 +272,7 @@ method is called on the element.
         },
 
         _cancelAnimations: function() {
-          this.cancelAnimation('open');
-          this.cancelAnimation('close');
+          this.cancelAnimation();
         },
 
         _updateAnimationConfig: function() {
