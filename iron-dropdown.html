@@ -240,7 +240,7 @@ method is called on the element.
           this.$.contentWrapper.classList.remove('animating');
           if (this.opened) {
             Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this);
-          } else if (!this.canceled) {
+          } else {
             Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this);
           }
         },
