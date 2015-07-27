@@ -123,6 +123,16 @@ method is called on the element.
             type: Object
           },
 
+          closeAnimations: Object,
+
+          /*
+          * The duration of the exit-animation.
+          * If you use defined multiple animations in closeAnimationConfig, closingDuration is defined with the longest
+          */
+          closingDuration: {
+            type: String
+          },
+
           /**
            * Set to true to disable animations when opening and closing the
            * dropdown.
@@ -147,7 +157,8 @@ method is called on the element.
         },
 
         observers: [
-          '_updateOverlayPosition(verticalAlign, horizontalAlign)'
+          '_updateOverlayPosition(verticalAlign, horizontalAlign)',
+          '_updateClosingDuration(closeAnimations)'
         ],
 
         attached: function() {
@@ -231,6 +242,9 @@ method is called on the element.
           if (!this.noAnimations && this.animationConfig && this.animationConfig.close) {
             this.$.contentWrapper.classList.add('animating');
             this.playAnimation('close');
+            this.async(function () {
+              Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this, arguments);
+            }, this.closingDuration);
           } else {
             Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this, arguments);
           }
@@ -291,6 +305,13 @@ method is called on the element.
           }
 
           if (this.closeAnimationConfig) {
+
+            for (var animation in this.closeAnimationConfig) {
+              // get the longest defined duration in closeAnimationConfig and use it for setting a timeout
+              if (this.closeAnimationConfig.hasOwnProperty(animation)) {
+                this.closeAnimations = {animation: {name: this.closeAnimationConfig[animation].name, duration: this.closeAnimationConfig[animation].timing.duration}};
+              }
+            }
             animationConfig.close = this.closeAnimationConfig;
             animations = animations.concat(animationConfig.close);
           }
@@ -300,6 +321,18 @@ method is called on the element.
           }, this);
 
           this.animationConfig = animationConfig;
+        },
+
+        _updateClosingDuration: function () {
+          this.closeAnimationConfig.forEach(function(animation) {
+            for (var tempAn in this.closeAnimations) {
+              if (animation.timing.duration > this.closeAnimations[tempAn].duration) {
+                this.closingDuration = animation.timing.duration;
+              } else {
+                this.closingDuration = animation.timing.duration;
+              }
+            }
+          }, this);
         },
 
         _prepareDropdown: function() {
@@ -342,4 +375,3 @@ method is called on the element.
     })();
   </script>
 </dom-module>
-

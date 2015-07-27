@@ -20,9 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <div on-tap="open">
-      <content select=".dropdown-trigger"></content>
-    </div>
+    <content select=".dropdown-trigger"></content>
     <iron-dropdown id="dropdown"
       vertical-align="[[verticalAlign]]"
       horizontal-align="[[horizontalAlign]]"
@@ -69,11 +67,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             }];
           }
-        }
+        },
+
+        _opened: Boolean
       },
 
-      open: function() {
-        this.$.dropdown.open();
+      listeners: {
+        'tap': '_handleTap'
+      },
+
+      _handleTap: function () {
+        this._opened = !this._opened;
+        if (this._opened) {
+          this.$.dropdown.open();
+        } else if (!this._opened){
+          this.$.dropdown.close();
+        }
       }
     });
   </script>
