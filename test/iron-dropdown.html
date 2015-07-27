@@ -44,6 +44,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </test-fixture>
 
   <script>
+    function elementIsVisible(element) {
+      var contentRect = element.getBoundingClientRect();
+      var computedStyle = window.getComputedStyle(element);
+
+      return computedStyle.display !== 'none' &&
+        contentRect.width > 0 &&
+        contentRect.height > 0;
+    }
+
     suite('<iron-dropdown>', function() {
       var dropdown;
       suite('basic', function() {
@@ -53,25 +62,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         test('effectively hides the dropdown content', function() {
           var content = dropdown.querySelector('.dropdown-content');
-          var contentRect = content.getBoundingClientRect();
 
-          expect(contentRect.width).to.be.equal(0);
-          expect(contentRect.height).to.be.equal(0);
+          expect(elementIsVisible(content)).to.be.equal(false);
         });
 
         test('shows dropdown content when opened', function(done) {
           var content = dropdown.querySelector('.dropdown-content');
-          var contentRect;
 
           dropdown.open();
 
           Polymer.Base.async(function() {
-            contentRect = content.getBoundingClientRect();
-
-            expect(contentRect.width).to.be.greaterThan(0);
-            expect(contentRect.height).to.be.greaterThan(0);
+            expect(elementIsVisible(content)).to.be.equal(true);
             done();
           });
+        });
+
+        test('hides dropdown content when outside is clicked', function(done) {
+          var content = dropdown.querySelector('.dropdown-content');
+
+          dropdown.open();
+
+          Polymer.Base.async(function() {
+            expect(elementIsVisible(content)).to.be.equal(true);
+
+            MockInteractions.downAndUp(document.body, function() {
+
+              Polymer.Base.async(function() {
+                expect(elementIsVisible(content)).to.be.equal(false);
+                done();
+              }, 100);
+            });
+          });
+
         });
       });
 
