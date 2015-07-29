@@ -148,6 +148,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return true;
         }
 
+        if (element.nodeType !== 1) {
+          return false;
+        }
+        
         contentElements = Polymer.dom(element).querySelectorAll('content');
 
         for (contentIndex = 0; contentIndex < contentElements.length; ++contentIndex) {
