@@ -131,6 +131,15 @@ method is called on the element.
             type: Boolean,
             value: false
           },
+          
+          /**
+           * Whether to lock the scrolling of the page while open. Changing
+           * this value while open has no effect; only applies on next open.
+           */
+          lockScroll: {
+            type: Boolean,
+            value: true
+          },
 
           /**
            * We memoize the positionTarget bounding rectangle so that we can
@@ -216,7 +225,9 @@ method is called on the element.
         },
 
         _renderOpened: function() {
-          Polymer.IronDropdownScrollManager.pushScrollLock(this);
+          if (this.lockScroll) {
+            Polymer.IronDropdownScrollManager.pushScrollLock(this);
+          }
           if (!this.noAnimations && this.animationConfig && this.animationConfig.open) {
             this.$.contentWrapper.classList.add('animating');
             this.playAnimation('open');
