@@ -141,6 +141,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }, 1);
         });
 
+        suite('with an offset', function() {
+          test('is offset by the offset value when open', function() {
+            var dropdownRect;
+            var offsetDropdownRect;
+
+            dropdown.opened = true;
+
+            Polymer.Base.async(function() {
+              dropdownRect = dropdown.getBoundingClientRect();
+
+              dropdownRect.verticalOffset = 10;
+              dropdownRect.horizontalOffset = -10;
+
+              offsetDropdownRect = dropdown.getBoundingClientRect();
+
+              expect(dropdownRect.top).to.be.equal(offsetDropdownRect.top - 10);
+              expect(dropdownRect.left).to.be.equal(offsetDropdownRect.left + 10);
+            }, 1);
+          });
+        });
+
       });
     });
   </script>
