@@ -99,6 +99,28 @@ method is called on the element.
           },
 
           /**
+           * A pixel value that will be added to the position calculated for the
+           * given `horizontalAlign`. Use a negative value to offset to the
+           * left, or a positive value to offset to the right.
+           */
+          horizontalOffset: {
+            type: Number,
+            value: 0,
+            notify: true
+          },
+
+          /**
+           * A pixel value that will be added to the position calculated for the
+           * given `verticalAlign`. Use a negative value to offset towards the
+           * top, or a positive value to offset towards the bottom.
+           */
+          verticalOffset: {
+            type: Number,
+            value: 0,
+            notify: true
+          },
+
+          /**
            * The element that should be used to position the dropdown when
            * it is opened.
            */
@@ -147,7 +169,7 @@ method is called on the element.
         },
 
         observers: [
-          '_updateOverlayPosition(verticalAlign, horizontalAlign)'
+          '_updateOverlayPosition(verticalAlign, horizontalAlign, verticalOffset, horizontalOffset)'
         ],
 
         attached: function() {
@@ -190,6 +212,8 @@ method is called on the element.
             target = this._positionRect.left;
           }
 
+          target += this.horizontalOffset;
+
           return Math.max(target, 0);
         },
 
@@ -201,6 +225,8 @@ method is called on the element.
           } else {
             target = this._positionRect.top;
           }
+
+          target += this.verticalOffset;
 
           return Math.max(target, 0);
         },
