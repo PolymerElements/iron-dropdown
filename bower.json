@@ -34,5 +34,6 @@
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
     "web-component-tester": "*",
     "iron-image": "polymerelements/iron-image#^1.0.0"
-  }
+  },
+  "ignore": []
 }
