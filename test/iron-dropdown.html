@@ -23,6 +23,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../test-fixture/test-fixture.html">
 
 </head>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+  }
+</style>
 <body>
 
   <test-fixture id="TrivialDropdown">
@@ -79,6 +85,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="subcontent" tabindex="0"></div>
         </div>
       </iron-dropdown>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="RTLDropdownLeft">
+    <template>
+      <div dir="rtl" style="display: block; position: relative; width: 100px; height: 100px;">
+        <iron-dropdown>
+          <div class="dropdown-content">Hello!</div>
+        </iron-dropdown>
+      </div>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="RTLDropdownRight">
+    <template>
+      <div dir="rtl" style="display: block; position: relative; width: 100px; height: 100px;">
+        <iron-dropdown horizontal-align="right">
+          <div class="dropdown-content">Hello!</div>
+        </iron-dropdown>
+      </div>
     </template>
   </test-fixture>
 
@@ -282,7 +308,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           dropdown = parent.querySelector('iron-dropdown');
         });
 
-        test('when align is right/bottom, can be offset towards the top left', function(done) {
+        test('can be offset towards the top left', function(done) {
           dropdown.opened = true;
 
           Polymer.Base.async(function() {
@@ -300,7 +326,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }, 1);
         });
 
-        test('when align is right/bottom, can be offset towards the bottom right', function(done) {
+        test('can be offset towards the bottom right', function(done) {
           dropdown.opened = true;
 
           Polymer.Base.async(function() {
@@ -316,6 +342,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             expect(dropdownRect.right + 10).to.be.closeTo(offsetDropdownRect.right, 0.1);
             done();
           }, 1);
+        });
+      });
+
+      suite('RTL', function() {
+        var dropdown;
+        var dropdownRect;
+
+        test('with horizontalAlign=left', function(done) {
+          var parent = fixture('RTLDropdownLeft');
+          dropdown = parent.querySelector('iron-dropdown');
+          dropdown.open();
+
+          Polymer.Base.async(function() {
+            // In RTL, if `horizontalAlign` is "left", that's the same as
+            // being right-aligned in LTR. So the dropdown should be in the top
+            // right corner.
+            dropdownRect = dropdown.getBoundingClientRect();
+            expect(dropdownRect.top).to.be.equal(0);
+            expect(dropdownRect.right).to.be.equal(100);
+            done();
+          });
+        });
+
+        test('with horizontalAlign=right', function(done) {
+          var parent = fixture('RTLDropdownRight');
+          dropdown = parent.querySelector('iron-dropdown');
+          dropdown.open();
+
+          Polymer.Base.async(function() {
+            // In RTL, if `horizontalAlign` is "right", that's the same as
+            // being left-aligned in LTR. So the dropdown should be in the top
+            // left corner.
+            dropdownRect = dropdown.getBoundingClientRect();
+            expect(dropdownRect.top).to.be.equal(0);
+            expect(dropdownRect.left).to.be.equal(0);
+            done();
+          });
         });
       });
     });

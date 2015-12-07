@@ -230,6 +230,13 @@ method is called on the element.
         },
 
         /**
+         * Whether the text direction is RTL
+         */
+        _isRTL: function() {
+          return window.getComputedStyle(this).direction == 'rtl';
+        },
+
+        /**
          * The element that should be used to position the dropdown when
          * it opens, if no position target is configured.
          */
@@ -260,7 +267,10 @@ method is called on the element.
         get _horizontalAlignTargetValue() {
           var target;
 
-          if (this.horizontalAlign === 'right') {
+          // In RTL, the direction flips, so what is "right" in LTR becomes "left".
+          var isRTL = this._isRTL();
+          if ((!isRTL && this.horizontalAlign === 'right') ||
+              (isRTL && this.horizontalAlign === 'left')) {
             target = document.documentElement.clientWidth - this._positionRect.right;
           } else {
             target = this._positionRect.left;
@@ -286,6 +296,18 @@ method is called on the element.
           target += this.verticalOffset;
 
           return Math.max(target, 0);
+        },
+
+        /**
+         * The horizontal align value, accounting for the RTL/LTR text direction.
+         */
+        get _localeHorizontalAlign() {
+          // In RTL, "left" becomes "right".
+          if (this._isRTL()) {
+            return this.horizontalAlign === 'right' ? 'left' : 'right';
+          } else {
+            return this.horizontalAlign;
+          }
         },
 
         /**
@@ -436,7 +458,7 @@ method is called on the element.
             return;
           }
 
-          this.style[this.horizontalAlign] =
+          this.style[this._localeHorizontalAlign] =
             this._horizontalAlignTargetValue + 'px';
 
           this.style[this.verticalAlign] =
