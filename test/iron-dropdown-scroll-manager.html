@@ -54,7 +54,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         ancestor = document.body;
       });
 
-      suite('contraining scroll in the DOM', function() {
+      suite('constraining scroll in the DOM', function() {
         setup(function() {
           Polymer.IronDropdownScrollManager.pushScrollLock(childOne);
         });
@@ -98,6 +98,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           expect(Polymer.IronDropdownScrollManager.elementIsScrollLocked(parent))
             .to.be.equal(false);
+        });
+
+        suite('various scroll events', function() {
+          var scrollEvents;
+          var events;
+
+          setup(function() {
+            scrollEvents = [
+              'wheel',
+              'mousewheel',
+              'DOMMouseScroll',
+              'touchmove'
+            ];
+
+            events = scrollEvents.map(function(scrollEvent) {
+              return new CustomEvent(scrollEvent, {
+                bubbles: true,
+                cancelable: true
+              });
+            });
+          });
+
+          test('prevents wheel events from locked elements', function() {
+            events.forEach(function(event) {
+              childTwo.dispatchEvent(event);
+              expect(event.defaultPrevented).to.be.eql(true);
+            });
+          });
+
+          test('allows wheel events from unlocked elements', function() {
+            events.forEach(function(event) {
+              childOne.dispatchEvent(event);
+              expect(event.defaultPrevented).to.be.eql(false);
+            });
+          });
         });
       });
     });

@@ -204,13 +204,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         document.body.style.overflowY = 'hidden';
 
         // Modern `wheel` event for mouse wheel scrolling:
-        window.addEventListener('wheel', this._scrollInteractionHandler, true);
+        document.addEventListener('wheel', this._scrollInteractionHandler, true);
         // Older, non-standard `mousewheel` event for some FF:
-        window.addEventListener('mousewheel', this._scrollInteractionHandler, true);
+        document.addEventListener('mousewheel', this._scrollInteractionHandler, true);
         // IE:
-        window.addEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
+        document.addEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
         // Mobile devices can scroll on touch move:
-        window.addEventListener('touchmove', this._scrollInteractionHandler, true);
+        document.addEventListener('touchmove', this._scrollInteractionHandler, true);
         // Capture keydown to prevent scrolling keys (pageup, pagedown etc.)
         document.addEventListener('keydown', this._scrollInteractionHandler, true);
       },
