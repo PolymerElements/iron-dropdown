@@ -177,7 +177,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _scrollInteractionHandler: function(event) {
         if (Polymer
               .IronDropdownScrollManager
-              .elementIsScrollLocked(event.target)) {
+              .elementIsScrollLocked(Polymer.dom(event).rootTarget)) {
           if (event.type === 'keydown' &&
               !Polymer.IronDropdownScrollManager._isScrollingKeypress(event)) {
             return;

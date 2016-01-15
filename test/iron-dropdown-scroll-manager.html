@@ -21,19 +21,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <link rel="import" href="../iron-dropdown-scroll-manager.html">
   <link rel="import" href="../../test-fixture/test-fixture.html">
+  <link rel="import" href="x-scrollable-element.html">
 </head>
 <body>
 
   <test-fixture id="DOMSubtree">
     <template>
-      <div id="Parent">
-        <div id="ChildOne">
-          <div id="GrandchildOne"></div>
-        </div>
-        <div id="ChildTwo">
-          <div id="GrandchildTwo"></div>
-        </div>
-      </div>
+      <x-scrollable-element id="Parent"></x-scrollable-element>
     </template>
   </test-fixture>
   <script>
@@ -47,10 +41,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       setup(function() {
         parent = fixture('DOMSubtree');
-        childOne = parent.querySelector('#ChildOne');
-        childTwo = parent.querySelector('#ChildTwo');
-        grandChildOne = parent.querySelector('#GrandchildOne');
-        grandChildTwo = parent.querySelector('#GrandchildTwo');
+        childOne = parent.$$('#ChildOne');
+        childTwo = parent.$$('#ChildTwo');
+        grandChildOne = parent.$$('#GrandchildOne');
+        grandChildTwo = parent.$$('#GrandchildTwo');
         ancestor = document.body;
       });
 
@@ -100,7 +94,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .to.be.equal(false);
         });
 
-        test('checking is disabled when no elements are locked', function() {
+        test('does not check locked elements when there are no locking elements', function() {
           sinon.spy(Polymer.IronDropdownScrollManager, 'elementIsScrollLocked');
           childOne.dispatchEvent(new CustomEvent('wheel', {
             bubbles: true,
