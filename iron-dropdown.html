@@ -192,12 +192,32 @@ method is called on the element.
           },
 
           /**
+           * By default, the dropdown will automatically focus its content upon
+           * opening. If you want to override this, you must manually call
+           * _focusContent().
+           */
+          manualFocusContent: {
+            type: Boolean,
+            value: false
+          },
+
+          /**
            * We memoize the positionTarget bounding rectangle so that we can
            * limit the number of times it is queried per resize / relayout.
            * @type {?Object}
            */
           _positionRectMemo: {
             type: Object
+          },
+
+          /**
+           * The element that defienes the DOM boundaries of the scroll lock.
+           * By default, it is this iron-dropdown element.
+           * @type {Object}
+           */
+          _scrollLockTarget: {
+            type: Object,
+            value: this
           }
         },
 
@@ -324,7 +344,7 @@ method is called on the element.
             Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
           }
 
-          if (this.opened) {
+          if (this.opened && !this.manualFocusContent) {
             this._focusContent();
           }
         },
@@ -334,7 +354,7 @@ method is called on the element.
          */
         _renderOpened: function() {
           if (!this.allowOutsideScroll) {
-            Polymer.IronDropdownScrollManager.pushScrollLock(this);
+            Polymer.IronDropdownScrollManager.pushScrollLock(this._scrollLockTarget);
           }
 
           if (!this.noAnimations && this.animationConfig && this.animationConfig.open) {
@@ -349,7 +369,7 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _renderClosed: function() {
-          Polymer.IronDropdownScrollManager.removeScrollLock(this);
+          Polymer.IronDropdownScrollManager.removeScrollLock(this._scrollLockTarget);
           if (!this.noAnimations && this.animationConfig && this.animationConfig.close) {
             this.$.contentWrapper.classList.add('animating');
             this.playAnimation('close');
