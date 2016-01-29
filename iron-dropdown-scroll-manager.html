@@ -79,10 +79,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        * @param {HTMLElement} element The element that should lock scroll.
        */
       pushScrollLock: function(element) {
+        
+        if(element === this.currentLockingElement) {
+          return;
+        }
+        
         if (this._lockingElements.length === 0) {
           this._lockScrollInteractions();
         }
-
+        
         this._lockingElements.push(element);
 
         this._lockedElementCache = [];
