@@ -194,6 +194,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var dropdown;
 
         setup(function() {
+          dropdown = fixture('TrivialDropdown');
+        });
+
+        test('should lock, only once', function(done) {
+          dropdown.open();
+
+          Polymer.Base.async(function() {
+
+            expect(Polymer.IronDropdownScrollManager._lockingElements.length)
+                .to.be.equal(1);
+
+            // This triggers a second `pushScrollLock` with the same element, however
+            // that should not add the element to the `_lockingElements` stack twice
+            dropdown._renderOpened();
+
+            Polymer.Base.async(function() {
+              expect(Polymer.IronDropdownScrollManager._lockingElements.length)
+                .to.be.equal(1);
+              expect(Polymer.IronDropdownScrollManager.elementIsScrollLocked(document.body))
+                .to.be.equal(true);
+              done();
+            });
+          });
+        });
+      });
+
+      suite('non locking scroll', function() {
+        var dropdown;
+
+        setup(function() {
           dropdown = fixture('NonLockingDropdown');
         });
 
