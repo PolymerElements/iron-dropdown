@@ -190,24 +190,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
 
         test('should lock, only once', function(done) {
-          dropdown.open();
-
-          Polymer.Base.async(function() {
-
+          var openCount = 0;
+          runAfterOpen(dropdown, function() {
             expect(Polymer.IronDropdownScrollManager._lockingElements.length)
-                .to.be.equal(1);
-
-            // This triggers a second `pushScrollLock` with the same element, however
-            // that should not add the element to the `_lockingElements` stack twice
-            dropdown._renderOpened();
-
-            Polymer.Base.async(function() {
-              expect(Polymer.IronDropdownScrollManager._lockingElements.length)
-                .to.be.equal(1);
-              expect(Polymer.IronDropdownScrollManager.elementIsScrollLocked(document.body))
-                .to.be.equal(true);
+              .to.be.equal(1);
+            expect(Polymer.IronDropdownScrollManager.elementIsScrollLocked(document.body))
+              .to.be.equal(true);
+              
+            if(openCount === 0) {
+              // This triggers a second `pushScrollLock` with the same element, however
+              // that should not add the element to the `_lockingElements` stack twice
+              dropdown.close();
+              dropdown.open();
+            } else {
               done();
-            });
+            }
+            openCount++;
           });
         });
       });
