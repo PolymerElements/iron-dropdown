@@ -378,7 +378,7 @@ method is called on the element.
           var scrollTop;
           var scrollLeft;
 
-          if (containedElement) {
+          if (this.opened && containedElement) {
             scrollTop = containedElement.scrollTop;
             scrollLeft = containedElement.scrollLeft;
           }
@@ -389,7 +389,7 @@ method is called on the element.
 
           Polymer.IronOverlayBehaviorImpl._onIronResize.apply(this, arguments);
 
-          if (containedElement) {
+          if (this.opened && containedElement) {
             containedElement.scrollTop = scrollTop;
             containedElement.scrollLeft = scrollLeft;
           }
