@@ -12,9 +12,9 @@ thing! https://github.com/PolymerLabs/tedium/issues
 
 -->
 
-[![Build Status](https://travis-ci.org/PolymerElements/iron-dropdown.svg?branch=master)](https://travis-ci.org/PolymerElements/iron-dropdown)
+[![Build status](https://travis-ci.org/PolymerElements/iron-dropdown.svg?branch=master)](https://travis-ci.org/PolymerElements/iron-dropdown)
 
-_[Demo and API Docs](https://elements.polymer-project.org/elements/iron-dropdown)_
+_[Demo and API docs](https://elements.polymer-project.org/elements/iron-dropdown)_
 
 
 ##&lt;iron-dropdown&gt;
