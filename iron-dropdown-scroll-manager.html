@@ -14,12 +14,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script>
   (function() {
     'use strict';
+    // Used to calculate the scroll direction.
+    var lastTouch = null;
 
     /**
      * The IronDropdownScrollManager is intended to provide a central source
      * of authority and control over which elements in a document are currently
      * allowed to scroll.
      */
+
 
     Polymer.IronDropdownScrollManager = {
 
@@ -33,39 +36,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
       /**
-       * Returns true if the provided element is "scroll locked," which is to
-       * say that it cannot be scrolled via pointer or keyboard interactions.
+       * Returns true if the element causing the scroll is "scroll locked," which is to
+       * say that it cannot be scrolled via pointer or keyboard interactions, or
+       * if already at its scroll boundaries.
        *
-       * @param {HTMLElement} element An HTML element instance which may or may
-       * not be scroll locked.
+       * @param {Event} event The scroll event
        */
-      elementIsScrollLocked: function(element) {
-        var currentLockingElement = this.currentLockingElement;
+      shouldPreventScrolling: function(event) {
+        // Avoid expensive checks if the event is not one of the observed keys.
+        if (event.type === 'keydown' && !this._isScrollingKeypress(event)) {
+          return false;
+        }
 
+        var currentLockingElement = this.currentLockingElement;
         if (currentLockingElement === undefined)
           return false;
 
-        var scrollLocked;
-
-        if (this._hasCachedLockedElement(element)) {
-          return true;
+        var nodes = Polymer.dom(event).path;
+        var lockingIndex = nodes.indexOf(currentLockingElement);
+        var isScrollingRight = event.wheelDeltaX > 0;
+        var isScrollingUp = event.wheelDeltaY > 0;
+        if (event.type === 'touchmove' && lastTouch) {
+          isScrollingUp = event.pageY > lastTouch.pageY;
+          isScrollingRight = lastTouch.pageX > event.pageX;
         }
-
-        if (this._hasCachedUnlockedElement(element)) {
-          return false;
+        // Search for one scrollable that can still scroll, stop at the locked element.
+        for (var i = 0; i < lockingIndex; i++) {
+          var node = nodes[i];
+          // Skip nodes that are not scrollable.
+          if (node.scrollHeight <= node.clientHeight && node.scrollWidth <= node.clientWidth) {
+            continue;
+          }
+          var canScrollVertically = isScrollingUp ? node.scrollTop > 0 :
+              node.scrollTop + node.clientHeight < node.scrollHeight;
+          var canScrollHorizontally = isScrollingRight ? node.scrollLeft > 0 :
+              node.scrollLeft + node.clientWidth < node.scrollWidth;
+          // If it can scroll, don't prevent.
+          if (canScrollVertically || canScrollHorizontally) {
+            return false;
+          }
         }
-
-        scrollLocked = !!currentLockingElement &&
-          currentLockingElement !== element &&
-          !this._composedTreeContains(currentLockingElement, element);
-
-        if (scrollLocked) {
-          this._lockedElementCache.push(element);
-        } else {
-          this._unlockedElementCache.push(element);
-        }
-
-        return scrollLocked;
+        // Don't prevent if event's target is currentLockingElement.
+        return (lockingIndex !== 0);
       },
 
       /**
@@ -89,9 +101,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         this._lockingElements.push(element);
-
-        this._lockedElementCache = [];
-        this._unlockedElementCache = [];
       },
 
       /**
@@ -112,19 +121,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this._lockingElements.splice(index, 1);
 
-        this._lockedElementCache = [];
-        this._unlockedElementCache = [];
-
         if (this._lockingElements.length === 0) {
           this._unlockScrollInteractions();
         }
       },
 
       _lockingElements: [],
-
-      _lockedElementCache: null,
-
-      _unlockedElementCache: null,
 
       _originalBodyStyles: {},
 
@@ -133,78 +135,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           event, 'pageup pagedown home end up left down right');
       },
 
-      _hasCachedLockedElement: function(element) {
-        return this._lockedElementCache.indexOf(element) > -1;
-      },
-
-      _hasCachedUnlockedElement: function(element) {
-        return this._unlockedElementCache.indexOf(element) > -1;
-      },
-
-      _composedTreeContains: function(element, child) {
-        // NOTE(cdata): This method iterates over content elements and their
-        // corresponding distributed nodes to implement a contains-like method
-        // that pierces through the composed tree of the ShadowDOM. Results of
-        // this operation are cached (elsewhere) on a per-scroll-lock basis, to
-        // guard against potentially expensive lookups happening repeatedly as
-        // a user scrolls / touchmoves.
-        var contentElements;
-        var distributedNodes;
-        var contentIndex;
-        var nodeIndex;
-
-        if (element.contains(child)) {
-          return true;
-        }
-
-        contentElements = Polymer.dom(element).querySelectorAll('content');
-
-        for (contentIndex = 0; contentIndex < contentElements.length; ++contentIndex) {
-
-          distributedNodes = Polymer.dom(contentElements[contentIndex]).getDistributedNodes();
-
-          for (nodeIndex = 0; nodeIndex < distributedNodes.length; ++nodeIndex) {
-
-            if (this._composedTreeContains(distributedNodes[nodeIndex], child)) {
-              return true;
-            }
-          }
-        }
-
-        return false;
-      },
-
       _scrollInteractionHandler: function(event) {
-        var scrolledElement =
-            /** @type {HTMLElement} */(Polymer.dom(event).rootTarget);
-        if (Polymer
-              .IronDropdownScrollManager
-              .elementIsScrollLocked(scrolledElement)) {
-          if (event.type === 'keydown' &&
-              !Polymer.IronDropdownScrollManager._isScrollingKeypress(event)) {
-            return;
-          }
-
+        if (Polymer.IronDropdownScrollManager.shouldPreventScrolling(event)) {
           event.preventDefault();
         }
+        lastTouch = event;
       },
 
       _lockScrollInteractions: function() {
-        // Memoize body inline styles:
-        this._originalBodyStyles.overflow = document.body.style.overflow;
-        this._originalBodyStyles.overflowX = document.body.style.overflowX;
-        this._originalBodyStyles.overflowY = document.body.style.overflowY;
-
-        // Disable overflow scrolling on body:
-        // TODO(cdata): It is technically not sufficient to hide overflow on
-        // body alone. A better solution might be to traverse all ancestors of
-        // the current scroll locking element and hide overflow on them. This
-        // becomes expensive, though, as it would have to be redone every time
-        // a new scroll locking element is added.
-        document.body.style.overflow = 'hidden';
-        document.body.style.overflowX = 'hidden';
-        document.body.style.overflowY = 'hidden';
-
         // Modern `wheel` event for mouse wheel scrolling:
         document.addEventListener('wheel', this._scrollInteractionHandler, true);
         // Older, non-standard `mousewheel` event for some FF:
@@ -218,10 +156,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _unlockScrollInteractions: function() {
-        document.body.style.overflow = this._originalBodyStyles.overflow;
-        document.body.style.overflowX = this._originalBodyStyles.overflowX;
-        document.body.style.overflowY = this._originalBodyStyles.overflowY;
-
         document.removeEventListener('wheel', this._scrollInteractionHandler, true);
         document.removeEventListener('mousewheel', this._scrollInteractionHandler, true);
         document.removeEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
@@ -230,4 +164,5 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     };
   })();
+
 </script>
