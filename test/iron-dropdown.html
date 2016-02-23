@@ -148,6 +148,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       overlay.open();
     }
 
+    function fireWheel(node, deltaX, deltaY) {
+      // IE 11 doesn't support WheelEvent, use CustomEvent.
+      var event = new CustomEvent('wheel', {deltaX: deltaX, deltaY: deltaY, cancelable: true, bubbles: true});
+      node.dispatchEvent(event);
+      return event;
+    }
+
     suite('<iron-dropdown>', function() {
       var dropdown;
       var content;
@@ -216,8 +223,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           runAfterOpen(dropdown, function() {
             expect(Polymer.IronDropdownScrollManager._lockingElements.length)
               .to.be.equal(1);
-            expect(Polymer.IronDropdownScrollManager.elementIsScrollLocked(document.body))
-              .to.be.equal(true);
+            expect(fireWheel(document.body, 0, 10).defaultPrevented).to.be.equal(true);
 
             if(openCount === 0) {
               // This triggers a second `pushScrollLock` with the same element, however
@@ -239,9 +245,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
 
         test('can be disabled with `allowOutsideScroll`', function(done) {
-          runAfterOpen(dropdown, function() {
-            expect(Polymer.IronDropdownScrollManager.elementIsScrollLocked(document.body))
-              .to.be.equal(false);
+          runAfterOpen(dropdown, function () {
+            expect(fireWheel(document.body, 0, 10).defaultPrevented).to.be.equal(false);
             done();
           });
         });
