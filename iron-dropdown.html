@@ -99,6 +99,17 @@ method is called on the element.
           },
 
           /**
+           * Positioning of the iron-dropdown. If set to 'absolute' the dropdown will
+           * fit to it's nearest relative parent. If set to 'absolute', the dropdown
+           * will automatically match it's width to the parent object. This can be
+           * overwritten by setting the width of the dropdown content.
+           */
+          position: {
+            type: String,
+            value: 'fixed'
+          },
+
+          /**
            * A pixel value that will be added to the position calculated for the
            * given `horizontalAlign`, in the direction of alignment. You can think
            * of it as increasing or decreasing the distance to the side of the
@@ -213,6 +224,14 @@ method is called on the element.
           if (this.positionTarget === undefined) {
             this.positionTarget = this._defaultPositionTarget;
           }
+
+          // NOTE(jwwisgerhof): When position the iron-dropdown absolutely, the dropdown
+          // should not be forced to fit into the window. Instead, the body should be used.
+          // Auto focus makes no sense for absolute positioned elements, so disable it.
+          if (this.position === 'absolute') {
+            this.fitInto = document.querySelector('body');
+            this.noAutoFocus = true;
+          }
         },
 
         /**
@@ -268,13 +287,18 @@ method is called on the element.
         get _horizontalAlignTargetValue() {
           var target;
 
-          // In RTL, the direction flips, so what is "right" in LTR becomes "left".
-          var isRTL = this._isRTL();
-          if ((!isRTL && this.horizontalAlign === 'right') ||
-              (isRTL && this.horizontalAlign === 'left')) {
-            target = document.documentElement.clientWidth - this._positionRect.right;
+          if (this.position === 'absolute') {
+            // Absolute positioned dropdowns do not need the window offset
+            target = 0;
           } else {
-            target = this._positionRect.left;
+            // In RTL, the direction flips, so what is "right" in LTR becomes "left".
+            var isRTL = this._isRTL();
+            if ((!isRTL && this.horizontalAlign === 'right') ||
+                    (isRTL && this.horizontalAlign === 'left')) {
+              target = document.documentElement.clientWidth - this._positionRect.right;
+            } else {
+              target = this._positionRect.left;
+            }
           }
 
           target += this.horizontalOffset;
@@ -288,10 +312,15 @@ method is called on the element.
         get _verticalAlignTargetValue() {
           var target;
 
-          if (this.verticalAlign === 'bottom') {
-            target = document.documentElement.clientHeight - this._positionRect.bottom;
+          if (this.position === 'absolute') {
+            // Absolute positioned dropdowns do not need the window offset
+            target = 0;
           } else {
-            target = this._positionRect.top;
+            if (this.verticalAlign === 'bottom') {
+              target = document.documentElement.clientHeight - this._positionRect.bottom;
+            } else {
+              target = this._positionRect.top;
+            }
           }
 
           target += this.verticalOffset;
@@ -330,7 +359,7 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _renderOpened: function() {
-          if (!this.allowOutsideScroll) {
+          if (!this.allowOutsideScroll && this.position !== 'absolute') {
             Polymer.IronDropdownScrollManager.pushScrollLock(this);
           }
 
@@ -454,6 +483,8 @@ method is called on the element.
           if (!this.positionTarget) {
             return;
           }
+
+          this.style.position = this.position;
 
           this.style[this._localeHorizontalAlign] =
             this._horizontalAlignTargetValue + 'px';
