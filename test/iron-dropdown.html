@@ -57,6 +57,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
   </test-fixture>
 
+  <test-fixture id="AbsolutePositioning">
+    <template>
+      <div style="display: block; position: relative; width: 100px; height: 100px;">
+        <iron-dropdown position="absolute">
+          <div class="dropdown-content">Hello!</div>
+        </iron-dropdown>
+      </div>
+    </template>
+  </test-fixture>
+
   <!-- Absolutely position the dropdown so that it has enough space to move around -->
   <test-fixture id="OffsetDropdownTopLeft">
     <template>
@@ -224,6 +234,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             done();
           });
         });
+      });
+
+      suite('absolute positioning', function () {
+        var parent;
+        var dropdown;
+
+        setup(function () {
+          parent = fixture('AbsolutePositioning');
+          dropdown = parent.querySelector('iron-dropdown');
+        });
+
+        test('should overwrite default style rules', function (done) {
+          runAfterOpen(dropdown, function () {
+            expect(dropdown.style.position).to.equal('absolute');
+            expect(dropdown.style.top).to.equal('0px');
+            expect(dropdown.style.left).to.equal('0px');
+            expect(dropdown.$.content.style['max-height']).to.equal('');
+            done();
+          });
+        });
+
+        test('should disable scroll lock', function () {
+          runAfterOpen(dropdown, function () {
+            expect(Polymer.IronDropdownScrollManager.elementIsScrollLocked(document.body))
+                    .to.be.equal(false);
+            done();
+          });
+        });
+
+        test('should disable auto focus', function () {
+          expect(dropdown.noAutoFocus).to.equal(true);
+        });
+
+        test('should set the "fitInto" target to be document.body', function () {
+          runAfterOpen(dropdown, function () {
+            expect(dropdown.fitInto).to.be.equal(document.body);
+            done();
+          });
+        })
       });
 
       suite('aligned dropdown', function() {

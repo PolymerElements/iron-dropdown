@@ -27,6 +27,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       vertical-align="[[verticalAlign]]"
       horizontal-align="[[horizontalAlign]]"
       disabled="[[disabled]]"
+      position="[[position]]"
+      vertical-offset="[[verticalOffset]]"
+      horizontal-offset="[[horizontalOffset]]"
       open-animation-config="[[openAnimationConfig]]"
       close-animation-config="[[closeAnimationConfig]]">
       <content select=".dropdown-content"></content>
@@ -39,7 +42,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       properties: {
         verticalAlign: String,
         horizontalAlign: String,
+        verticalOffset: Number,
+        horizontalOffset: Number,
         disabled: Boolean,
+        position: String,
         openAnimationConfig: {
           type: Array,
           value: function() {
@@ -73,6 +79,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       open: function() {
+        console.log(this.verticalOffset);
+        if (this.position === 'absolute') {
+          this.style.position = 'relative';
+        }
         this.$.dropdown.open();
       }
     });

@@ -31,6 +31,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       max-width: 250px;
     }
 
+    .absolute-content {
+      width: 250px;
+      padding: 1.5em 2em;
+    }
+
     button {
       border: 1px solid #ccc;
       background-color: #eee;
@@ -123,6 +128,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </ul>
         </x-select>
       </div>
+
+     <p>Examples of absolute positioning</p>
+     <div style="height: 500px">
+       <x-select position="absolute">
+         <button class="dropdown-trigger">Basic</button>
+         <div class="dropdown-content absolute-content">
+           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+         </div>
+       </x-select>
+       <x-select position="absolute" vertical-align="bottom" horizontal-align="left">
+         <button class="dropdown-trigger">Bottom-left aligned</button>
+         <div class="dropdown-content absolute-content">
+           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+         </div>
+       </x-select>
+       <x-select position="absolute" vertical-align="top" horizontal-align="right">
+         <button class="dropdown-trigger">Top-right aligned</button>
+         <div class="dropdown-content absolute-content">
+           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+         </div>
+       </x-select>
+       <x-select horizontal-align="left" vertical-align="top" position="absolute">
+         <button class="dropdown-trigger"> Content</button>
+         <iron-image class="dropdown-content" src="../../iron-image/demo/polymer.svg"></iron-image>
+       </x-select>
+       <x-select horizontal-align="right" vertical-align="top" position="absolute">
+         <button class="dropdown-trigger">Unordered list</button>
+         <ul class="dropdown-content" tabindex="0">
+           <template is="dom-repeat" items="[[dinosaurs]]">
+             <li><a href="javascript:void(0)">[[item]]</a></li>
+           </template>
+         </ul>
+       </x-select>
+       <x-select vertical-align="top" position="absolute" vertical-offset="40">
+         <button class="dropdown-trigger">Vertical Offset</button>
+         <ul class="dropdown-content" tabindex="0">
+           <template is="dom-repeat" items="[[dinosaurs]]">
+             <li><a href="javascript:void(0)">[[item]]</a></li>
+           </template>
+         </ul>
+       </x-select>
+     </div>
     </div>
   </template>
 
