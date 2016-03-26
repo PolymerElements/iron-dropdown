@@ -200,9 +200,13 @@ method is called on the element.
         ],
 
         attached: function() {
-          this.positionTarget = this.positionTarget || this._defaultPositionTarget;
           // Memoize this to avoid expensive calculations & relayouts.
           this._isRTL = window.getComputedStyle(this).direction == 'rtl';
+          this.positionTarget = this.positionTarget || this._defaultPositionTarget;
+        },
+
+        detached: function() {
+          Polymer.IronDropdownScrollManager.removeScrollLock(this);
         },
 
         /**
@@ -288,11 +292,10 @@ method is called on the element.
 
         /**
          * Called when the value of `opened` changes.
-         *
-         * @param {boolean} opened True if the dropdown is opened.
+         * Overridden from `IronOverlayBehavior`
          */
-        _openedChanged: function(opened) {
-          if (opened && this.disabled) {
+        _openedChanged: function() {
+          if (this.opened && this.disabled) {
             this.cancel();
           } else {
             this.cancelAnimation();
