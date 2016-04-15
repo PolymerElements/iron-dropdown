@@ -24,6 +24,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <content select=".dropdown-trigger"></content>
     </div>
     <iron-dropdown id="dropdown"
+      allow-outside-scroll="[[allowOutsideScroll]]"
       vertical-align="[[verticalAlign]]"
       horizontal-align="[[horizontalAlign]]"
       disabled="[[disabled]]"
@@ -37,6 +38,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       is: 'x-select',
 
       properties: {
+        allowOutsideScroll: Boolean,
         verticalAlign: String,
         horizontalAlign: String,
         disabled: Boolean,

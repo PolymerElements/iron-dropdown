@@ -15,7 +15,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
 <link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
 <link rel="import" href="../neon-animation/animations/opaque-animation.html">
-<link rel="import" href="iron-dropdown-scroll-manager.html">
 
 <!--
 `<iron-dropdown>` is a generalized element that is useful when you have
@@ -188,6 +187,28 @@ method is called on the element.
           allowOutsideScroll: {
             type: Boolean,
             value: false
+          },
+
+          /**
+           * Callback for scroll events.
+           * @type {Function}
+           * @private
+           */
+          _boundOnCaptureScroll: {
+            type: Function,
+            value: function() {
+              return this._onCaptureScroll.bind(this);
+            }
+          },
+
+          /**
+           * The outside scrolling element. Its scrolling will be blocked if `allowOutsideScroll = false`.
+           * @type {Element}
+           * @private
+           */
+          _outsideScrollingElement: {
+            type: Object,
+            value: (document.scrollingElement || document.documentElement)
           }
         },
 
@@ -198,6 +219,14 @@ method is called on the element.
         observers: [
           '_updateOverlayPosition(positionTarget, verticalAlign, horizontalAlign, verticalOffset, horizontalOffset)'
         ],
+
+        ready: function() {
+          // Memoized scrolling position, used to block scrolling outside.
+          this.__outsideScrollTop = 0;
+          this.__outsideScrollLeft = 0;
+          // Used to perform a non-blocking refit on scroll.
+          this.__refitAsync = null;
+        },
 
         attached: function() {
           this.positionTarget = this.positionTarget || this._defaultPositionTarget;
@@ -306,9 +335,8 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _renderOpened: function() {
-          if (!this.allowOutsideScroll) {
-            Polymer.IronDropdownScrollManager.pushScrollLock(this);
-          }
+          this.__saveScrollOutside();
+          document.addEventListener('scroll', this._boundOnCaptureScroll);
 
           if (!this.noAnimations && this.animationConfig && this.animationConfig.open) {
             if (this.withBackdrop) {
@@ -325,7 +353,7 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _renderClosed: function() {
-          Polymer.IronDropdownScrollManager.removeScrollLock(this);
+          document.removeEventListener('scroll', this._boundOnCaptureScroll);
           if (!this.noAnimations && this.animationConfig && this.animationConfig.close) {
             if (this.withBackdrop) {
               this.backdropElement.close();
@@ -349,6 +377,47 @@ method is called on the element.
             Polymer.IronOverlayBehaviorImpl._finishRenderOpened.apply(this);
           } else {
             Polymer.IronOverlayBehaviorImpl._finishRenderClosed.apply(this);
+          }
+        },
+
+        _onCaptureScroll: function(event) {
+          if (!this.allowOutsideScroll) {
+            this.__blockScrollOutside();
+          } else if (Polymer.dom(event).path.indexOf(this) === -1) {
+            if (this.__refitAsync) {
+              cancelAnimationFrame(this.__refitAsync);
+            }
+            this.__refitAsync = requestAnimationFrame(this.refit.bind(this));
+          }
+        },
+        /**
+         * Memoizes the scroll position of the outside scrolling element.
+         * @private
+         */
+        __saveScrollOutside: function() {
+          if (document.scrollingElement) {
+            this.__outsideScrollTop = document.scrollingElement.scrollTop;
+            this.__outsideScrollLeft = document.scrollingElement.scrollLeft;
+          } else {
+            // Since we don't know if is the body or html, get max.
+            this.__outsideScrollTop = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
+            this.__outsideScrollLeft = Math.max(document.documentElement.scrollLeft, document.body.scrollLeft);
+          }
+        },
+        /**
+         * Resets the scroll position of the outside scrolling element.
+         * @private
+         */
+        __blockScrollOutside: function() {
+          if (document.scrollingElement) {
+            document.scrollingElement.scrollTop = this.__outsideScrollTop;
+            document.scrollingElement.scrollLeft = this.__outsideScrollLeft;
+          } else {
+            // Since we don't know if is the body or html, set both.
+            document.documentElement.scrollTop = this.__outsideScrollTop;
+            document.documentElement.scrollLeft = this.__outsideScrollLeft;
+            document.body.scrollTop = this.__outsideScrollTop;
+            document.body.scrollLeft = this.__outsideScrollLeft;
           }
         },
 

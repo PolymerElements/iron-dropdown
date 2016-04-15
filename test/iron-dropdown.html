@@ -48,7 +48,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     height: 50px;
     background-color: orange;
   }
-  
+
   .full-screen {
     width: 100vw;
     height: 100vh;
@@ -74,9 +74,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <test-fixture id="AlignedDropdown">
     <template>
-      <div class="container">
+      <div style="display: block; position: relative; width: 100px; height: 100px;">
         <iron-dropdown horizontal-align="right" vertical-align="top">
-          <div class="dropdown-content full-screen"></div>
+          <div class="dropdown-content">Hello!</div>
+        </iron-dropdown>
+      </div>
+    </template>
+  </test-fixture>
+
+  <!-- Use margin so document.body becomes scrollable vertically & horizontally -->
+  <test-fixture id="ScrollLockDropdown">
+    <template>
+      <div style="position: relative; margin: 90vh;">
+        Scrollable!
+        <iron-dropdown>
+          <div class="dropdown-content">Hello!</div>
         </iron-dropdown>
       </div>
     </template>
@@ -150,6 +162,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       overlay.open();
     }
 
+    function dispatchScroll(target, scrollLeft, scrollTop) {
+      target.scrollLeft = scrollLeft;
+      target.scrollTop = scrollTop;
+      target.dispatchEvent(new CustomEvent('scroll', { bubbles:true } ));
+    }
+
     suite('<iron-dropdown>', function() {
       var dropdown;
       var content;
@@ -208,45 +226,59 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       suite('locking scroll', function() {
-        var dropdown;
-
+        var parent, scrollTarget;
         setup(function() {
-          dropdown = fixture('TrivialDropdown');
-        });
-
-        test('should lock, only once', function(done) {
-          var openCount = 0;
-          runAfterOpen(dropdown, function() {
-            expect(Polymer.IronDropdownScrollManager._lockingElements.length)
-              .to.be.equal(1);
-            expect(Polymer.IronDropdownScrollManager.elementIsScrollLocked(document.body))
-              .to.be.equal(true);
-
-            if(openCount === 0) {
-              // This triggers a second `pushScrollLock` with the same element, however
-              // that should not add the element to the `_lockingElements` stack twice
-              dropdown.close();
-              dropdown.open();
+          parent = fixture('ScrollLockDropdown');
+          dropdown = parent.querySelector('iron-dropdown');
+          if (!scrollTarget) {
+            // Need to discover if html or body is scrollable.
+            // Here we are sure the page is scrollable.
+            document.documentElement.scrollTop = 1;
+            if (document.documentElement.scrollTop === 1) {
+              document.documentElement.scrollTop = 0;
+              scrollTarget = document.documentElement;
             } else {
-              done();
+              scrollTarget = document.body;
             }
-            openCount++;
+          }
+        });
+        teardown(function() {
+          dispatchScroll(scrollTarget, 0, 0);
+        });
+        test('should lock scroll', function(done) {
+          runAfterOpen(dropdown, function() {
+            dispatchScroll(scrollTarget, 1, 1);
+            assert.equal(scrollTarget.scrollTop, 0, 'scrollTop ok');
+            assert.equal(scrollTarget.scrollLeft, 0, 'scrollLeft ok');
+            done();
           });
         });
-      });
-
-      suite('non locking scroll', function() {
-        var dropdown;
-
-        setup(function() {
-          dropdown = fixture('NonLockingDropdown');
-        });
-
         test('can be disabled with `allowOutsideScroll`', function(done) {
-          runAfterOpen(dropdown, function () {
-            expect(Polymer.IronDropdownScrollManager.elementIsScrollLocked(document.body))
-              .to.be.equal(false);
+          dropdown.allowOutsideScroll = true;
+          runAfterOpen(dropdown, function() {
+            dispatchScroll(scrollTarget, 1, 1);
+            assert.equal(scrollTarget.scrollTop, 1, 'scrollTop ok');
+            assert.equal(scrollTarget.scrollLeft, 1, 'scrollLeft ok');
             done();
+          });
+        });
+        test('if disabled, updates position on scroll', function(done) {
+          var dropdownRect, parentRect;
+          dropdown.allowOutsideScroll = true;
+          runAfterOpen(dropdown, function() {
+            dropdownRect = dropdown.getBoundingClientRect();
+            parentRect = parent.getBoundingClientRect();
+            assert.closeTo(dropdownRect.top, parentRect.top, 0.1, 'correct top positioning after opened');
+            assert.closeTo(dropdownRect.left, parentRect.left, 0.1, 'correct left positioning after opened');
+            dispatchScroll(scrollTarget, 10, 10);
+            // Wait for async callback to be performed
+            setTimeout(function() {
+              dropdownRect = dropdown.getBoundingClientRect();
+              parentRect = parent.getBoundingClientRect();
+              assert.closeTo(dropdownRect.top, parentRect.top, 0.1, 'correct top positioning after scroll');
+              assert.closeTo(dropdownRect.left, parentRect.left, 0.1, 'correct left positioning after scroll');
+              done();
+            }, 100);
           });
         });
       });
