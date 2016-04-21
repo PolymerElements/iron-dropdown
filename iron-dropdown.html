@@ -429,6 +429,10 @@ method is called on the element.
           // Set to 0, 0 in order to discover any offset caused by parent stacking contexts.
           this.style[hAlign] = this.style[vAlign] = '0px';
 
+          // Reset the other 2 dimensions
+          this.style[hAlign === 'left' ? 'right' : 'left'] = 'auto';
+          this.style[vAlign === 'top' ? 'bottom' : 'top'] = 'auto';
+
           var dropdownRect = this.getBoundingClientRect();
           var positionRect = this.positionTarget.getBoundingClientRect();
           var horizontalValue = this._horizontalAlignTargetValue(dropdownRect, positionRect, hAlign === 'right');

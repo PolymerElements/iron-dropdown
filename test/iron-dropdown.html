@@ -282,6 +282,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           });
         });
 
+        test('can be re-aligned while open', function(done) {
+          runAfterOpen(dropdown, function () {
+            dropdown.verticalAlign = 'bottom';
+            // Force refit instead of waiting for requestAnimationFrame.
+            dropdown.refit();
+            parentRect = parent.getBoundingClientRect();
+            dropdownRect = dropdown.getBoundingClientRect();
+            assert.equal(dropdownRect.top, 0, '1st update, top ok');
+            assert.equal(dropdownRect.left, 0, '1st update, left ok');
+            assert.equal(dropdownRect.bottom, parentRect.bottom, '1st update, bottom ok');
+            assert.equal(dropdownRect.right, parentRect.right, '1st update, right ok');
+
+            // Setting it to the previous value should update it properly.
+            dropdown.verticalAlign = 'top';
+            // Force refit instead of waiting for requestAnimationFrame.
+            dropdown.refit();
+            parentRect = parent.getBoundingClientRect();
+            dropdownRect = dropdown.getBoundingClientRect();
+            assert.equal(dropdownRect.top, parentRect.top, '2nd update, top ok');
+            assert.equal(dropdownRect.left, 0, '2nd update, left ok');
+            assert.equal(dropdownRect.bottom, document.documentElement.clientHeight, '2nd update, bottom ok');
+            assert.equal(dropdownRect.right, parentRect.right, '2nd update, right ok');
+            done();
+          });
+        });
+
         test('handles parent\'s stacking context', function(done) {
           // This will create a new stacking context.
           parent.style.transform = 'translateZ(0)';
@@ -295,6 +321,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             done();
           });
         });
+
       });
 
       suite('when align is left/top, with an offset', function() {
