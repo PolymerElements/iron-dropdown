@@ -242,13 +242,7 @@ method is called on the element.
           var animations = [];
 
           if (this.openAnimationConfig) {
-            // NOTE(cdata): When making `display:none` elements visible in Safari,
-            // the element will paint once in a fully visible state, causing the
-            // dropdown to flash before it fades in. We prepend an
-            // `opaque-animation` to fix this problem:
-            animationConfig.open = [{
-              name: 'opaque-animation',
-            }].concat(this.openAnimationConfig);
+            animationConfig.open = this.openAnimationConfig;
             animations = animations.concat(animationConfig.open);
           }
 
