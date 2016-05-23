@@ -270,30 +270,6 @@ method is called on the element.
         },
 
         /**
-         * Useful to call this after the element, the window, or the `fitInfo`
-         * element has been resized. Will maintain the scroll position.
-         */
-        refit: function () {
-          if (!this.opened) {
-            return
-          }
-          var containedElement = this.containedElement;
-          var scrollTop;
-          var scrollLeft;
-
-          if (containedElement) {
-            scrollTop = containedElement.scrollTop;
-            scrollLeft = containedElement.scrollLeft;
-          }
-          Polymer.IronFitBehavior.refit.apply(this, arguments);
-
-          if (containedElement) {
-            containedElement.scrollTop = scrollTop;
-            containedElement.scrollLeft = scrollLeft;
-          }
-        },
-
-        /**
          * Apply focus to focusTarget or containedElement
          */
         _applyFocus: function () {
