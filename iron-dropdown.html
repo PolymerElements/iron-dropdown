@@ -168,6 +168,11 @@ method is called on the element.
           return this.focusTarget || this.containedElement;
         },
 
+        detached: function() {
+          this.cancelAnimation();
+          Polymer.IronDropdownScrollManager.removeScrollLock(this);
+        },
+
         /**
          * Called when the value of `opened` changes.
          * Overridden from `IronOverlayBehavior`
@@ -192,10 +197,7 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _renderOpened: function() {
-          if (!this.noAnimations && this.animationConfig && this.animationConfig.open) {
-            if (this.withBackdrop) {
-              this.backdropElement.open();
-            }
+          if (!this.noAnimations && this.animationConfig.open) {
             this.$.contentWrapper.classList.add('animating');
             this.playAnimation('open');
           } else {
@@ -207,10 +209,7 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _renderClosed: function() {
-          if (!this.noAnimations && this.animationConfig && this.animationConfig.close) {
-            if (this.withBackdrop) {
-              this.backdropElement.close();
-            }
+          if (!this.noAnimations && this.animationConfig.close) {
             this.$.contentWrapper.classList.add('animating');
             this.playAnimation('close');
           } else {
@@ -227,9 +226,9 @@ method is called on the element.
         _onNeonAnimationFinish: function() {
           this.$.contentWrapper.classList.remove('animating');
           if (this.opened) {
-            Polymer.IronOverlayBehaviorImpl._finishRenderOpened.apply(this);
+            this._finishRenderOpened();
           } else {
-            Polymer.IronOverlayBehaviorImpl._finishRenderClosed.apply(this);
+            this._finishRenderClosed();
           }
         },
 
@@ -238,24 +237,14 @@ method is called on the element.
          * to configure specific parts of the opening and closing animations.
          */
         _updateAnimationConfig: function() {
-          var animationConfig = {};
-          var animations = [];
-
-          if (this.openAnimationConfig) {
-            animationConfig.open = this.openAnimationConfig;
-            animations = animations.concat(animationConfig.open);
+          var animations = (this.openAnimationConfig || []).concat(this.closeAnimationConfig || []);
+          for (var i = 0; i < animations.length; i++) {
+            animations[i].node = this.containedElement;
           }
-
-          if (this.closeAnimationConfig) {
-            animationConfig.close = this.closeAnimationConfig;
-            animations = animations.concat(animationConfig.close);
-          }
-
-          animations.forEach(function(animation) {
-            animation.node = this.containedElement;
-          }, this);
-
-          this.animationConfig = animationConfig;
+          this.animationConfig = {
+            open: this.openAnimationConfig,
+            close: this.closeAnimationConfig
+          };
         },
 
         /**
