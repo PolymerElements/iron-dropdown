@@ -318,15 +318,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setup(function() {
           parent = fixture('AlignedDropdown');
           dropdown = parent.querySelector('iron-dropdown');
+          parentRect = parent.getBoundingClientRect();
         });
 
         test('can be re-aligned to the right and the top', function(done) {
           runAfterOpen(dropdown, function() {
             dropdownRect = dropdown.getBoundingClientRect();
-            parentRect = parent.getBoundingClientRect();
             assert.equal(dropdownRect.top, parentRect.top, 'top ok');
             assert.equal(dropdownRect.left, 0, 'left ok');
-            assert.equal(dropdownRect.bottom, document.documentElement.clientHeight, 'bottom ok');
+            assert.equal(dropdownRect.bottom, window.innerHeight, 'bottom ok');
             assert.equal(dropdownRect.right, parentRect.right, 'right ok');
             done();
           });
@@ -335,7 +335,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         test('can be re-aligned to the bottom', function(done) {
           dropdown.verticalAlign = 'bottom';
           runAfterOpen(dropdown, function() {
-            parentRect = parent.getBoundingClientRect();
             dropdownRect = dropdown.getBoundingClientRect();
             assert.equal(dropdownRect.top, 0, 'top ok');
             assert.equal(dropdownRect.left, 0, 'left ok');
@@ -350,10 +349,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           parent.style.transform = 'translateZ(0)';
           runAfterOpen(dropdown, function() {
             dropdownRect = dropdown.getBoundingClientRect();
-            parentRect = parent.getBoundingClientRect();
             assert.equal(dropdownRect.top, parentRect.top, 'top ok');
             assert.equal(dropdownRect.left, 0, 'left ok');
-            assert.equal(dropdownRect.bottom, document.documentElement.clientHeight, 'bottom ok');
+            assert.equal(dropdownRect.bottom, window.innerHeight, 'bottom ok');
             assert.equal(dropdownRect.right, parentRect.right, 'right ok');
             done();
           });
