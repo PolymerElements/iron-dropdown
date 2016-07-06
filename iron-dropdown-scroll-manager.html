@@ -49,35 +49,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         var currentLockingElement = this.currentLockingElement;
-        if (currentLockingElement === undefined)
+        if (currentLockingElement === undefined) {
           return false;
+        }
+
+        var xDelta = event.wheelDeltaX;
+        var yDelta = event.wheelDeltaY;
+        if (event.type === 'touchmove' && lastTouch) {
+          xDelta = lastTouch.pageX - event.pageX;
+          yDelta = event.pageY - lastTouch.pageY;
+        }
 
         var nodes = Polymer.dom(event).path;
         var lockingIndex = nodes.indexOf(currentLockingElement);
-        var isScrollingRight = event.wheelDeltaX > 0;
-        var isScrollingUp = event.wheelDeltaY > 0;
-        if (event.type === 'touchmove' && lastTouch) {
-          isScrollingUp = event.pageY > lastTouch.pageY;
-          isScrollingRight = lastTouch.pageX > event.pageX;
-        }
         // Search for one scrollable that can still scroll, stop at the locked element.
         for (var i = 0; i < lockingIndex; i++) {
           var node = nodes[i];
-          // Skip nodes that are not scrollable.
-          if (node.scrollHeight <= node.clientHeight && node.scrollWidth <= node.clientWidth) {
-            continue;
+
+          // Check either vertical or horizontal, according to where
+          // there was more scroll.
+          var scrollDelta, scrollableSize, scrollPos;
+          if (Math.abs(yDelta) >= Math.abs(xDelta)) {
+            scrollDelta = yDelta;
+            scrollableSize = node.scrollHeight - node.clientHeight;
+            scrollPos = node.scrollTop;
+          } else {
+            scrollDelta = xDelta;
+            scrollableSize = node.scrollWidth - node.clientWidth;
+            scrollPos = node.scrollLeft;
           }
-          var canScrollVertically = isScrollingUp ? node.scrollTop > 0 :
-              node.scrollTop + node.clientHeight < node.scrollHeight;
-          var canScrollHorizontally = isScrollingRight ? node.scrollLeft > 0 :
-              node.scrollLeft + node.clientWidth < node.scrollWidth;
           // If it can scroll, don't prevent.
-          if (canScrollVertically || canScrollHorizontally) {
+          if (scrollDelta !== 0 && scrollableSize > 0 &&
+              (scrollDelta > 0 ? scrollPos > 0 : scrollPos < scrollableSize)) {
             return false;
           }
         }
         // Don't prevent if event's target is currentLockingElement.
-        return (lockingIndex !== 0);
+        return lockingIndex !== 0;
       },
 
       /**
