@@ -23,7 +23,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      * allowed to scroll.
      */
 
-
     Polymer.IronDropdownScrollManager = {
 
       /**
@@ -151,6 +150,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _lockScrollInteractions: function() {
+        // Memoize body scroll position
+        this._saveScrollPosition();
+        document.addEventListener('scroll', this._restoreScrollPosition, true);
+
         // Modern `wheel` event for mouse wheel scrolling:
         document.addEventListener('wheel', this._scrollInteractionHandler, true);
         // Older, non-standard `mousewheel` event for some FF:
@@ -164,11 +167,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _unlockScrollInteractions: function() {
+        document.removeEventListener('scroll', this._restoreScrollPosition, true);
         document.removeEventListener('wheel', this._scrollInteractionHandler, true);
         document.removeEventListener('mousewheel', this._scrollInteractionHandler, true);
         document.removeEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
         document.removeEventListener('touchmove', this._scrollInteractionHandler, true);
         document.removeEventListener('keydown', this._scrollInteractionHandler, true);
+      },
+
+      /**
+       * Memoizes the scroll position of the outside scrolling element.
+       * @private
+       */
+      _saveScrollPosition: function() {
+        if (document.scrollingElement) {
+          this._scrollTop = document.scrollingElement.scrollTop;
+          this._scrollLeft = document.scrollingElement.scrollLeft;
+        } else {
+          // Since we don't know if is the body or html, get max.
+          this._scrollTop = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
+          this._scrollLeft = Math.max(document.documentElement.scrollLeft, document.body.scrollLeft);
+        }
+      },
+
+      /**
+       * Resets the scroll position of the outside scrolling element.
+       * @private
+       */
+      _restoreScrollPosition: function() {
+        if (document.scrollingElement) {
+          document.scrollingElement.scrollTop = this._scrollTop;
+          document.scrollingElement.scrollLeft = this._scrollLeft;
+        } else {
+          // Since we don't know if is the body or html, set both.
+          document.documentElement.scrollTop = this._scrollTop;
+          document.documentElement.scrollLeft = this._scrollLeft;
+          document.body.scrollTop = this._scrollTop;
+          document.body.scrollLeft = this._scrollLeft;
+        }
       }
     };
   })();
