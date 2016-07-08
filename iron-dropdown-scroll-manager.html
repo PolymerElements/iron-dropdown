@@ -43,8 +43,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        */
       shouldPreventScrolling: function(event) {
         // Avoid expensive checks if the event is not one of the observed keys.
-        if (event.type === 'keydown' && !this._isScrollingKeypress(event)) {
-          return false;
+        if (event.type === 'keydown') {
+          // Prevent event if it is one of the scrolling keys.
+          return this._isScrollingKeypress(event);
         }
 
         var lockingElement = this.currentLockingElement;
@@ -130,8 +131,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _lockingElements: [],
-
-      _originalBodyStyles: {},
 
       _isScrollingKeypress: function(event) {
         return Polymer.IronA11yKeysBehavior.keyboardEventMatchesKeys(
