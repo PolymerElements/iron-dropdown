@@ -35,8 +35,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     function fireWheel(node, deltaX, deltaY) {
       // IE 11 doesn't support WheelEvent, use CustomEvent.
       var event = new CustomEvent('wheel', {cancelable: true, bubbles: true});
-      event.wheelDeltaX = deltaX;
-      event.wheelDeltaY = deltaY;
+      event.deltaX = deltaX;
+      event.deltaY = deltaY;
       node.dispatchEvent(event);
       return event;
     }
@@ -68,42 +68,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
 
         test('recognizes sibling as locked', function() {
-          expect(fireWheel(childTwo, 0, -10).defaultPrevented).to.be.equal(true);
+          expect(fireWheel(childTwo, 0, 10).defaultPrevented).to.be.equal(true);
         });
 
         test('recognizes neice as locked', function() {
-          expect(fireWheel(grandChildTwo, 0, -10).defaultPrevented).to.be.equal(true);
+          expect(fireWheel(grandChildTwo, 0, 10).defaultPrevented).to.be.equal(true);
         });
 
         test('recognizes parent as locked', function() {
-          expect(fireWheel(parent, 0, -10).defaultPrevented).to.be.equal(true);
+          expect(fireWheel(parent, 0, 10).defaultPrevented).to.be.equal(true);
         });
 
         test('recognizes ancestor as locked', function() {
-          expect(fireWheel(ancestor, 0, -10).defaultPrevented).to.be.equal(true);
+          expect(fireWheel(ancestor, 0, 10).defaultPrevented).to.be.equal(true);
         });
 
         test('recognizes locking child as unlocked', function() {
-          expect(fireWheel(childOne, 0, -10).defaultPrevented).to.be.equal(false);
+          expect(fireWheel(childOne, 0, 10).defaultPrevented).to.be.equal(false);
         });
 
         test('recognizes descendant of locking child as unlocked', function() {
-          expect(fireWheel(grandChildOne, 0, -10).defaultPrevented).to.be.equal(false);
+          expect(fireWheel(grandChildOne, 0, 10).defaultPrevented).to.be.equal(false);
         });
 
         test('unlocks locked elements when there are no locking elements', function() {
           Polymer.IronDropdownScrollManager.removeScrollLock(childOne);
 
-          expect(fireWheel(parent, 0, -10).defaultPrevented).to.be.equal(false);
+          expect(fireWheel(parent, 0, 10).defaultPrevented).to.be.equal(false);
         });
 
         test('does not check locked elements when there are no locking elements', function() {
           sinon.spy(Polymer.IronDropdownScrollManager, 'shouldPreventScrolling');
-          fireWheel(childOne, 0, -10);
+          fireWheel(childOne, 0, 10);
           expect(Polymer.IronDropdownScrollManager
               .shouldPreventScrolling.callCount).to.be.eql(1);
           Polymer.IronDropdownScrollManager.removeScrollLock(childOne);
-          fireWheel(childOne, 0, -10);
+          fireWheel(childOne, 0, 10);
           expect(Polymer.IronDropdownScrollManager
               .shouldPreventScrolling.callCount).to.be.eql(1);
         });
@@ -125,8 +125,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 bubbles: true,
                 cancelable: true
               });
-              event.wheelDeltaX = 0;
-              event.wheelDeltaY = -10;
+              event.deltaX = 0;
+              event.deltaY = 10;
               return event;
             });
           });
