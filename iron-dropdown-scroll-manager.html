@@ -47,39 +47,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return false;
         }
 
-        var currentLockingElement = this.currentLockingElement;
-        if (currentLockingElement === undefined) {
+        var lockingElement = this.currentLockingElement;
+        if (!lockingElement) {
           return false;
         }
 
-        var xDelta = event.wheelDeltaX;
-        var yDelta = event.wheelDeltaY;
-        if (event.type === 'touchmove' && lastTouch) {
-          xDelta = lastTouch.pageX - event.pageX;
-          yDelta = event.pageY - lastTouch.pageY;
-        }
+        // Makes sure deltaX/Y are set.
+        this._normalizeWheelDelta(event);
 
-        var nodes = Polymer.dom(event).path;
-        var lockingIndex = nodes.indexOf(currentLockingElement);
+        var eventPath = Polymer.dom(event).path;
+        var lockingIndex = eventPath.indexOf(lockingElement);
         // Search for one scrollable that can still scroll, stop at the locked element.
         for (var i = 0; i < lockingIndex; i++) {
-          var node = nodes[i];
+          var node = eventPath[i];
 
           // Check either vertical or horizontal, according to where
           // there was more scroll.
           var scrollDelta, scrollableSize, scrollPos;
-          if (Math.abs(yDelta) >= Math.abs(xDelta)) {
-            scrollDelta = yDelta;
+          if (Math.abs(event.deltaY) >= Math.abs(event.deltaX)) {
+            scrollDelta = event.deltaY;
             scrollableSize = node.scrollHeight - node.clientHeight;
             scrollPos = node.scrollTop;
           } else {
-            scrollDelta = xDelta;
+            scrollDelta = event.deltaX;
             scrollableSize = node.scrollWidth - node.clientWidth;
             scrollPos = node.scrollLeft;
           }
           // If it can scroll, don't prevent.
           if (scrollDelta !== 0 && scrollableSize > 0 &&
-              (scrollDelta > 0 ? scrollPos > 0 : scrollPos < scrollableSize)) {
+            (scrollDelta < 0 ? scrollPos > 0 : scrollPos < scrollableSize)) {
             return false;
           }
         }
@@ -168,8 +164,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         document.removeEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
         document.removeEventListener('touchmove', this._scrollInteractionHandler, true);
         document.removeEventListener('keydown', this._scrollInteractionHandler, true);
+      },
+
+      /**
+       * Normalizes `deltaX` and `deltaY` of the wheel event.
+       * Positive value: scroll down/right
+       * Negative value: scroll up/left.
+       * @private
+       */
+      _normalizeWheelDelta: function(event) {
+        // Already set, return.
+        if (event.deltaX || event.deltaY) {
+          return;
+        }
+        // Safari has scroll info in `wheelDeltaX/Y`.
+        if (event.wheelDeltaX || event.wheelDeltaY) {
+          event.deltaX = -event.wheelDeltaX;
+          event.deltaY = -event.wheelDeltaY;
+        }
+        // Firefox has scroll info in `detail` and `axis`.
+        else if (event.axis) {
+          event.deltaX = event.axis === 1 ? event.detail : 0;
+          event.deltaY = event.axis === 2 ? event.detail : 0;
+        }
+        // Mobile devices, must calculate the scroll direction.
+        else if (event.type === 'touchmove' && lastTouch) {
+          event.deltaX = event.pageX - lastTouch.pageX;
+          event.deltaY = lastTouch.pageY - event.pageY;
+        }
       }
     };
   })();
-
 </script>
