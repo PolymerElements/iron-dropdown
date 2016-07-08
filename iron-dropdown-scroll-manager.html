@@ -15,7 +15,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   (function() {
     'use strict';
     // Used to calculate the scroll direction.
-    var lastTouch = null;
+    var PREV_EVENT = null;
+    var EVENT_PATH = [];
 
     /**
      * The IronDropdownScrollManager is intended to provide a central source
@@ -35,8 +36,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
       /**
-       * Returns true if the element causing the scroll is "scroll locked," which is to
-       * say that it cannot be scrolled via pointer or keyboard interactions, or
+       * Returns true if the element causing the scroll is "scroll locked",
+       * meaning it cannot be scrolled via pointer or keyboard interactions, or
        * if already at its scroll boundaries.
        *
        * @param {Event} event The scroll event
@@ -55,32 +56,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Makes sure deltaX/Y are set.
         this._normalizeWheelDelta(event);
+        // No scrolling.
+        if (!event.deltaX && !event.deltaY) {
+          return false;
+        }
+        // Check either vertical or horizontal, according to where
+        // there was more scroll.
+        var scrollDelta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ?
+          event.deltaY : event.deltaX;
 
-        var eventPath = Polymer.dom(event).path;
-        var lockingIndex = eventPath.indexOf(lockingElement);
+        // Check if EVENT_PATH needs to be updated. For touch events rely on the
+        // `EVENT_PATH` saved on touchstart.
+        if (event.type !== 'touchmove') {
+          EVENT_PATH = Polymer.dom(event).path;
+        }
+        var lockingIndex = EVENT_PATH.indexOf(lockingElement);
         // Search for one scrollable that can still scroll, stop at the locked element.
         for (var i = 0; i < lockingIndex; i++) {
-          var node = eventPath[i];
-
-          // Check either vertical or horizontal, according to where
-          // there was more scroll.
-          var scrollDelta, scrollableSize, scrollPos;
-          if (Math.abs(event.deltaY) >= Math.abs(event.deltaX)) {
-            scrollDelta = event.deltaY;
-            scrollableSize = node.scrollHeight - node.clientHeight;
-            scrollPos = node.scrollTop;
-          } else {
-            scrollDelta = event.deltaX;
-            scrollableSize = node.scrollWidth - node.clientWidth;
-            scrollPos = node.scrollLeft;
-          }
+          var node = EVENT_PATH[i];
+          var scrollableSize = scrollDelta === event.deltaY ?
+            node.scrollHeight - node.clientHeight : node.scrollWidth - node.clientWidth;
+          var scrollPos = scrollDelta === event.deltaY ? node.scrollTop : node.scrollLeft;
           // If it can scroll, don't prevent.
-          if (scrollDelta !== 0 && scrollableSize > 0 &&
-            (scrollDelta < 0 ? scrollPos > 0 : scrollPos < scrollableSize)) {
+          if (scrollableSize > 0 && (scrollDelta < 0 ? scrollPos > 0 : scrollPos < scrollableSize)) {
             return false;
           }
         }
-        // Don't prevent if event's target is currentLockingElement.
+        // Don't prevent if event's target is the current locking element.
         return lockingIndex !== 0;
       },
 
@@ -132,6 +134,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _lockingElements: [],
 
+      _touchstartHandler: function(event) {
+        // Memoize it, since on mobile the scroll gesture might happen outside
+        // the element initially touched.
+        EVENT_PATH = Polymer.dom(event).path;
+      },
+
       _isScrollingKeypress: function(event) {
         return Polymer.IronA11yKeysBehavior.keyboardEventMatchesKeys(
           event, 'pageup pagedown home end up left down right');
@@ -141,7 +149,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (Polymer.IronDropdownScrollManager.shouldPreventScrolling(event)) {
           event.preventDefault();
         }
-        lastTouch = event;
+        PREV_EVENT = event;
       },
 
       _lockScrollInteractions: function() {
@@ -151,6 +159,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         document.addEventListener('mousewheel', this._scrollInteractionHandler, true);
         // IE:
         document.addEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
+        // Save the EVENT_PATH on touchstart, to be used on touchmove.
+        document.addEventListener('touchstart', this._touchstartHandler, true);
         // Mobile devices can scroll on touch move:
         document.addEventListener('touchmove', this._scrollInteractionHandler, true);
         // Capture keydown to prevent scrolling keys (pageup, pagedown etc.)
@@ -161,6 +171,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         document.removeEventListener('wheel', this._scrollInteractionHandler, true);
         document.removeEventListener('mousewheel', this._scrollInteractionHandler, true);
         document.removeEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
+        document.removeEventListener('touchstart', this._touchstartHandler, true);
         document.removeEventListener('touchmove', this._scrollInteractionHandler, true);
         document.removeEventListener('keydown', this._scrollInteractionHandler, true);
       },
@@ -187,9 +198,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           event.deltaY = event.axis === 2 ? event.detail : 0;
         }
         // Mobile devices, must calculate the scroll direction.
-        else if (event.type === 'touchmove' && lastTouch) {
-          event.deltaX = event.pageX - lastTouch.pageX;
-          event.deltaY = lastTouch.pageY - event.pageY;
+        else if (event.type === 'touchmove' && PREV_EVENT) {
+          event.deltaX = event.pageX - PREV_EVENT.pageX;
+          event.deltaY = PREV_EVENT.pageY - event.pageY;
         }
       }
     };
