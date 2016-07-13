@@ -201,26 +201,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         var lockingIndex = EVENT_PATH.indexOf(this.currentLockingElement);
-        // Prevent event dispatched by an element outside the locking element,
-        // don't prevent event dispatched by the locking element.
-        if (lockingIndex <= 0) {
-          return lockingIndex < 0;
+        // Prevent event dispatched by an element outside the locking element.
+        if (lockingIndex < 0) {
+          return true;
+        }
+        // Don't prevent touchstart events inside the locking element.
+        if (event.type === 'touchstart') {
+          return false;
         }
 
         // Makes sure deltaX/Y are set.
         this._normalizeWheelDelta(event);
-        // If no scroll (e.g. on touchstart), don't prevent.
-        if (!event.deltaX && !event.deltaY) {
-          return false;
-        }
 
         // Prevent if there is no child inside locking element that can scroll.
         var shouldPrevent = true;
         // Check either vertical or horizontal, according to where
         // there was more scroll. Prefer vertical over horizontal.
         var isScrollVertical = Math.abs(event.deltaY) >= Math.abs(event.deltaX);
-        // Loop from root target to locking element (excluded).
-        for (var i = 0; i < lockingIndex; i++) {
+        // Loop from root target to locking element (included).
+        for (var i = 0; i <= lockingIndex; i++) {
           var node = EVENT_PATH[i];
           var canScroll = false;
           if (isScrollVertical) {
@@ -263,8 +262,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           event.deltaX = event.axis === 1 ? event.detail : 0;
           event.deltaY = event.axis === 2 ? event.detail : 0;
         }
-        // Mobile devices, must calculate the scroll direction.
-        else if (event.type === 'touchmove' && PREV_EVENT) {
+        // On mobile devices, calculate scroll direction using targetTouches.
+        else if (event.targetTouches && PREV_EVENT) {
           var currentTouch = event.targetTouches[0];
           var previousTouch = PREV_EVENT.targetTouches[0];
           event.deltaX = currentTouch.pageX - previousTouch.pageX;
