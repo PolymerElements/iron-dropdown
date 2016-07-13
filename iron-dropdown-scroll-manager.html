@@ -219,25 +219,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return false;
         }
 
-        // Makes sure deltaX/Y are set.
-        this._normalizeWheelDelta(event);
+        // Get deltaX/Y info.
+        var info = this._getScrollDeltaInfo(event);
 
         // Prevent if there is no child inside locking element that can scroll.
         var shouldPrevent = true;
         // Check either vertical or horizontal, according to where
         // there was more scroll. Prefer vertical over horizontal.
-        var isScrollVertical = Math.abs(event.deltaY) >= Math.abs(event.deltaX);
+        var verticalScroll = Math.abs(info.deltaY) >= Math.abs(info.deltaX);
         // Loop from root target to locking element (included).
         for (var i = 0; i <= lockingIndex; i++) {
           var node = EVENT_PATH[i];
           var canScroll = false;
-          if (isScrollVertical) {
+          if (verticalScroll) {
             // delta < 0 = scroll up, else scroll down.
-            canScroll = event.deltaY < 0 ? node.scrollTop > 0 :
+            canScroll = info.deltaY < 0 ? node.scrollTop > 0 :
               node.scrollTop < node.scrollHeight - node.clientHeight;
           } else {
             // delta < 0 = scroll left, else scroll right.
-            canScroll = event.deltaX < 0 ? node.scrollLeft > 0 :
+            canScroll = info.deltaX < 0 ? node.scrollLeft > 0 :
               node.scrollLeft < node.scrollWidth - node.clientWidth;
           }
           // If it can scroll, don't prevent.
@@ -250,33 +250,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       /**
-       * Normalizes `deltaX` and `deltaY` of the event.
+       * Returns `deltaX` and `deltaY` of the event normalized cross-browsers.
        * Positive value: scroll down/right
        * Negative value: scroll up/left.
        * @param {!Event} event The scroll event
+       * @return {{
+       *  deltaX: number,
+       *  deltaY: number}} info
        * @private
        */
-      _normalizeWheelDelta: function(event) {
-        // Already set, return.
+      _getScrollDeltaInfo: function(event) {
+        var info = {
+          deltaX: event.deltaX,
+          deltaY: event.deltaY
+        };
+        // Already available.
         if (event.deltaX || event.deltaY) {
-          return;
+          // do nothing, values are already good.
         }
         // Safari has scroll info in `wheelDeltaX/Y`.
-        if (event.wheelDeltaX || event.wheelDeltaY) {
-          event.deltaX = -event.wheelDeltaX;
-          event.deltaY = -event.wheelDeltaY;
+        else if (event.wheelDeltaX || event.wheelDeltaY) {
+          info.deltaX = -event.wheelDeltaX;
+          info.deltaY = -event.wheelDeltaY;
         }
         // Firefox has scroll info in `detail` and `axis`.
         else if (event.axis) {
-          event.deltaX = event.axis === 1 ? event.detail : 0;
-          event.deltaY = event.axis === 2 ? event.detail : 0;
+          info.deltaX = event.axis === 1 ? event.detail : 0;
+          info.deltaY = event.axis === 2 ? event.detail : 0;
         }
         // On mobile devices, calculate scroll direction.
         else {
           var touch = this._getTouchFromEvent(event);
-          event.deltaX = touch.pageX - PREVIOUS_TOUCH.pageX;
-          event.deltaY = PREVIOUS_TOUCH.pageY - touch.pageY;
+          info.deltaX = touch.pageX - PREVIOUS_TOUCH.pageX;
+          info.deltaY = PREVIOUS_TOUCH.pageY - touch.pageY;
         }
+        return info;
       }
     };
   })();
