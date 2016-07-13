@@ -15,7 +15,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   (function() {
     'use strict';
     // Used to calculate the scroll direction.
-    var PREV_EVENT = null;
+    var PREVIOUS_TOUCH = {
+      pageX: 0,
+      pageY: 0
+    };
     // Memoized event path for better perf. For touch events, it gets saved on
     // touchstart and consumed during touchmove.
     var EVENT_PATH = [];
@@ -148,7 +151,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this._shouldPreventScrolling(event)) {
           event.preventDefault();
         }
-        PREV_EVENT = event;
+        var touch = this._getTouchFromEvent(event);
+        PREVIOUS_TOUCH.pageX = touch.pageX;
+        PREVIOUS_TOUCH.pageY = touch.pageY;
       },
 
       _lockScrollInteractions: function() {
@@ -175,6 +180,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         document.removeEventListener('touchstart', this._boundScrollHandler, true);
         document.removeEventListener('touchmove', this._boundScrollHandler, true);
         document.removeEventListener('keydown', this._boundScrollHandler, true);
+      },
+
+      _getTouchFromEvent: function(event) {
+        return event.targetTouches ? event.targetTouches[0] : event;
       },
 
       /**
@@ -262,12 +271,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           event.deltaX = event.axis === 1 ? event.detail : 0;
           event.deltaY = event.axis === 2 ? event.detail : 0;
         }
-        // On mobile devices, calculate scroll direction using targetTouches.
-        else if (event.targetTouches && PREV_EVENT) {
-          var currentTouch = event.targetTouches[0];
-          var previousTouch = PREV_EVENT.targetTouches[0];
-          event.deltaX = currentTouch.pageX - previousTouch.pageX;
-          event.deltaY = previousTouch.pageY - currentTouch.pageY;
+        // On mobile devices, calculate scroll direction.
+        else {
+          var touch = this._getTouchFromEvent(event);
+          event.deltaX = touch.pageX - PREVIOUS_TOUCH.pageX;
+          event.deltaY = PREVIOUS_TOUCH.pageY - touch.pageY;
         }
       }
     };
