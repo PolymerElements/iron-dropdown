@@ -16,6 +16,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     'use strict';
     // Used to calculate the scroll direction.
     var PREV_EVENT = null;
+    // Memoized event path for better perf. For touch events, it gets saved on
+    // touchstart and consumed during touchmove.
     var EVENT_PATH = [];
 
     /**
@@ -143,11 +145,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _scrollInteractionHandler: function(event) {
-        if (event.type === 'touchstart') {
-          // Memoize it, since on mobile the scroll gesture might happen outside
-          // the element initially touched.
-          EVENT_PATH = Polymer.dom(event).path;
-        }
         if (this._shouldPreventScrolling(event)) {
           event.preventDefault();
         }
@@ -190,57 +187,65 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        * @private
        */
       _shouldPreventScrolling: function(event) {
-        var lockingElement = this.currentLockingElement;
-        if (!lockingElement) {
-          return false;
-        }
         // Avoid expensive checks if the event is not one of the observed keys.
         if (event.type === 'keydown') {
           // Prevent event if it is one of the scrolling keys.
           return this._isScrollingKeypress(event);
         }
 
-        // Makes sure deltaX/Y are set.
-        this._normalizeWheelDelta(event);
-
-        // Check either vertical or horizontal, according to where
-        // there was more scroll.
-        var isScrollVertical = Math.abs(event.deltaY) >= Math.abs(event.deltaX);
-        // delta < 0 = scroll up, delta > 0 = scroll down.
-        var isScrollUp = isScrollVertical ? event.deltaY < 0 : event.deltaX < 0;
-
-        // EVENT_PATH is memoized for better perf and updated if needed.
-        // For touch events rely on the EVENT_PATH saved on touchstart.
+        // Update if root target changed. For touch events, ensure we don't
+        // update during touchmove.
         if (event.type !== 'touchmove' &&
           EVENT_PATH[0] !== Polymer.dom(event).rootTarget) {
           EVENT_PATH = Polymer.dom(event).path;
         }
-        // Search for one scrollable that can still scroll up to locked element.
-        var lockingIndex = EVENT_PATH.indexOf(lockingElement);
-        var i, node, canScroll;
-        for (i = 0; i < lockingIndex; i++) {
-          node = EVENT_PATH[i];
-          canScroll = false;
+
+        var lockingIndex = EVENT_PATH.indexOf(this.currentLockingElement);
+        // Prevent event dispatched by an element outside the locking element,
+        // don't prevent event dispatched by the locking element.
+        if (lockingIndex <= 0) {
+          return lockingIndex < 0;
+        }
+
+        // Makes sure deltaX/Y are set.
+        this._normalizeWheelDelta(event);
+        // If no scroll (e.g. on touchstart), don't prevent.
+        if (!event.deltaX && !event.deltaY) {
+          return false;
+        }
+
+        // Prevent if there is no child inside locking element that can scroll.
+        var shouldPrevent = true;
+        // Check either vertical or horizontal, according to where
+        // there was more scroll. Prefer vertical over horizontal.
+        var isScrollVertical = Math.abs(event.deltaY) >= Math.abs(event.deltaX);
+        // Loop from root target to locking element (excluded).
+        for (var i = 0; i < lockingIndex; i++) {
+          var node = EVENT_PATH[i];
+          var canScroll = false;
           if (isScrollVertical) {
-            canScroll = isScrollUp ? node.scrollTop > 0 :
+            // delta < 0 = scroll up, else scroll down.
+            canScroll = event.deltaY < 0 ? node.scrollTop > 0 :
               node.scrollTop < node.scrollHeight - node.clientHeight;
           } else {
-            canScroll = isScrollUp ? node.scrollLeft > 0 :
+            // delta < 0 = scroll left, else scroll right.
+            canScroll = event.deltaX < 0 ? node.scrollLeft > 0 :
               node.scrollLeft < node.scrollWidth - node.clientWidth;
           }
           // If it can scroll, don't prevent.
           if (canScroll) {
-            return false;
+            shouldPrevent = false;
+            break;
           }
         }
-        // Don't prevent if event's target is the current locking element.
-        return lockingIndex !== 0;
+        return shouldPrevent;
       },
 
       /**
-       * Normalizes `deltaX` and `deltaY` of the wheel event.
+       * Normalizes `deltaX` and `deltaY` of the event.
        * Positive value: scroll down/right
        * Negative value: scroll up/left.
+       * @param {!Event} event The scroll event
        * @private
        */
       _normalizeWheelDelta: function(event) {
