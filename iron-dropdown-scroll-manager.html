@@ -33,8 +33,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       get currentLockingElement() {
         return this._lockingElements[this._lockingElements.length - 1];
       },
-
-
+      
       /**
        * Returns true if the element causing the scroll is "scroll locked",
        * meaning it cannot be scrolled via pointer or keyboard interactions, or
@@ -43,42 +42,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        * @param {Event} event The scroll event
        */
       shouldPreventScrolling: function(event) {
+        var lockingElement = this.currentLockingElement;
+        if (!lockingElement) {
+          return false;
+        }
         // Avoid expensive checks if the event is not one of the observed keys.
         if (event.type === 'keydown') {
           // Prevent event if it is one of the scrolling keys.
           return this._isScrollingKeypress(event);
         }
 
-        var lockingElement = this.currentLockingElement;
-        if (!lockingElement) {
-          return false;
-        }
-
         // Makes sure deltaX/Y are set.
         this._normalizeWheelDelta(event);
-        // No scrolling.
-        if (!event.deltaX && !event.deltaY) {
-          return false;
-        }
+
         // Check either vertical or horizontal, according to where
         // there was more scroll.
-        var scrollDelta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ?
-          event.deltaY : event.deltaX;
+        var isScrollVertical = Math.abs(event.deltaY) >= Math.abs(event.deltaX);
+        // delta < 0 = scroll up, delta > 0 = scroll down.
+        var isScrollUp = isScrollVertical ? event.deltaY < 0 : event.deltaX < 0;
 
-        // Check if EVENT_PATH needs to be updated. For touch events rely on the
-        // `EVENT_PATH` saved on touchstart.
-        if (event.type !== 'touchmove') {
+        // EVENT_PATH is memoized for better perf and updated if needed.
+        // For touch events rely on the EVENT_PATH saved on touchstart.
+        if (event.type !== 'touchmove' &&
+          EVENT_PATH[0] !== Polymer.dom(event).rootTarget) {
           EVENT_PATH = Polymer.dom(event).path;
         }
+        // Search for one scrollable that can still scroll up to locked element.
         var lockingIndex = EVENT_PATH.indexOf(lockingElement);
-        // Search for one scrollable that can still scroll, stop at the locked element.
-        for (var i = 0; i < lockingIndex; i++) {
-          var node = EVENT_PATH[i];
-          var scrollableSize = scrollDelta === event.deltaY ?
-            node.scrollHeight - node.clientHeight : node.scrollWidth - node.clientWidth;
-          var scrollPos = scrollDelta === event.deltaY ? node.scrollTop : node.scrollLeft;
+        var i, node, canScroll;
+        for (i = 0; i < lockingIndex; i++) {
+          node = EVENT_PATH[i];
+          canScroll = false;
+          if (isScrollVertical) {
+            canScroll = isScrollUp ? node.scrollTop > 0 :
+              node.scrollTop < node.scrollHeight - node.clientHeight;
+          } else {
+            canScroll = isScrollUp ? node.scrollLeft > 0 :
+              node.scrollLeft < node.scrollWidth - node.clientWidth;
+          }
           // If it can scroll, don't prevent.
-          if (scrollableSize > 0 && (scrollDelta < 0 ? scrollPos > 0 : scrollPos < scrollableSize)) {
+          if (canScroll) {
             return false;
           }
         }
@@ -138,6 +141,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Memoize it, since on mobile the scroll gesture might happen outside
         // the element initially touched.
         EVENT_PATH = Polymer.dom(event).path;
+        // Will prevent if touch happened outside the locked element.
+        Polymer.IronDropdownScrollManager._scrollInteractionHandler(event);
       },
 
       _isScrollingKeypress: function(event) {
@@ -199,8 +204,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         // Mobile devices, must calculate the scroll direction.
         else if (event.type === 'touchmove' && PREV_EVENT) {
-          event.deltaX = event.pageX - PREV_EVENT.pageX;
-          event.deltaY = PREV_EVENT.pageY - event.pageY;
+          var currentTouch = event.targetTouches[0];
+          var previousTouch = PREV_EVENT.targetTouches[0];
+          event.deltaX = currentTouch.pageX - previousTouch.pageX;
+          event.deltaY = previousTouch.pageY - currentTouch.pageY;
         }
       }
     };
