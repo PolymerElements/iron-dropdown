@@ -14,13 +14,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script>
   (function() {
     'use strict';
-    // Used to calculate the scroll direction.
-    var PREVIOUS_TOUCH = {
+    // Used to calculate the scroll direction during touch events.
+    var LAST_TOUCH_POSITION = {
       pageX: 0,
       pageY: 0
     };
-    // Memoize target and scrollable nodes for better perf.
-    var PREVIOUS_TARGET = null;
+    // Used to avoid computing event.path and filter scrollable nodes (better perf).
+    var ROOT_TARGET = null;
     var SCROLLABLE_NODES = [];
 
     /**
@@ -148,12 +148,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _scrollInteractionHandler: function(event) {
-        if (this._shouldPreventScrolling(event)) {
+        // Avoid canceling an event with cancelable=false, e.g. scrolling is in
+        // progress and cannot be interrupted.
+        if (event.cancelable && this._shouldPreventScrolling(event)) {
           event.preventDefault();
         }
-        var touch = this._getTouchFromEvent(event);
-        PREVIOUS_TOUCH.pageX = touch.pageX;
-        PREVIOUS_TOUCH.pageY = touch.pageY;
+        // If event has targetTouches (touch event), update last touch position.
+        if (event.targetTouches) {
+          var touch = event.targetTouches[0];
+          LAST_TOUCH_POSITION.pageX = touch.pageX;
+          LAST_TOUCH_POSITION.pageY = touch.pageY;
+        }
       },
 
       _lockScrollInteractions: function() {
@@ -182,25 +187,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         document.removeEventListener('keydown', this._boundScrollHandler, true);
       },
 
-      _getTouchFromEvent: function(event) {
-        return event.targetTouches ? event.targetTouches[0] : event;
-      },
-
       /**
        * Returns true if the event causes scroll outside the current locking
-       * element, e.g. pointer or keyboard interactions, or scroll "leaking"
+       * element, e.g. pointer/keyboard interactions, or scroll "leaking"
        * outside the locking element when it is already at its scroll boundaries.
-       *
-       * @param {!Event} event The scroll event
+       * @param {!Event} event
        * @return {boolean}
        * @private
        */
       _shouldPreventScrolling: function(event) {
-        // Avoid canceling an event with cancelable=false, e.g. scrolling is in
-        // progress and cannot be interrupted.
-        if (!event.cancelable) {
-          return false;
-        }
         // Avoid expensive checks if the event is not one of the observed keys.
         if (event.type === 'keydown') {
           // Prevent event if it is one of the scrolling keys.
@@ -210,8 +205,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Update if root target changed. For touch events, ensure we don't
         // update during touchmove.
         var target = Polymer.dom(event).rootTarget;
-        if (event.type !== 'touchmove' && PREVIOUS_TARGET !== target) {
-          PREVIOUS_TARGET = target;
+        if (event.type !== 'touchmove' && ROOT_TARGET !== target) {
+          ROOT_TARGET = target;
           SCROLLABLE_NODES = this._getScrollableNodes(Polymer.dom(event).path);
         }
 
@@ -219,19 +214,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (!SCROLLABLE_NODES.length) {
           return true;
         }
-        // Don't prevent touchstart events inside the locking element.
+        // Don't prevent touchstart event inside the locking element when it has
+        // scrollable nodes.
         if (event.type === 'touchstart') {
           return false;
         }
-
         // Get deltaX/Y.
         var info = this._getScrollInfo(event);
         // Prevent if there is no child that can scroll.
-        return !this._getScrollingNode(SCROLLABLE_NODES, info.vertical, info.delta);
+        return !this._getScrollingNode(SCROLLABLE_NODES, info.deltaX, info.deltaY);
       },
 
       /**
-       * Returns an array of scrollable nodes up to currentLockingElement.
+       * Returns an array of scrollable nodes up to the current locking element,
+       * which is included too if scrollable.
        * @param {!Array<Node>} nodes
        * @return {Array<Node>} scrollables
        * @private
@@ -239,6 +235,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _getScrollableNodes: function(nodes) {
         var scrollables = [];
         var lockingIndex = nodes.indexOf(this.currentLockingElement);
+        // Loop from root target to locking element (included).
         for (var i = 0; i <= lockingIndex; i++) {
           var node = nodes[i];
           // Skip document fragments.
@@ -253,34 +250,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (style.overflow === 'scroll' || style.overflow === 'auto') {
             scrollables.push(node);
           }
-
         }
         return scrollables;
       },
 
       /**
-       * Returns the node that is scrolling.
+       * Returns the node that is scrolling. If there is no scrolling,
+       * returns undefined.
        * @param {!Array<Node>} nodes
-       * @param {boolean} verticalScroll True if scrollDelta is applied vertically.
-       * @param {number} scrollDelta Negative value means scroll up/left,
-       *  positive value means down/right.
+       * @param {number} deltaX Scroll delta on the x-axis
+       * @param {number} deltaY Scroll delta on the y-axis
        * @return {Node|undefined}
        * @private
        */
-      _getScrollingNode: function(nodes, verticalScroll, scrollDelta) {
-        // Loop from root target to locking element (included).
+      _getScrollingNode: function(nodes, deltaX, deltaY) {
+        // No scroll.
+        if (!deltaX && !deltaY) {
+          return;
+        }
         for (var i = 0; i < nodes.length; i++) {
           var node = nodes[i];
-          var canScroll = false;
-          if (verticalScroll) {
-            // delta < 0 = scroll up, else scroll down.
-            canScroll = scrollDelta < 0 ? node.scrollTop > 0 :
-              node.scrollTop < node.scrollHeight - node.clientHeight;
-          } else {
-            // delta < 0 = scroll left, else scroll right.
-            canScroll = scrollDelta < 0 ? node.scrollLeft > 0 :
-              node.scrollLeft < node.scrollWidth - node.clientWidth;
-          }
+          // delta < 0 is scroll up, delta > 0 is scroll down.
+          var canScroll = (deltaY < 0 && node.scrollTop > 0) ||
+            (deltaY > 0 && node.scrollTop < node.scrollHeight - node.clientHeight);
+          // delta < 0 is scroll left, delta > 0 is scroll right.
+          canScroll = canScroll || (deltaX < 0 && node.scrollLeft > 0) ||
+            (deltaX > 0 && node.scrollLeft < node.scrollWidth - node.clientWidth);
           if (canScroll) {
             return node;
           }
@@ -288,18 +283,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       /**
-       * Returns scroll info like `deltaX` `deltaY` of the event normalized
-       * cross-browsers, `delta` and `vertical`.
-       *
-       * Positive value: scroll down/right
-       * Negative value: scroll up/left.
+       * Returns scroll `deltaX` and `deltaY`.
        * @param {!Event} event The scroll event
        * @return {{
-       *  deltaX:   number Scroll delta on the x-axis,
-       *  deltaY:   number Scroll delta on the y-axis,
-       *  delta:    number Dominant scroll delta (see `vertical`),
-       *  vertical: boolean If the vertical axis is scrolling more than the
-       *            horizontal axis}} info
+       *  deltaX: number The x-axis scroll delta (positive: scroll right,
+       *                 negative: scroll left, 0: no scroll),
+       *  deltaY: number The y-axis scroll delta (positive: scroll down,
+       *                 negative: scroll up, 0: no scroll)
+       * }} info
        * @private
        */
       _getScrollInfo: function(event) {
@@ -322,15 +313,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           info.deltaY = event.axis === 2 ? event.detail : 0;
         }
         // On mobile devices, calculate scroll direction.
-        else {
-          var touch = this._getTouchFromEvent(event);
-          info.deltaX = touch.pageX - PREVIOUS_TOUCH.pageX;
-          info.deltaY = PREVIOUS_TOUCH.pageY - touch.pageY;
+        else if (event.targetTouches) {
+          var touch = event.targetTouches[0];
+          // Touch moves from right to left => scrolling goes right.
+          info.deltaX = LAST_TOUCH_POSITION.pageX - touch.pageX;
+          // Touch moves from down to up => scrolling goes down.
+          info.deltaY = LAST_TOUCH_POSITION.pageY - touch.pageY;
         }
-        // vertical or horizontal, according to where there is more scroll.
-        // Prefer vertical over horizontal.
-        info.vertical = Math.abs(info.deltaY) >= Math.abs(info.deltaX);
-        info.delta = info.vertical ? info.deltaY : info.deltaX;
         return info;
       }
     };
