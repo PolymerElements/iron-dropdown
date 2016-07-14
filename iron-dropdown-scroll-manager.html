@@ -196,6 +196,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        * @private
        */
       _shouldPreventScrolling: function(event) {
+        // Avoid canceling an event with cancelable=false, e.g. scrolling is in
+        // progress and cannot be interrupted.
+        if (!event.cancelable) {
+          return false;
+        }
         // Avoid expensive checks if the event is not one of the observed keys.
         if (event.type === 'keydown') {
           // Prevent event if it is one of the scrolling keys.
