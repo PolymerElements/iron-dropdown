@@ -263,7 +263,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             parentRect = parent.getBoundingClientRect();
             assert.equal(dropdownRect.top, parentRect.top, 'top ok');
             assert.equal(dropdownRect.left, 0, 'left ok');
-            assert.equal(dropdownRect.bottom, document.documentElement.clientHeight, 'bottom ok');
+            assert.equal(dropdownRect.bottom, window.innerHeight, 'bottom ok');
             assert.equal(dropdownRect.right, parentRect.right, 'right ok');
             done();
           });
@@ -290,7 +290,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             parentRect = parent.getBoundingClientRect();
             assert.equal(dropdownRect.top, parentRect.top, 'top ok');
             assert.equal(dropdownRect.left, 0, 'left ok');
-            assert.equal(dropdownRect.bottom, document.documentElement.clientHeight, 'bottom ok');
+            assert.equal(dropdownRect.bottom, window.innerHeight, 'bottom ok');
             assert.equal(dropdownRect.right, parentRect.right, 'right ok');
             done();
           });
