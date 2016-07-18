@@ -42,20 +42,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       elementIsScrollLocked: function(element) {
         var currentLockingElement = this.currentLockingElement;
 
-        if (currentLockingElement === undefined)
+        if (!currentLockingElement || this._hasCachedUnlockedElement(element)) {
           return false;
-
-        var scrollLocked;
+        }
 
         if (this._hasCachedLockedElement(element)) {
           return true;
         }
 
-        if (this._hasCachedUnlockedElement(element)) {
-          return false;
-        }
-
-        scrollLocked = !!currentLockingElement &&
+        var scrollLocked = !!currentLockingElement &&
           currentLockingElement !== element &&
           !this._composedTreeContains(currentLockingElement, element);
 
@@ -126,7 +121,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _unlockedElementCache: null,
 
-      _originalBodyStyles: {},
+      _scrollingInfo: null,
 
       _isScrollingKeypress: function(event) {
         return Polymer.IronA11yKeysBehavior.keyboardEventMatchesKeys(
@@ -190,20 +185,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _lockScrollInteractions: function() {
-        // Memoize body inline styles:
-        this._originalBodyStyles.overflow = document.body.style.overflow;
-        this._originalBodyStyles.overflowX = document.body.style.overflowX;
-        this._originalBodyStyles.overflowY = document.body.style.overflowY;
-
-        // Disable overflow scrolling on body:
-        // TODO(cdata): It is technically not sufficient to hide overflow on
-        // body alone. A better solution might be to traverse all ancestors of
-        // the current scroll locking element and hide overflow on them. This
-        // becomes expensive, though, as it would have to be redone every time
-        // a new scroll locking element is added.
-        document.body.style.overflow = 'hidden';
-        document.body.style.overflowX = 'hidden';
-        document.body.style.overflowY = 'hidden';
+        this._saveScrollInfo();
 
         // Modern `wheel` event for mouse wheel scrolling:
         document.addEventListener('wheel', this._scrollInteractionHandler, true);
@@ -218,15 +200,93 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _unlockScrollInteractions: function() {
-        document.body.style.overflow = this._originalBodyStyles.overflow;
-        document.body.style.overflowX = this._originalBodyStyles.overflowX;
-        document.body.style.overflowY = this._originalBodyStyles.overflowY;
+        this._restoreScrollInfo();
 
         document.removeEventListener('wheel', this._scrollInteractionHandler, true);
         document.removeEventListener('mousewheel', this._scrollInteractionHandler, true);
         document.removeEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
         document.removeEventListener('touchmove', this._scrollInteractionHandler, true);
         document.removeEventListener('keydown', this._scrollInteractionHandler, true);
+      },
+
+      _saveScrollInfo: function() {
+        var scrollingElement = this._getScrollingElement();
+        var scrollTop = scrollingElement.scrollTop;
+        var scrollLeft = scrollingElement.scrollLeft;
+
+        // Check if it can scroll horizontally or vertically by changing their
+        // scroll position and checking if it gets updated.
+        var verticalScroll = scrollTop !== 0 ||
+            (scrollingElement.scrollTop = 1) === scrollingElement.scrollTop;
+        var horizontalScroll = scrollLeft !== 0 ||
+            (scrollingElement.scrollLeft = 1) === scrollingElement.scrollLeft;
+        // Restore the original scroll position.
+        scrollingElement.scrollTop = scrollTop;
+        scrollingElement.scrollLeft = scrollLeft;
+
+        if (horizontalScroll || verticalScroll) {
+          var html = document.documentElement;
+          var cs = getComputedStyle(html);
+          this._scrollingInfo = {
+            scrollingElement: scrollingElement,
+            scrollTop: scrollTop,
+            scrollLeft: scrollLeft,
+            htmlInlineStyles: {
+              overflowX: html.style.overflowX,
+              overflowY: html.style.overflowY,
+              position: html.style.position,
+              top: html.style.top,
+              left: html.style.left,
+              width: html.style.width,
+              height: html.style.height
+            }
+          };
+          html.style.overflowY = verticalScroll ? 'scroll' : 'visible';
+          html.style.overflowX = horizontalScroll ? 'scroll' : 'visible';
+          html.style.position = 'fixed';
+          html.style.width = '100%';
+          html.style.height = '100%';
+          html.style.top = (parseFloat(cs.marginTop) - scrollTop) + 'px';
+          html.style.left = (parseFloat(cs.marginLeft) - scrollLeft) + 'px';
+        } else {
+          this._scrollingInfo = null;
+        }
+      },
+
+      _restoreScrollInfo: function() {
+        if (!this._scrollingInfo) {
+          return;
+        }
+        // Restore html inline styles.
+        var html = document.documentElement;
+        html.style.overflowY = this._scrollingInfo.htmlInlineStyles.overflowY;
+        html.style.overflowX = this._scrollingInfo.htmlInlineStyles.overflowX;
+        // Force reflow before resetting position.
+        html.scrollTop = html.scrollTop;
+        html.style.position = this._scrollingInfo.htmlInlineStyles.position;
+        html.style.width = this._scrollingInfo.htmlInlineStyles.width;
+        html.style.height = this._scrollingInfo.htmlInlineStyles.height;
+        html.style.top = this._scrollingInfo.htmlInlineStyles.top;
+        html.style.left = this._scrollingInfo.htmlInlineStyles.left;
+
+        // Restore scroll position to scrolling element.
+        var scrollingElement = this._scrollingInfo.scrollingElement;
+        scrollingElement.scrollTop = this._scrollingInfo.scrollTop;
+        scrollingElement.scrollLeft = this._scrollingInfo.scrollLeft;
+
+        this._scrollingInfo = null;
+      },
+
+      _getScrollingElement: function() {
+        if (document.scrollingElement) {
+          return document.scrollingElement;
+        }
+        var html = document.documentElement;
+        if (html.scrollHeight > html.clientHeight ||
+          html.scrollWidth > html.clientWidth) {
+          return html;
+        }
+        return document.body;
       }
     };
   })();
