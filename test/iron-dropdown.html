@@ -170,7 +170,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // IE 11 doesn't support WheelEvent, use CustomEvent.
       var event = new CustomEvent('wheel', {
         cancelable: true,
-        bubbles: true
+        bubbles: true,
+        composed: true
       });
       event.deltaX = deltaX;
       event.deltaY = deltaY;
@@ -181,7 +182,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     function dispatchScroll(target, scrollLeft, scrollTop) {
       target.scrollLeft = scrollLeft;
       target.scrollTop = scrollTop;
-      target.dispatchEvent(new CustomEvent('scroll', { bubbles:true } ));
+      target.dispatchEvent(new CustomEvent('scroll', {
+        bubbles: true,
+        composed: true
+      }));
     }
 
     suite('<iron-dropdown>', function() {

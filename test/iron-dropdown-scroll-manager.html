@@ -112,7 +112,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             events = scrollEvents.map(function(scrollEvent) {
               var event = new CustomEvent(scrollEvent, {
                 bubbles: true,
-                cancelable: true
+                cancelable: true,
+                composed: true
               });
               event.deltaX = 0;
               event.deltaY = 10;
@@ -145,7 +146,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           test('touchstart is prevented if dispatched by an element outside the locking element', function() {
             var event = new CustomEvent('touchstart', {
               bubbles: true,
-              cancelable: true
+              cancelable: true,
+              composed: true
             });
             childTwo.dispatchEvent(event);
             expect(event.defaultPrevented).to.be.eql(true);
@@ -154,7 +156,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           test('touchstart is not prevented if dispatched by an element inside the locking element', function() {
             var event = new CustomEvent('touchstart', {
               bubbles: true,
-              cancelable: true
+              cancelable: true,
+              composed: true
             });
             grandChildOne.dispatchEvent(event);
             expect(event.defaultPrevented).to.be.eql(false);
