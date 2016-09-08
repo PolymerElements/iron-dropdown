@@ -21,7 +21,7 @@
   "dependencies": {
     "polymer": "https://github.com/PolymerLabs/alacarte.git#master",
     "iron-behaviors": "polymerelements/iron-behaviors#^1.0.0",
-    "iron-overlay-behavior": "https://github.com/notwaldorf/iron-overlay.git#2.0-preview",
+    "iron-overlay-behavior": "https://github.com/notwaldorf/iron-overlay-behavior.git#2.0-preview",
     "neon-animation": "https://github.com/notwaldorf/neon-animation.git#2.0-preview"
   },
   "devDependencies": {
