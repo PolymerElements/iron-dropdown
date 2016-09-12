@@ -19,26 +19,26 @@
   "license": "http://polymer.github.io/LICENSE.txt",
   "homepage": "https://github.com/PolymerElements/iron-dropdown",
   "dependencies": {
-    "polymer": "https://github.com/PolymerLabs/alacarte.git#master",
+    "polymer": "Polymer/polymer#2.0-preview",
     "iron-behaviors": "polymerelements/iron-behaviors#^1.0.0",
-    "iron-overlay-behavior": "https://github.com/notwaldorf/iron-overlay-behavior.git#2.0-preview",
-    "neon-animation": "https://github.com/notwaldorf/neon-animation.git#2.0-preview"
+    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#2.0-preview",
+    "neon-animation": "PolymerElements/neon-animation#2.0-preview"
   },
   "devDependencies": {
     "iron-component-page": "polymerelements/iron-component-page#^1.0.0",
-    "iron-demo-helpers": "https://github.com/notwaldorf/iron-demo-helpers.git#2.0-preview",
-    "iron-test-helpers": "https://github.com/notwaldorf/iron-test-helpers.git#2.0-preview",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#2.0-preview",
+    "iron-test-helpers": "PolymerElements/iron-test-helpers#2.0-preview",
     "test-fixture": "PolymerElements/test-fixture#custom-elements-v1",
     "web-component-tester": "^4.0.0",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#v1-polymer-edits",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#v1",
     "iron-image": "polymerelements/iron-image#^1.0.0"
   },
   "ignore": [],
   "resolutions": {
     "iron-flex-layout": "2.0-preview",
     "test-fixture": "custom-elements-v1",
-    "polymer": "master",
-    "webcomponentsjs": "v1-polymer-edits",
+    "polymer": "2.0-preview",
+    "webcomponentsjs": "v1",
     "iron-a11y-keys-behavior": "2.0-preview",
     "iron-resizable-behavior": "2.0-preview"
   }
