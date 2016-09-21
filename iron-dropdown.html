@@ -343,19 +343,6 @@ method is called on the element.
         },
 
         /**
-         * An element related to the dropdown (the triggering element, or an
-         * element within the dropdown) has lost focus.
-         */
-        _activeElementBlurred: function(event) {
-          if (event.target._blurListener) {
-            // Stop listening to blur events on the target.
-            event.target.removeEventListener('blur', event.target._blurListener);
-            event.target._blurListener = null;
-          }
-          this._dropdownFocusChanged(false);
-        },
-
-        /**
          * Return true if the focus is anywhere within the dropdown.
          */
         _focusWithinDropdown: function() {
