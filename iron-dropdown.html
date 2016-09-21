@@ -238,14 +238,6 @@ method is called on the element.
         /**
          * Overridden from `IronOverlayBehavior`.
          */
-        _finishRenderOpened: function() {
-          Polymer.IronOverlayBehaviorImpl._finishRenderOpened.apply(this, arguments);
-          this._dropdownFocusChanged(true);
-        },
-
-        /**
-         * Overridden from `IronOverlayBehavior`.
-         */
         _renderClosed: function() {
 
           if (!this.noAnimations && this.animationConfig.close) {
@@ -363,64 +355,6 @@ method is called on the element.
           this._dropdownFocusChanged(false);
         },
 
-        // The focus has changed, and we want to see whether it is now/still
-        // inside the dropdown, or whether it's moved outside the dropdown.
-        // As a special case, we also account for whether a dropdown was invoked
-        // but has no focusable element, in which case the focus should still be
-        // on the element (e.g., button) that triggered opening of the dropdown.
-        //
-        // Note: The focus check will happen *after* the iron-overlay-opened
-        // event has fired.
-        _dropdownFocusChanged: function(initialFocus) {
-          // Because this method is invoked in response to blur events, it can
-          // run after one element has lost focus, but before the next element
-          // has gotten the focus.
-          // We wait for the new activeElement to take effect.
-          this.async(function() {
-
-            var activeElement = this._manager.deepActiveElement;
-
-            // See if the focus is on the element that triggered the dropdown.
-            // When the overlay manager opens the dropdown, it records the node
-            // that currently has the focus. This is typically the element that
-            // triggered the display of the dropdown. Once the dropdown is
-            // open, the manager will (by default) try to apply the focus inside
-            // the dropdown. By the time we reach this point, if the focus is
-            // still on that original trigger element, then we can conclude the
-            // dropdown is not focusable. In that case, we want to track the
-            // blur event on that trigger element.
-            var focusOnTrigger = this._restoreFocusNode &&
-                this._restoreFocusNode === activeElement &&
-                this._restoreFocusNode !== document.body;
-
-            // See if the focus is somewhere within the dropdown.
-            var focusWithinDropdown = this._focusWithinDropdown();
-
-            if (focusOnTrigger || focusWithinDropdown) {
-              // Ask to be notified when the active element loses focus.
-              // REVIEW: In IE 11, there appear to be cases (e.g., in unit
-              // tests for this component) in which the activeElement will *not*
-              // expose addEventListener. Why?
-              if (activeElement.addEventListener) {
-                activeElement._blurListener = this._activeElementBlurred.bind(this);
-                activeElement.addEventListener('blur', activeElement._blurListener);
-              }
-            } else if (initialFocus) {
-              // The focus isn't anywhere we expect, even though this is the
-              // initial check we're doing while opening the dropdown. This
-              // means the dropdown was probably programmatically opened,
-              // rather than opened by the user. In that case, we can't track
-              // the focus, and won't do our auto-close behavior.
-              // So: do nothing.
-            } else if (this.opened) {
-              // The focus has moved away from the original trigger element, or
-              // moved outside of the dropdown, but the dropdown is still open.
-              // So, close it.
-              this.close();
-            }
-          });
-        },
-
         /**
          * Overridden from `IronOverlayBehavior`.
          */
@@ -443,6 +377,19 @@ method is called on the element.
           } else {
             var activeElement = this._manager.deepActiveElement;
             return Polymer.dom(this).deepContains(activeElement);
+          }
+        },
+
+        /**
+         * Overridden from `IronOverlayBehavior`.
+         */
+        _onCaptureFocus: function(event) {
+          if (!this._focusWithinDropdown()) {
+            // The focus has left the dropdown, e.g., in response to the user
+            // tabbing away. Implicitly cancel the dropdown.
+            this.cancel(event);
+          } else {
+            Polymer.IronOverlayBehaviorImpl._onCaptureFocus.apply(this, arguments);
           }
         }
       });

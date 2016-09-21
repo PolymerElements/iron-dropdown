@@ -144,16 +144,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </iron-dropdown>
     </template>
   </test-fixture>
-  
-  <test-fixture id="FocusableDropdownWithAnotherFocusableElement">
+
+  <test-fixture id="FocusableDropdownWithOtherFocusableElements">
     <template>
       <div>
+        <button id="focusableButton1">Button 1</button>
         <iron-dropdown>
           <div class="dropdown-content" tabindex="0">
             <div class="subcontent" tabindex="0"></div>
           </div>
         </iron-dropdown>
-        <button>A focusable button</button>
+        <button id="focusableButton2">Button 2</button>
       </div>
     </template>
   </test-fixture>
@@ -525,52 +526,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           });
         });
       });
-      
-      suite('auto-close on blur', function() {
 
-        test('auto-close when focusable dropdown blurs', function(done) {
-          var elements = fixture('FocusableDropdownWithAnotherFocusableElement');
+      suite('auto-cancel on blur', function() {
+
+        test('auto-cancel when focusable dropdown blurs', function(done) {
+          var elements = fixture('FocusableDropdownWithOtherFocusableElements');
           var dropdown = Polymer.dom(elements).querySelector('iron-dropdown');
           var content = Polymer.dom(dropdown).querySelector('.dropdown-content');
-          var button = Polymer.dom(elements).querySelector('button');
+          var button1 = Polymer.dom(elements).querySelector('#focusableButton1');
+          var button2 = Polymer.dom(elements).querySelector('#focusableButton2');
 
+          // Step 1: First button gets focus.
+          button1.addEventListener('focus', function() {
+            dropdown.open();
+            runAfterOpen(dropdown, function() {
+              // Opening the dropdown moves focus to the dropdown content, but
+              // not if the window doesn't have focus, so to cover that case we
+              // have to simulate a focus event.
+              MockInteractions.focus(content);
+            });
+          });
+
+          // Step 2: Dropdown content gets focus after opening.
+          content.addEventListener('focus', function() {
+            // Move focus outside the dropdown to trigger auto-cancel behavior.
+            // To cover both interactive and automated testing, we need to do
+            // both a real focus and simulated focus change.
+            button2.focus();
+            MockInteractions.focus(button2);
+          });
+
+          // Step 3: Dropdown closes after second button gets focus.
           dropdown.addEventListener('iron-overlay-closed', function(event) {
-            // The iron-overlay-canceled event fires before the dropdown is
-            // closed, which is unfortunate. We have to wait before checking to
-            // make sure the dropdown was closed.
+            // The iron-overlay-closed event fires before the dropdown closes,
+            // which is unfortunate. Wait before checking dropdown was closed.
             Polymer.Base.async(function() {
               assert(!dropdown.opened);
               done();
             });
           });
 
-          // We wait until the button (outside the dropdown) has focus.
-          button.addEventListener('focus', function() {
-            runAfterOpen(dropdown, function() {
-              // Opening the dropdown should move focus to the dropdown content.
-              assert.equal(document.activeElement, content);
-              // Move the focus somewhere outside the dropdown in order to
-              // trigger the auto-close behavior. Since the iron-overlay-opened
-              // event fires before the focus has settled on the dropdown
-              // content, we have to wait before moving the focus away. Note:
-              // need task (not microtask) timing here.
-              setTimeout(function() {
-                // The note on simulating focus (below) applies to blur as well.
-                content.blur();
-                MockInteractions.blur(content);
-              }, 100); // Delay necessary for Edge/IE.
-            });
-          });
-
-          // Browsers seem to suppress or delay focus events if the window is
-          // not active, e.g., when running automated tests. So if we just use
-          // the native focus() method, the focus event won't fire. On the other
-          // hand, if we just use the mock focus() method, the activeElement
-          // won't be set correctly. A combination of both feels like overkill,
-          // but seems to accomplish the result of producing the right focus
-          // effects in both an active and inactive window.
-          button.focus();
-          MockInteractions.focus(button);
+          // Begin step 1 by moving focus to first button.
+          MockInteractions.focus(button1);
         });
       });
     });
