@@ -356,19 +356,6 @@ method is called on the element.
         },
 
         /**
-         * Overridden from `IronOverlayBehavior`.
-         */
-        _restoreFocusToNode: function(node) {
-          // Only restore focus to the indicated node if focus is currently
-          // somewhere within the dropdown. If focus is outside the dropdown, the
-          // user is likely trying to tab away, in which case it would be
-          // inappropriate to grab focus back.
-          if (this._focusWithinDropdown()) {
-            Polymer.IronOverlayBehaviorImpl._restoreFocusToNode.apply(this, arguments);
-          }
-        },
-
-        /**
          * Return true if the focus is anywhere within the dropdown.
          */
         _focusWithinDropdown: function() {
@@ -386,7 +373,12 @@ method is called on the element.
         _onCaptureFocus: function(event) {
           if (!this._focusWithinDropdown()) {
             // The focus has left the dropdown, e.g., in response to the user
-            // tabbing away. Implicitly cancel the dropdown.
+            // tabbing away.
+
+            // Avoid restoring focus after is closed.
+            this._restoreFocusNode = null;
+
+            // Implicitly cancel the dropdown.
             this.cancel(event);
           } else {
             Polymer.IronOverlayBehaviorImpl._onCaptureFocus.apply(this, arguments);
