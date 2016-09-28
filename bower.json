@@ -20,7 +20,7 @@
   "homepage": "https://github.com/PolymerElements/iron-dropdown",
   "dependencies": {
     "polymer": "Polymer/polymer#2.0-preview",
-    "iron-behaviors": "polymerelements/iron-behaviors#^1.0.0",
+    "iron-behaviors": "polymerelements/iron-behaviors#2.0-preview",
     "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#2.0-preview",
     "neon-animation": "PolymerElements/neon-animation#2.0-preview"
   },
@@ -40,6 +40,9 @@
     "polymer": "2.0-preview",
     "webcomponentsjs": "v1",
     "iron-a11y-keys-behavior": "2.0-preview",
-    "iron-resizable-behavior": "2.0-preview"
+    "iron-resizable-behavior": "2.0-preview",
+    "iron-behaviors": "2.0-preview",
+    "iron-selector": "2.0-preview",
+    "iron-meta": "2.0-preview"
   }
 }

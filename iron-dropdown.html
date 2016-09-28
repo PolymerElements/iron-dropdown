@@ -45,20 +45,17 @@ In the above example, the `<div>` will be hidden until the dropdown element has
   <template>
     <style>
 
-      #contentWrapper ::slotted(*),
-      #contentWrapper ::content > * {
+      #contentWrapper ::slotted(*) {
         overflow: auto;
       }
 
-      #contentWrapper.animating ::slotted(*),
-      #contentWrapper.animating ::content > * {
+      #contentWrapper.animating ::slotted(*) {
         overflow: hidden;
       }
     </style>
 
     <div id="contentWrapper">
-      <content id="content"></content>
-      <slot id="slot"></slot>
+      <slot></slot>
     </div>
   </template>
 
@@ -183,7 +180,7 @@ In the above example, the `<div>` will be hidden until the dropdown element has
          * The element that is contained by the dropdown, if any.
          */
         get containedElement() {
-          var nodes = this._getDistributedNodes(this.$.slot, this.$.content);
+          var nodes = Polymer.dom(this.$.contentWrapper).getEffectiveChildNodes();
           var i = 0;
           while (nodes[i] && nodes[i].nodeType !== Node.ELEMENT_NODE) {
             i++;
@@ -351,19 +348,6 @@ In the above example, the `<div>` will be hidden until the dropdown element has
           } else {
             Polymer.IronOverlayBehaviorImpl._applyFocus.apply(this, arguments);
           }
-        },
-
-        /**
-         * Returns distributed nodes either from the slot or
-         * content (dual-mode support).
-         * @private
-         */
-        _getDistributedNodes: function(slot, content) {
-          var assigned = Polymer.dom(slot).assignedNodes({
-            flatten: true
-          });
-          var distributed = Polymer.dom(content).getDistributedNodes();
-          return assigned.length ? assigned : distributed;
         }
       });
     })();
