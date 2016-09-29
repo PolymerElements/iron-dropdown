@@ -145,16 +145,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
   </test-fixture>
 
-  <test-fixture id="FocusableDropdownWithOtherFocusableElements">
+  <test-fixture id="FocusableDropdownWithOtherFocusableElement">
     <template>
       <div>
-        <button id="focusableButton1">Button 1</button>
         <iron-dropdown>
           <div class="dropdown-content" tabindex="0">
             <div class="subcontent" tabindex="0"></div>
           </div>
         </iron-dropdown>
-        <button id="focusableButton2">Button 2</button>
+        <button id="focusableButton">Button 2</button>
       </div>
     </template>
   </test-fixture>
@@ -190,6 +189,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       target.scrollLeft = scrollLeft;
       target.scrollTop = scrollTop;
       target.dispatchEvent(new CustomEvent('scroll', { bubbles:true } ));
+    }
+
+    // Ensure target both gets focus and raises a focus event.
+    function mockFocusAndEvent(target) {
+      var focusListenerCalled;
+      var focusListener = target.addEventListener('focus', function() {
+        focusListenerCalled = true;
+      })
+      target.focus();
+      target.removeEventListener('focus', focusListener);
+      // If the focus handler above hasn't run yet, the window is inactive, and
+      // won't generate focus events, so we'll need to simulate a focus event.
+      // However, stupid IE 11 doesn't run this focus handler synchronously as
+      // expected, so we need to wait to give the handler above time to run
+      // first.
+      setTimeout(function() {
+        if (!focusListenerCalled) {
+          // Focus events aren't being raised; simulate a focus event.
+          MockInteractions.focus(target);
+        }
+      }, 50);
     }
 
     suite('<iron-dropdown>', function() {
@@ -530,44 +550,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       suite('auto-cancel on blur', function() {
 
         test('auto-cancel when focusable dropdown blurs', function(done) {
-          var elements = fixture('FocusableDropdownWithOtherFocusableElements');
+          var elements = fixture('FocusableDropdownWithOtherFocusableElement');
           var dropdown = Polymer.dom(elements).querySelector('iron-dropdown');
           var content = Polymer.dom(dropdown).querySelector('.dropdown-content');
-          var button1 = Polymer.dom(elements).querySelector('#focusableButton1');
-          var button2 = Polymer.dom(elements).querySelector('#focusableButton2');
+          var button = Polymer.dom(elements).querySelector('#focusableButton');
+          var mockDropdownFocus = true;
 
-          // Step 1: First button gets focus.
-          button1.addEventListener('focus', function() {
-            dropdown.open();
-            runAfterOpen(dropdown, function() {
-              // Opening the dropdown moves focus to the dropdown content, but
-              // not if the window doesn't have focus, so to cover that case we
-              // have to simulate a focus event.
-              MockInteractions.focus(content);
-            });
-          });
+          var canceledSpy = sinon.spy();
+          dropdown.addEventListener('iron-overlay-canceled', canceledSpy);
+          var contentGotFocus = false;
 
-          // Step 2: Dropdown content gets focus after opening.
+          // Step 1: Wait for dropdown to get focus after opening.
           content.addEventListener('focus', function() {
+            contentGotFocus = true;
             // Move focus outside the dropdown to trigger auto-cancel behavior.
-            // To cover both interactive and automated testing, we need to do
-            // both a real focus and simulated focus change.
-            button2.focus();
-            MockInteractions.focus(button2);
+            mockFocusAndEvent(button);
           });
 
-          // Step 3: Dropdown closes after second button gets focus.
-          dropdown.addEventListener('iron-overlay-closed', function(event) {
-            // The iron-overlay-closed event fires before the dropdown closes,
-            // which is unfortunate. Wait before checking dropdown was closed.
-            Polymer.Base.async(function() {
-              assert(!dropdown.opened);
-              done();
-            });
+          // Step 2: Wait for dropdopwn to close.
+          dropdown.addEventListener('iron-overlay-closed', function() {
+            assert(canceledSpy.calledOnce, 'dropdown raises iron-overlay-canceled on blur');
+            assert(!dropdown.opened, 'dropdown closed on blur');
+            done();
           });
 
-          // Begin step 1 by moving focus to first button.
-          MockInteractions.focus(button1);
+          // Start step 1.
+          runAfterOpen(dropdown, function() {
+            // If the content focus handler hasn't run, it's probably because
+            // the window is inactive. We'll need to simulate a focus event.
+            setTimeout(function() {
+              if (!contentGotFocus) {
+                MockInteractions.focus(content);
+              }
+            }, 50);
+          });
         });
       });
     });

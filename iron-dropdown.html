@@ -358,6 +358,10 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _onCaptureFocus: function(event) {
+          // See if the focus is still in the dropdown.
+          // In theory, a faster way to check this would be to inspect the event
+          // path and see where the focus is now. However, that gets tricky with
+          // synthetic focus events, such as those fired by iron-control-state.
           if (!this._focusWithinDropdown()) {
             // The focus has left the dropdown, e.g., in response to the user
             // tabbing away.
