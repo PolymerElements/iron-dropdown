@@ -200,23 +200,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this._boundScrollHandler = this._boundScrollHandler ||
           this._scrollInteractionHandler.bind(this);
         // Modern `wheel` event for mouse wheel scrolling:
-        document.addEventListener('wheel', this._boundScrollHandler, true);
+        document.addEventListener('wheel', this._boundScrollHandler, {
+          capture: true,
+          passive: false
+        });
         // Older, non-standard `mousewheel` event for some FF:
-        document.addEventListener('mousewheel', this._boundScrollHandler, true);
+        document.addEventListener('mousewheel', this._boundScrollHandler, {
+          capture: true,
+          passive: false
+        });
         // IE:
-        document.addEventListener('DOMMouseScroll', this._boundScrollHandler, true);
+        document.addEventListener('DOMMouseScroll', this._boundScrollHandler, {
+          capture: true,
+          passive: false
+        });
         // Save the lastScrollableNodes on touchstart, to be used on touchmove.
-        document.addEventListener('touchstart', this._boundScrollHandler, true);
+        document.addEventListener('touchstart', this._boundScrollHandler, {
+          capture: true,
+          passive: false
+        });
         // Mobile devices can scroll on touch move:
-        document.addEventListener('touchmove', this._boundScrollHandler, true);
+        document.addEventListener('touchmove', this._boundScrollHandler, {
+          capture: true,
+          passive: false
+        });
       },
 
       _unlockScrollInteractions: function() {
-        document.removeEventListener('wheel', this._boundScrollHandler, true);
-        document.removeEventListener('mousewheel', this._boundScrollHandler, true);
-        document.removeEventListener('DOMMouseScroll', this._boundScrollHandler, true);
-        document.removeEventListener('touchstart', this._boundScrollHandler, true);
-        document.removeEventListener('touchmove', this._boundScrollHandler, true);
+        document.removeEventListener('wheel', this._boundScrollHandler, {
+          capture: true,
+          passive: false
+        });
+        document.removeEventListener('mousewheel', this._boundScrollHandler, {
+          capture: true,
+          passive: false
+        });
+        document.removeEventListener('DOMMouseScroll', this._boundScrollHandler, {
+          capture: true,
+          passive: false
+        });
+        document.removeEventListener('touchstart', this._boundScrollHandler, {
+          capture: true,
+          passive: false
+        });
+        document.removeEventListener('touchmove', this._boundScrollHandler, {
+          capture: true,
+          passive: false
+        });
       },
 
       /**
