@@ -31,6 +31,7 @@
     "test-fixture": "PolymerElements/test-fixture#custom-elements-v1",
     "web-component-tester": "^4.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#v1",
+    "web-animations-js": "web-animations/web-animations-js#^2.2.0",
     "iron-image": "polymerelements/iron-image#^1.0.0"
   },
   "ignore": [],

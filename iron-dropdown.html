@@ -220,7 +220,7 @@ In the above example, the `<div>` will be hidden until the dropdown element has
             this._updateAnimationConfig();
             this._saveScrollPosition();
             if (this.opened) {
-              this.isAttached && document.addEventListener('scroll', this._boundOnCaptureScroll);
+              document.addEventListener('scroll', this._boundOnCaptureScroll);
               !this.allowOutsideScroll && Polymer.IronDropdownScrollManager.pushScrollLock(this);
             } else {
               document.removeEventListener('scroll', this._boundOnCaptureScroll);
