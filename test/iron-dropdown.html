@@ -210,6 +210,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           });
         });
 
+        test('correct animations setup', function() {
+          dropdown.openAnimationConfig = {
+            name: 'test-open-animation'
+          };
+          dropdown.closeAnimationConfig = {
+            name: 'test-close-animation'
+          };
+          dropdown.opened = true;
+          
+          assert.equal(dropdown.openAnimationConfig.name, 'test-open-animation', 'open animation name ok');
+          assert.equal(dropdown.openAnimationConfig.node, content, 'open animation node ok');
+
+          assert.equal(dropdown.closeAnimationConfig.name, 'test-close-animation', 'close animation name ok');
+          assert.equal(dropdown.closeAnimationConfig.node, content, 'openAnimationConfig node ok');
+
+          assert.deepEqual(dropdown.animationConfig, {
+            open: dropdown.openAnimationConfig,
+            close: dropdown.closeAnimationConfig
+          }, 'animationConfig ok');
+        });
+
         suite('when content is focusable', function() {
           setup(function() {
             dropdown = fixture('FocusableContentDropdown');

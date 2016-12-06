@@ -106,7 +106,7 @@ method is called on the element.
            * opening of the dropdown.
            */
           openAnimationConfig: {
-            type: Array
+            type: Object
           },
 
           /**
@@ -114,7 +114,7 @@ method is called on the element.
            * closing of the dropdown.
            */
           closeAnimationConfig: {
-            type: Array
+            type: Object
           },
 
           /**
@@ -309,9 +309,11 @@ method is called on the element.
          * to configure specific parts of the opening and closing animations.
          */
         _updateAnimationConfig: function() {
-          var animations = (this.openAnimationConfig || []).concat(this.closeAnimationConfig || []);
+          // Update the animation node to be the containedElement.
+          var animationNode = this.containedElement;
+          var animations = [].concat(this.openAnimationConfig || []).concat(this.closeAnimationConfig || []);
           for (var i = 0; i < animations.length; i++) {
-            animations[i].node = this.containedElement;
+            animations[i].node = animationNode;
           }
           this.animationConfig = {
             open: this.openAnimationConfig,
