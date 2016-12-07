@@ -346,6 +346,40 @@ method is called on the element.
           } else {
             Polymer.IronOverlayBehaviorImpl._applyFocus.apply(this, arguments);
           }
+        },
+
+        /**
+         * Return true if the focus is anywhere within the dropdown.
+         */
+        _focusWithinDropdown: function() {
+          if (this.shadowRoot) {
+            return this.shadowRoot.activeElement !== null;
+          } else {
+            var activeElement = this._manager.deepActiveElement;
+            return Polymer.dom(this).deepContains(activeElement);
+          }
+        },
+
+        /**
+         * Overridden from `IronOverlayBehavior`.
+         */
+        _onCaptureFocus: function(event) {
+          // See if the focus is still in the dropdown.
+          // In theory, a faster way to check this would be to inspect the event
+          // path and see where the focus is now. However, that gets tricky with
+          // synthetic focus events, such as those fired by iron-control-state.
+          if (!this._focusWithinDropdown()) {
+            // The focus has left the dropdown, e.g., in response to the user
+            // tabbing away.
+
+            // Avoid restoring focus after is closed.
+            this._restoreFocusNode = null;
+
+            // Implicitly cancel the dropdown.
+            this.cancel(event);
+          } else {
+            Polymer.IronOverlayBehaviorImpl._onCaptureFocus.apply(this, arguments);
+          }
         }
       });
     })();

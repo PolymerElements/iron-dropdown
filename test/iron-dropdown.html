@@ -145,6 +145,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
   </test-fixture>
 
+  <test-fixture id="FocusableDropdownWithOtherFocusableElement">
+    <template>
+      <div>
+        <iron-dropdown>
+          <div class="dropdown-content" tabindex="0">
+            <div class="subcontent" tabindex="0"></div>
+          </div>
+        </iron-dropdown>
+        <button id="focusableButton">Button 2</button>
+      </div>
+    </template>
+  </test-fixture>
+
   <script>
     function elementIsVisible(element) {
       var contentRect = element.getBoundingClientRect();
@@ -176,6 +189,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       target.scrollLeft = scrollLeft;
       target.scrollTop = scrollTop;
       target.dispatchEvent(new CustomEvent('scroll', { bubbles:true } ));
+    }
+
+    // Ensure target both gets focus and raises a focus event.
+    function mockFocusAndEvent(target) {
+      var focusListenerCalled;
+      var focusListener = target.addEventListener('focus', function() {
+        focusListenerCalled = true;
+      })
+      target.focus();
+      target.removeEventListener('focus', focusListener);
+      // If the focus handler above hasn't run yet, the window is inactive, and
+      // won't generate focus events, so we'll need to simulate a focus event.
+      // However, stupid IE 11 doesn't run this focus handler synchronously as
+      // expected, so we need to wait to give the handler above time to run
+      // first.
+      setTimeout(function() {
+        if (!focusListenerCalled) {
+          // Focus events aren't being raised; simulate a focus event.
+          MockInteractions.focus(target);
+        }
+      }, 50);
     }
 
     suite('<iron-dropdown>', function() {
@@ -216,7 +250,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             content = Polymer.dom(dropdown).querySelector('.dropdown-content');
           });
           test('focuses the content when opened', function(done) {
-            runAfterOpen(dropdown, function() {
+            runAfterOpen(dropdown, function () {
               expect(document.activeElement).to.be.equal(content);
               done();
             });
@@ -574,6 +608,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             expect(subcontent.style.maxHeight).to.be.not.empty;
             expect(subcontent.style.maxWidth).to.be.not.empty;
             done();
+          });
+        });
+      });
+
+      suite('auto-cancel on blur', function() {
+
+        test('auto-cancel when focusable dropdown blurs', function(done) {
+          var elements = fixture('FocusableDropdownWithOtherFocusableElement');
+          var dropdown = Polymer.dom(elements).querySelector('iron-dropdown');
+          var content = Polymer.dom(dropdown).querySelector('.dropdown-content');
+          var button = Polymer.dom(elements).querySelector('#focusableButton');
+          var mockDropdownFocus = true;
+
+          var canceledSpy = sinon.spy();
+          dropdown.addEventListener('iron-overlay-canceled', canceledSpy);
+          var contentGotFocus = false;
+
+          // Step 1: Wait for dropdown to get focus after opening.
+          content.addEventListener('focus', function() {
+            contentGotFocus = true;
+            // Move focus outside the dropdown to trigger auto-cancel behavior.
+            mockFocusAndEvent(button);
+          });
+
+          // Step 2: Wait for dropdopwn to close.
+          dropdown.addEventListener('iron-overlay-closed', function() {
+            assert(canceledSpy.calledOnce, 'dropdown raises iron-overlay-canceled on blur');
+            assert(!dropdown.opened, 'dropdown closed on blur');
+            done();
+          });
+
+          // Start step 1.
+          runAfterOpen(dropdown, function() {
+            // If the content focus handler hasn't run, it's probably because
+            // the window is inactive. We'll need to simulate a focus event.
+            setTimeout(function() {
+              if (!contentGotFocus) {
+                MockInteractions.focus(content);
+              }
+            }, 50);
           });
         });
       });
