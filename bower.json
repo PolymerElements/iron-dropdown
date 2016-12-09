@@ -40,7 +40,7 @@
         "polymer": "Polymer/polymer#^1.7.0",
         "iron-behaviors": "polymerelements/iron-behaviors#^1.0.0",
         "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#^1.8.6",
-        "neon-animation": "PolymerElements/neon-animation#^1.0.0"
+        "neon-animation": "PolymerElements/neon-animation#2.0-preview"
       },
       "devDependencies": {
         "iron-component-page": "polymerelements/iron-component-page#^1.0.0",
