@@ -44,6 +44,9 @@ In the above example, the `<div>` will be hidden until the dropdown element has
 <dom-module id="iron-dropdown">
   <template>
     <style>
+      :host {
+        position: fixed;
+      }
 
       #contentWrapper ::slotted(*) {
         overflow: auto;
@@ -55,7 +58,7 @@ In the above example, the `<div>` will be hidden until the dropdown element has
     </style>
 
     <div id="contentWrapper">
-      <slot></slot>
+      <slot id="content"></slot>
     </div>
   </template>
 
@@ -145,17 +148,6 @@ In the above example, the `<div>` will be hidden until the dropdown element has
           },
 
           /**
-           * The element that will receive a `max-height`/`width`. Overriden
-           * default value from `IronFitBehavior` to be the `containedElement` if
-           * not defined.
-           * @type {!Element}
-           */
-          sizingTarget: {
-            type: Object,
-            value: null
-          },
-
-          /**
            * Callback for scroll events.
            * @type {Function}
            * @private
@@ -180,7 +172,7 @@ In the above example, the `<div>` will be hidden until the dropdown element has
          * The element that is contained by the dropdown, if any.
          */
         get containedElement() {
-          var nodes = Polymer.dom(this.$.contentWrapper).getEffectiveChildNodes();
+          var nodes = Polymer.dom(this.$.content).getDistributedNodes();
           var i = 0;
           while (nodes[i] && nodes[i].nodeType !== Node.ELEMENT_NODE) {
             i++;
