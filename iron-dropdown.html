@@ -189,6 +189,9 @@ In the above example, the `<div>` will be hidden until the dropdown element has
 
         attached: function () {
           if (!this.sizingTarget || this.sizingTarget === this) {
+            // Need to flush to force distribution in order to get the containedElement
+            //TODO(valdrin) remove flush when webcomponents/shadydom#56 is solved.
+            window.ShadyDOM && window.ShadyDOM.flush();
             this.sizingTarget = this.containedElement || this;
           }
         },
