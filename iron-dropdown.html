@@ -18,8 +18,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <!--
 `<iron-dropdown>` is a generalized element that is useful when you have
-hidden content that is revealed due to some change in state that should cause it
-to do so.
+hidden content (`dropdown-content`) that is revealed due to some change in
+state that should cause it to do so.
 
 Note that this is a low-level element intended to be used as part of other
 composite elements that cause dropdowns to be revealed.
@@ -28,14 +28,16 @@ Examples of elements that might be implemented using an `iron-dropdown`
 include comboboxes, menubuttons, selects. The list goes on.
 
 The `<iron-dropdown>` element exposes attributes that allow the position
-of the content relative to a position target to be configured.
+of the `dropdown-content` relative to the `dropdown-trigger` to be
+configured.
 
     <iron-dropdown horizontal-align="right" vertical-align="top">
-      <div>Hello!</div>
+      <div slot="dropdown-content">Hello!</div>
     </iron-dropdown>
 
-In the above example, the `<div>` will be hidden until the dropdown element has
-`opened` set to true, or when the `open` method is called on the element.
+In the above example, the `<div>` with slot `dropdown-content` will be
+hidden until the dropdown element has `opened` set to true, or when the `open`
+method is called on the element.
 
 @demo demo/index.html
 -->

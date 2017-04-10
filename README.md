@@ -20,7 +20,7 @@ _[Demo and API docs](https://elements.polymer-project.org/elements/iron-dropdown
 ##&lt;iron-dropdown&gt;
 
 `<iron-dropdown>` is a generalized element that is useful when you have
-hidden content (`.dropdown-content`) that is revealed due to some change in
+hidden content (`dropdown-content`) that is revealed due to some change in
 state that should cause it to do so.
 
 Note that this is a low-level element intended to be used as part of other
@@ -30,16 +30,16 @@ Examples of elements that might be implemented using an `iron-dropdown`
 include comboboxes, menubuttons, selects. The list goes on.
 
 The `<iron-dropdown>` element exposes attributes that allow the position
-of the `.dropdown-content` relative to the `.dropdown-trigger` to be
+of the `dropdown-content` relative to the `dropdown-trigger` to be
 configured.
 
 ```html
 <iron-dropdown horizontal-align="right" vertical-align="top">
-  <div class="dropdown-content">Hello!</div>
+  <div slot="dropdown-content">Hello!</div>
 </iron-dropdown>
 ```
 
-In the above example, the `<div>` with class `.dropdown-content` will be
+In the above example, the `<div>` with slot `dropdown-content` will be
 hidden until the dropdown element has `opened` set to true, or when the `open`
 method is called on the element.
 
