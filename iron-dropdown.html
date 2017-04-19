@@ -48,14 +48,17 @@ method is called on the element.
     <style>
       :host {
         position: fixed;
+        @apply(--iron-dropdown);
       }
 
       #contentWrapper ::content > * {
         overflow: auto;
+        @apply(--iron-dropdown-content);
       }
 
       #contentWrapper.animating ::content > * {
         overflow: hidden;
+        @apply(--iron-dropdown-animating-content);
       }
     </style>
 
