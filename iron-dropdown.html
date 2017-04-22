@@ -215,8 +215,8 @@ method is called on the element.
           } else {
             this.cancelAnimation();
             this._updateAnimationConfig();
-            this._saveScrollPosition();
             if (this.opened) {
+              this._saveScrollPosition();
               document.addEventListener('scroll', this._boundOnCaptureScroll);
               !this.allowOutsideScroll && Polymer.IronDropdownScrollManager.pushScrollLock(this);
             } else {
