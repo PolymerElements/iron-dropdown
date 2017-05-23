@@ -9,8 +9,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
-<link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 <link rel="import" href="../iron-behaviors/iron-control-state.html">
 <link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
 <link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
@@ -168,14 +166,6 @@ method is called on the element.
               return nodes[i];
             }
           }
-        },
-
-        ready: function() {
-          // Memoized scrolling position, used to block scrolling outside.
-          this._scrollTop = 0;
-          this._scrollLeft = 0;
-          // Used to perform a non-blocking refit on scroll.
-          this._refitOnScrollRAF = null;
         },
 
         attached: function () {
