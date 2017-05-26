@@ -348,9 +348,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         test('should lock, only once', function(done) {
           var openCount = 0;
           runAfterOpen(dropdown, function() {
-            expect(Polymer.IronScrollManager._lockingElements.length)
+            expect(Polymer.IronDropdownScrollManager._lockingElements.length)
               .to.be.equal(1);
-            expect(Polymer.IronScrollManager.elementIsScrollLocked(document.body))
+            expect(Polymer.IronDropdownScrollManager.elementIsScrollLocked(document.body))
               .to.be.equal(true);
             expect(fireWheel(document.body, 0, 10).defaultPrevented).to.be.equal(true);
 
@@ -395,7 +395,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         test('can be disabled with `allowOutsideScroll`', function(done) {
           runAfterOpen(dropdown, function() {
-            expect(Polymer.IronScrollManager.elementIsScrollLocked(document.body))
+            expect(Polymer.IronDropdownScrollManager.elementIsScrollLocked(document.body))
               .to.be.equal(false);
             expect(fireWheel(document.body, 0, 10).defaultPrevented).to.be.equal(false);
             done();
