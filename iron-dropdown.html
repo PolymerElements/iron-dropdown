@@ -12,7 +12,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../iron-behaviors/iron-control-state.html">
 <link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
 <link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
-<link rel="import" href="iron-dropdown-scroll-manager.html">
 
 <!--
 `<iron-dropdown>` is a generalized element that is useful when you have
@@ -140,10 +139,13 @@ method is called on the element.
            * to itself when opened.
            * Set to true in order to prevent scroll from being constrained
            * to the dropdown when it opens.
+           * This property is a shortcut to set `scrollAction` to lock or refit.
+           * Prefer directly setting the `scrollAction` property.
            */
           allowOutsideScroll: {
             type: Boolean,
-            value: false
+            value: false,
+            observer: '_allowOutsideScrollChanged'
           }
         },
 
@@ -166,6 +168,14 @@ method is called on the element.
               return nodes[i];
             }
           }
+        },
+
+        ready: function() {
+          // Ensure scrollAction is set.
+          if (!this.scrollAction) {
+            this.scrollAction = this.allowOutsideScroll ? 'refit' : 'lock';
+          }
+          this._readied = true;
         },
 
         attached: function () {
@@ -256,6 +266,22 @@ method is called on the element.
           if (this.isAttached) {
             // This triggers iron-resize, and iron-overlay-behavior will call refit if needed.
             this.notifyResize();
+          }
+        },
+
+        /**
+         * Sets scrollAction according to the value of allowOutsideScroll.
+         * Prefer setting directly scrollAction.
+         */
+        _allowOutsideScrollChanged: function(allowOutsideScroll) {
+          // Wait until initial values are all set.
+          if (!this._readied) {
+            return;
+          }
+          if (!allowOutsideScroll) {
+            this.scrollAction = 'lock';
+          } else if (!this.scrollAction || this.scrollAction === 'lock') {
+            this.scrollAction = 'refit';
           }
         },
 
