@@ -55,38 +55,28 @@ method is called on the element.
       #contentWrapper {
         overflow: hidden;
         contain: content;
-        will-change: transform;
+        will-change: transform, opacity;
         transform-origin: top left;
-      }
-
-       :host(:not([opened])) {
-        transform: scaleY(0);
-      }
-
-       :host(:not([opened])) #contentWrapper {
-        transform: scaleY(100000);
       }
 
        :host(.animating) {
         animation-name: closedAnimation;
-      }
-
-       :host(.animating) #contentWrapper {
-        animation-name: closedContentsAnimation;
+        animation-timing-function: linear;
       }
 
        :host(.animating[opened]) {
         animation-name: openedAnimation;
+        animation-timing-function: step-end;
       }
 
        :host(.animating[opened]) #contentWrapper {
         animation-name: openedContentsAnimation;
+        animation-timing-function: step-end;
       }
 
        :host(:not([no-animations])),
        :host(:not([no-animations])) #contentWrapper {
         animation-duration: var(--iron-dropdown-animation-duration, 200ms);
-        animation-timing-function: step-end;
       }
 
       @keyframes openedAnimation {
@@ -163,73 +153,10 @@ method is called on the element.
 
       @keyframes closedAnimation {
         0% {
-          transform: scaleY(1);
-        }
-        10% {
-          transform: scaleY(0.65610);
-        }
-        20% {
-          transform: scaleY(0.40960);
-        }
-        30% {
-          transform: scaleY(0.24010);
-        }
-        40% {
-          transform: scaleY(0.12960);
-        }
-        50% {
-          transform: scaleY(0.06250);
-        }
-        60% {
-          transform: scaleY(0.02560);
-        }
-        70% {
-          transform: scaleY(0.00810);
-        }
-        80% {
-          transform: scaleY(0.00160);
-        }
-        90% {
-          transform: scaleY(0.00010);
+          opacity: 1;
         }
         100% {
-          transform: scaleY(0);
-        }
-      }
-
-      @keyframes closedContentsAnimation {
-        0% {
-          transform: scaleY(1);
-        }
-        10% {
-          transform: scaleY(1.52416);
-        }
-        20% {
-          transform: scaleY(2.44141);
-        }
-        30% {
-          transform: scaleY(4.16493);
-        }
-        40% {
-          transform: scaleY(7.71605);
-        }
-        50% {
-          transform: scaleY(16);
-        }
-        60% {
-          transform: scaleY(39.06250);
-        }
-        70% {
-          transform: scaleY(123.45679);
-        }
-        80% {
-          transform: scaleY(625);
-        }
-        90% {
-          transform: scaleY(10000);
-        }
-        100% {
-          transform: scaleY(100000);
+          opacity: 0;
         }
       }
     </style>
