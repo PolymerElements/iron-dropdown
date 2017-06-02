@@ -13,6 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
 <!--TODO remove this import -->
 <link rel="import" href="iron-dropdown-scroll-manager.html">
+<link rel="import" href="animation-keyframes.html">
 
 <!--
 `<iron-dropdown>` is a generalized element that is useful when you have
@@ -51,12 +52,17 @@ method is called on the element.
         overflow: auto;
       }
 
-      :host,
+       :host,
       #contentWrapper {
         overflow: hidden;
         contain: content;
         will-change: transform, opacity;
         transform-origin: top left;
+      }
+
+       :host([vertical-align="bottom"]),
+       :host([vertical-align="bottom"]) #contentWrapper {
+        transform-origin: bottom left;
       }
 
        :host(.animating) {
@@ -70,85 +76,8 @@ method is called on the element.
       }
 
        :host(.animating[opened]) #contentWrapper {
-        animation-name: openedContentsAnimation;
+        animation-name: openedAnimationInverse;
         animation-timing-function: step-end;
-      }
-
-       :host(:not([no-animations])),
-       :host(:not([no-animations])) #contentWrapper {
-        animation-duration: var(--iron-dropdown-animation-duration, 200ms);
-      }
-
-      @keyframes openedAnimation {
-        0% {
-          transform: scaleY(0);
-        }
-        10% {
-          transform: scaleY(0.34390);
-        }
-        20% {
-          transform: scaleY(0.59040);
-        }
-        30% {
-          transform: scaleY(0.75990);
-        }
-        40% {
-          transform: scaleY(0.87040);
-        }
-        50% {
-          transform: scaleY(0.93750);
-        }
-        60% {
-          transform: scaleY(0.97440);
-        }
-        70% {
-          transform: scaleY(0.99190);
-        }
-        80% {
-          transform: scaleY(0.99840);
-        }
-        90% {
-          transform: scaleY(0.99990);
-        }
-        100% {
-          transform: scaleY(1);
-        }
-      }
-
-      @keyframes openedContentsAnimation {
-        0% {
-          transform: scaleY(100000);
-        }
-        10% {
-          transform: scaleY(2.90782);
-        }
-        20% {
-          transform: scaleY(1.69377);
-        }
-        30% {
-          transform: scaleY(1.31596);
-        }
-        40% {
-          transform: scaleY(1.14890);
-        }
-        50% {
-          transform: scaleY(1.06667);
-        }
-        60% {
-          transform: scaleY(1.02627);
-        }
-        70% {
-          transform: scaleY(1.00817);
-        }
-        80% {
-          transform: scaleY(1.00160);
-        }
-        90% {
-          transform: scaleY(1.00010);
-        }
-        100% {
-          transform: scaleY(1);
-        }
       }
 
       @keyframes closedAnimation {
@@ -160,6 +89,7 @@ method is called on the element.
         }
       }
     </style>
+    <animation-keyframes animation-name="openedAnimation" preset="vertical-expand" duration="[[animationDuration]]"></animation-keyframes>
 
     <div id="contentWrapper">
       <slot id="content" name="dropdown-content"></slot>
@@ -223,11 +153,12 @@ method is called on the element.
           },
 
           /**
-           * Set to true to disable animations when opening and closing the
+           * Set to enable animations when opening and closing the
            * dropdown.
            */
-          noAnimations: {
-            type: Boolean
+          animationDuration: {
+            type: Number,
+            observer: '_animationDurationChanged'
           },
 
           /**
@@ -297,7 +228,7 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _renderOpened: function() {
-          if (!this.noAnimations) {
+          if (this.animationDuration > 0) {
             this.classList.add('animating');
           } else {
             Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this, arguments);
@@ -308,11 +239,17 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _renderClosed: function() {
-          if (!this.noAnimations) {
+          if (this.animationDuration > 0) {
             this.classList.add('animating');
           } else {
             Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this, arguments);
           }
+        },
+
+        _animationDurationChanged: function(duration) {
+          const ms = (duration || 0) + 'ms';
+          this.style.animationDuration = ms;
+          this.$.contentWrapper.style.animationDuration = ms;
         },
 
         /**
