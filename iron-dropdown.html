@@ -13,7 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 <link rel="import" href="../iron-behaviors/iron-control-state.html">
 <link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
-<link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="animation-keyframes.html">
 <link rel="import" href="iron-dropdown-scroll-manager.html">
 
 <!--
@@ -53,10 +53,44 @@ method is called on the element.
         overflow: auto;
       }
 
-      #contentWrapper.animating ::slotted(*) {
+      :host,
+      #contentWrapper {
         overflow: hidden;
+        contain: content;
+        will-change: transform, opacity;
+        transform-origin: top left;
+      }
+
+      :host([vertical-align="bottom"]),
+      :host([vertical-align="bottom"]) #contentWrapper {
+        transform-origin: bottom left;
+      }
+
+      :host(.animating) {
+        animation-name: closedAnimation;
+        animation-timing-function: linear;
+      }
+
+      :host(.animating[opened]) {
+        animation-name: openedAnimation;
+        animation-timing-function: step-end;
+      }
+
+      :host(.animating[opened]) #contentWrapper {
+        animation-name: openedAnimationInverse;
+        animation-timing-function: step-end;
+      }
+
+      @keyframes closedAnimation {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
       }
     </style>
+    <animation-keyframes animation-name="openedAnimation" preset="vertical-expand" duration="[[animationDuration]]"></animation-keyframes>
 
     <div id="contentWrapper">
       <slot id="content" name="dropdown-content"></slot>
@@ -74,10 +108,21 @@ method is called on the element.
           Polymer.IronControlState,
           Polymer.IronA11yKeysBehavior,
           Polymer.IronOverlayBehavior,
-          Polymer.NeonAnimationRunnerBehavior
         ],
 
         properties: {
+          /**
+           * True if the overlay is currently displayed.
+           * Overridden from `Polymer.IronOverlayBehavior`.
+           */
+          opened: {
+            observer: '_openedChanged',
+            type: Boolean,
+            value: false,
+            notify: true,
+            reflectToAttribute: true
+          },
+
           /**
            * The orientation against which to align the dropdown content
            * horizontally relative to the dropdown trigger.
@@ -101,26 +146,6 @@ method is called on the element.
           },
 
           /**
-           * An animation config. If provided, this will be used to animate the
-           * opening of the dropdown. Pass an Array for multiple animations.
-           * See `neon-animation` documentation for more animation configuration
-           * details.
-           */
-          openAnimationConfig: {
-            type: Object
-          },
-
-          /**
-           * An animation config. If provided, this will be used to animate the
-           * closing of the dropdown. Pass an Array for multiple animations.
-           * See `neon-animation` documentation for more animation configuration
-           * details.
-           */
-          closeAnimationConfig: {
-            type: Object
-          },
-
-          /**
            * If provided, this will be the element that will be focused when
            * the dropdown opens.
            */
@@ -129,12 +154,15 @@ method is called on the element.
           },
 
           /**
-           * Set to true to disable animations when opening and closing the
+           * Set to enable animations when opening and closing the
            * dropdown.
            */
-          noAnimations: {
-            type: Boolean,
-            value: false
+          animationDuration: {
+            type: Number,
+            value: function() {
+              return 200;
+            },
+            observer: '_animationDurationChanged'
           },
 
           /**
@@ -162,7 +190,7 @@ method is called on the element.
         },
 
         listeners: {
-          'neon-animation-finish': '_onNeonAnimationFinish'
+          'animationend': '_onAnimationend'
         },
 
         observers: [
@@ -210,8 +238,7 @@ method is called on the element.
           if (this.opened && this.disabled) {
             this.cancel();
           } else {
-            this.cancelAnimation();
-            this._updateAnimationConfig();
+            this.classList.remove('animating');
             this._saveScrollPosition();
             if (this.opened) {
               document.addEventListener('scroll', this._boundOnCaptureScroll);
@@ -228,9 +255,8 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _renderOpened: function() {
-          if (!this.noAnimations && this.animationConfig.open) {
-            this.$.contentWrapper.classList.add('animating');
-            this.playAnimation('open');
+          if (this.animationDuration > 0) {
+            this.classList.add('animating');
           } else {
             Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this, arguments);
           }
@@ -240,12 +266,17 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _renderClosed: function() {
-          if (!this.noAnimations && this.animationConfig.close) {
-            this.$.contentWrapper.classList.add('animating');
-            this.playAnimation('close');
+          if (this.animationDuration > 0) {
+            this.classList.add('animating');
           } else {
             Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this, arguments);
           }
+        },
+
+        _animationDurationChanged: function(duration) {
+          const ms = (duration || 0) + 'ms';
+          this.style.animationDuration = ms;
+          this.$.contentWrapper.style.animationDuration = ms;
         },
 
         /**
@@ -254,8 +285,11 @@ method is called on the element.
          * closing the dropdown by positioning it or setting its display to
          * none.
          */
-        _onNeonAnimationFinish: function() {
-          this.$.contentWrapper.classList.remove('animating');
+        _onAnimationend: function(event) {
+          if (event.target !== this)
+            return;
+
+          this.classList.remove('animating');
           if (this.opened) {
             this._finishRenderOpened();
           } else {
@@ -302,23 +336,6 @@ method is called on the element.
             document.body.scrollTop = this._scrollTop;
             document.body.scrollLeft = this._scrollLeft;
           }
-        },
-
-        /**
-         * Constructs the final animation config from different properties used
-         * to configure specific parts of the opening and closing animations.
-         */
-        _updateAnimationConfig: function() {
-          // Update the animation node to be the containedElement.
-          var animationNode = this.containedElement;
-          var animations = [].concat(this.openAnimationConfig || []).concat(this.closeAnimationConfig || []);
-          for (var i = 0; i < animations.length; i++) {
-            animations[i].node = animationNode;
-          }
-          this.animationConfig = {
-            open: this.openAnimationConfig,
-            close: this.closeAnimationConfig
-          };
         },
 
         /**

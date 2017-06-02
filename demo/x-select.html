@@ -9,8 +9,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../iron-dropdown.html">
-<link rel="import" href="../../neon-animation/neon-animations.html">
-<link rel="import" href="grow-height-animation.html">
 
 <dom-module id="x-select">
   <template>
@@ -19,6 +17,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: inline-block;
         margin: 1em;
       }
+      iron-dropdown {
+        background-color: white;
+        line-height: 20px;
+        border-radius: 3px;
+        box-shadow: 0px 2px 6px #ccc;
+      }
     </style>
     <div on-tap="open">
       <slot name="dropdown-trigger"></slot>
@@ -26,9 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-dropdown id="dropdown"
       vertical-align="[[verticalAlign]]"
       horizontal-align="[[horizontalAlign]]"
-      disabled="[[disabled]]"
-      open-animation-config="[[openAnimationConfig]]"
-      close-animation-config="[[closeAnimationConfig]]">
+      disabled="[[disabled]]">
       <slot name="dropdown-content" slot="dropdown-content"></slot>
     </iron-dropdown>
   </template>
@@ -39,37 +41,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       properties: {
         verticalAlign: String,
         horizontalAlign: String,
-        disabled: Boolean,
-        openAnimationConfig: {
-          type: Array,
-          value: function() {
-            return [{
-              name: 'fade-in-animation',
-              timing: {
-                delay: 150,
-                duration: 50
-              }
-            }, {
-              name: 'expand-animation',
-              timing: {
-                delay: 150,
-                duration: 200
-              }
-            }];
-          }
-        },
-
-        closeAnimationConfig: {
-          type: Array,
-          value: function() {
-            return [{
-              name: 'fade-out-animation',
-              timing: {
-                duration: 200
-              }
-            }];
-          }
-        }
+        disabled: Boolean
       },
 
       open: function() {
