@@ -66,6 +66,11 @@ method is called on the element.
         transform-origin: bottom left;
       }
 
+      :host(:not([no-animations])),
+      :host(:not([no-animations])) #contentWrapper {
+        animation-duration: var(--iron-dropdown-animation-duration, 200ms);
+      }
+
       :host(.animating) {
         animation-name: closedAnimation;
         animation-timing-function: linear;
@@ -90,7 +95,7 @@ method is called on the element.
         }
       }
     </style>
-    <animation-keyframes animation-name="openedAnimation" preset="vertical-expand" duration="[[animationDuration]]"></animation-keyframes>
+    <animation-keyframes animation-name="openedAnimation" preset="vertical-expand" duration="600"></animation-keyframes>
 
     <div id="contentWrapper">
       <slot id="content" name="dropdown-content"></slot>
@@ -151,18 +156,6 @@ method is called on the element.
            */
           focusTarget: {
             type: Object
-          },
-
-          /**
-           * Set to enable animations when opening and closing the
-           * dropdown.
-           */
-          animationDuration: {
-            type: Number,
-            value: function() {
-              return 200;
-            },
-            observer: '_animationDurationChanged'
           },
 
           /**
@@ -254,28 +247,14 @@ method is called on the element.
          * Overridden from `IronOverlayBehavior`.
          */
         _renderOpened: function() {
-          if (this.animationDuration > 0) {
-            this.classList.add('animating');
-          } else {
-            Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this, arguments);
-          }
+          this.classList.add('animating');
         },
 
         /**
          * Overridden from `IronOverlayBehavior`.
          */
         _renderClosed: function() {
-          if (this.animationDuration > 0) {
-            this.classList.add('animating');
-          } else {
-            Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this, arguments);
-          }
-        },
-
-        _animationDurationChanged: function(duration) {
-          const ms = (duration || 0) + 'ms';
-          this.style.animationDuration = ms;
-          this.$.contentWrapper.style.animationDuration = ms;
+          this.classList.add('animating');
         },
 
         /**
