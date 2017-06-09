@@ -225,7 +225,6 @@ method is called on the element.
         },
 
         detached: function() {
-          this.cancelAnimation();
           document.removeEventListener('scroll', this._boundOnCaptureScroll);
           Polymer.IronDropdownScrollManager.removeScrollLock(this);
         },
