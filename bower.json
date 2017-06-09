@@ -21,7 +21,8 @@
   "dependencies": {
     "polymer": "Polymer/polymer#1.9 - 2",
     "iron-behaviors": "PolymerElements/iron-behaviors#1 - 2",
-    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#1 - 2"
+    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#1 - 2",
+    "animation-keyframes": "valdrinkoshi/animation-keyframes#^0.1.2"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#1 - 2",
