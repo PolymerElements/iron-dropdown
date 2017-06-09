@@ -68,7 +68,7 @@ method is called on the element.
 
       :host(:not([no-animations])),
       :host(:not([no-animations])) #contentWrapper {
-        animation-duration: var(--iron-dropdown-animation-duration, 200ms);
+        animation-duration: 200ms;
       }
 
       :host(.animating) {
@@ -95,7 +95,7 @@ method is called on the element.
         }
       }
     </style>
-    <animation-keyframes animation-name="openedAnimation" preset="vertical-expand" duration="600"></animation-keyframes>
+    <animation-keyframes animation-name="openedAnimation" preset="vertical-expand" duration="200"></animation-keyframes>
 
     <div id="contentWrapper">
       <slot id="content" name="dropdown-content"></slot>
