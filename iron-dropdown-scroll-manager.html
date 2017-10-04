@@ -173,6 +173,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var contentIndex;
         var nodeIndex;
 
+        if (element.nodeType !== 1) {
+          // element is not an HTMLElement and so it has no children.
+          return element === child;
+        }
+        
         if (element.contains(child)) {
           return true;
         }
