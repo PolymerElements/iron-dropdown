@@ -318,17 +318,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             dropdown.openAnimationConfig = [{
               name: 'fade-in-animation',
               timing: {
-                duration: 100
+                duration: 300
               }
             }];
             dropdown.open();
             setTimeout(function() {
               assert.equal(getComputedStyle(content).pointerEvents, 'none', 'content is interactive');
-            }, 50);
-            setTimeout(function() {
+            }, 150);
+            dropdown.addEventListener('iron-overlay-opened', function() {
               assert.notEqual(getComputedStyle(content).pointerEvents, 'none', 'content is not interactive');
               done();
-            }, 150);
+            });
           });
         });
 
