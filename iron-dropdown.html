@@ -46,14 +46,17 @@ method is called on the element.
     <style include="iron-dropdown-shared-styles">
       :host {
         position: fixed;
+        @apply --iron-dropdown;
       }
 
       #contentWrapper ::slotted(*) {
         overflow: auto;
+        @apply --iron-dropdown-content;
       }
 
       #contentWrapper.animating ::slotted(*) {
         overflow: hidden;
+        @apply --iron-dropdown-content-animating;
       }
     </style>
 
