@@ -43,7 +43,7 @@ method is called on the element.
 
 <dom-module id="iron-dropdown">
   <template>
-    <style>
+    <style include="iron-dropdown-shared-styles">
       :host {
         position: fixed;
       }
@@ -242,7 +242,7 @@ method is called on the element.
             this._finishRenderClosed();
           }
         },
-        
+
         /**
          * Constructs the final animation config from different properties used
          * to configure specific parts of the opening and closing animations.
