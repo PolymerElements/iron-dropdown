@@ -9,4 +9,5 @@
  */
 
 /// <reference path="../iron-overlay-behavior/iron-scroll-manager.d.ts" />
+/// <reference path="iron-dropdown-scroll-manager-extra.d.ts" />
 
