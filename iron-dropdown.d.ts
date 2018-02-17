@@ -93,32 +93,33 @@ interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState,
 
   /**
    * The element that is contained by the dropdown, if any.
+   *          
    */
-  containedElement: object|null;
-  ready(): any;
-  attached(): any;
-  detached(): any;
+  readonly containedElement: any;
+  ready(): void;
+  attached(): void;
+  detached(): void;
 
   /**
    * Called when the value of `opened` changes.
    * Overridden from `IronOverlayBehavior`
    */
-  _openedChanged(): any;
+  _openedChanged(): void;
 
   /**
    * Overridden from `IronOverlayBehavior`.
    */
-  _renderOpened(): any;
+  _renderOpened(): void;
 
   /**
    * Overridden from `IronOverlayBehavior`.
    */
-  _renderClosed(): any;
+  _renderClosed(): void;
 
   /**
    * Apply focus to focusTarget or containedElement
    */
-  _applyFocus(): any;
+  _applyFocus(): void;
 
   /**
    * Called when animation finishes on the dropdown (when opening or
@@ -126,25 +127,25 @@ interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState,
    * closing the dropdown by positioning it or setting its display to
    * none.
    */
-  _onNeonAnimationFinish(): any;
+  _onNeonAnimationFinish(): void;
 
   /**
    * Constructs the final animation config from different properties used
    * to configure specific parts of the opening and closing animations.
    */
-  _updateAnimationConfig(): any;
+  _updateAnimationConfig(): void;
 
   /**
    * Updates the overlay position based on configured horizontal
    * and vertical alignment.
    */
-  _updateOverlayPosition(): any;
+  _updateOverlayPosition(): void;
 
   /**
    * Sets scrollAction according to the value of allowOutsideScroll.
    * Prefer setting directly scrollAction.
    */
-  _allowOutsideScrollChanged(allowOutsideScroll: any): any;
+  _allowOutsideScrollChanged(allowOutsideScroll: any): void;
 }
 
 interface HTMLElementTagNameMap {
