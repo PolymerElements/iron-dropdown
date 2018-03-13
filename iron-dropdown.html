@@ -67,29 +67,41 @@ method is called on the element.
           opacity: 0;
         }
       }
+
       .fade-out-animation {
         animation-name: fade-out-animation;
       }
+
       @keyframes fade-out-animation {
         to {
           opacity: 0;
         }
       }
+
       .scale-up-animation {
         animation-name: scale-up-animation;
       }
+
       @keyframes scale-up-animation {
         from {
           transform: scale(0.0);
         }
       }
+
       .scale-down-animation {
         animation-name: scale-down-animation;
       }
+
       @keyframes scale-down-animation {
         to {
           transform: scale(0.0);
         }
+      }
+
+      .animation-open {
+        animation-name: var(--animation-names);
+        animation-duration: var(--animation-durations);
+        animation-delay: var(--animation-names);
       }
     </style>
 
@@ -326,9 +338,24 @@ method is called on the element.
          */
         _updateAnimationConfig: function () {
           if (this.openAnimationConfig) {
-            if (this.openAnimationConfig.length === 1) {
-              this.openAnimation = this.openAnimationConfig[0].name;
+            var animationNames = "",
+              animationDurations = "",
+              animationDelays = "",
+              comma = "";
+            for (var i = 0; i < this.openAnimationConfig.length; i++) {
+              if (i === 1) {
+                comma = ",";
+              }
+              animationNames += comma + this.openAnimationConfig[i].name;
+              animationDelays += comma + this.openAnimationConfig[i].timing.delay + "ms";
+              animationDurations += comma + this.openAnimationConfig[i].timing.duration + "ms";
             }
+            this.updateStyles({
+              '--animation-names': animationNames,
+              '--animation-durations': animationDurations,
+              '--animation-delays': animationDelays
+            });
+            this.openAnimation = "animation-open";
           }
           if (this.closeAnimationConfig) {
             if (this.closeAnimationConfig.length === 1) {
