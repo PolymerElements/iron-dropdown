@@ -59,6 +59,36 @@ method is called on the element.
       .cancel-animation {
         animation-delay: -30s !important;
       }
+      
+      @keyframes fade-in-animation {
+        from {
+          opacity: 0;
+        }
+      }
+      :host(.fade-out-animation) {
+        animation-name: fade-out-animation;
+      }
+      @keyframes fade-out-animation {
+        to {
+          opacity: 0;
+        }
+      }
+      :host(.scale-up-animation) {
+        animation-name: scale-up-animation;
+      }
+      @keyframes scale-up-animation {
+        from {
+          transform: scale(0.0);
+        }
+      }
+      :host(.scale-down-animation) {
+        animation-name: scale-down-animation;
+      }
+      @keyframes scale-down-animation {
+        to {
+          transform: scale(0.0);
+        }
+      }
     </style>
 
     <div id="contentWrapper">
