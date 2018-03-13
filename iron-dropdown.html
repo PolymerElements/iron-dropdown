@@ -45,6 +45,8 @@ method is called on the element.
     <style>
       :host {
         position: fixed;
+        animation-duration: 500ms;
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       #contentWrapper ::slotted(*) {
@@ -59,13 +61,13 @@ method is called on the element.
       .cancel-animation {
         animation-delay: -30s !important;
       }
-      
+
       @keyframes fade-in-animation {
         from {
           opacity: 0;
         }
       }
-      :host(.fade-out-animation) {
+      .fade-out-animation {
         animation-name: fade-out-animation;
       }
       @keyframes fade-out-animation {
@@ -73,7 +75,7 @@ method is called on the element.
           opacity: 0;
         }
       }
-      :host(.scale-up-animation) {
+      .scale-up-animation {
         animation-name: scale-up-animation;
       }
       @keyframes scale-up-animation {
@@ -81,7 +83,7 @@ method is called on the element.
           transform: scale(0.0);
         }
       }
-      :host(.scale-down-animation) {
+      .scale-down-animation {
         animation-name: scale-down-animation;
       }
       @keyframes scale-down-animation {
@@ -249,11 +251,11 @@ method is called on the element.
         },
 
         _addListeners: function () {
-          this.listen(this, 'animationend', '_onWebAnimationFinish');
+          this.listen(this.$.contentWrapper, 'animationend', '_onAnimationEnd');
         },
 
         _removeListeners: function () {
-          this.unlisten(this, 'animationend', '_onWebAnimationFinish');
+          this.unlisten(this.$.contentWrapper, 'animationend', '_onAnimationEnd');
         },
 
         /**
@@ -264,7 +266,7 @@ method is called on the element.
           if (this.opened && this.disabled) {
             this.cancel();
           } else {
-            this.cancelAnimation();
+            // this.cancelAnimation();
             this._updateAnimationConfig();
             Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
           }
@@ -302,8 +304,8 @@ method is called on the element.
          * @param {Event=} event
          * @private       
          */
-        _onWebAnimationEnd: function (event) {
-          if (event && event.target !== this) {
+        _onAnimationEnd: function (event) {
+          if (event && event.target !== this.$.contentWrapper) {
             return;
           }
           this.$.contentWrapper.classList.remove('animating');
@@ -349,12 +351,13 @@ method is called on the element.
 
         _openAnimation: function () {
           if (!this.openAnimation) {
-            this._onWebAnimationEnd();
+            this._onAnimationEnd();
           } else {
+            console.log("open Animation");
             this.$.contentWrapper.classList.add(this.openAnimation);
             // If not animation _onWebAnimationEnd will not be called and will fail to change state
             if (this._willAnimate() === false) {
-              this._onWebAnimationEnd();
+              this._onAnimationEnd();
             }
 
           }
@@ -362,12 +365,12 @@ method is called on the element.
 
         _closeAnimation: function () {
           if (!this.closeAnimation) {
-            this._onWebAnimationEnd();
+            this._onAnimationEnd();
           } else {
             this.$.contentWrapper.classList.add(this.closeAnimation);
             // If not animation _onWebAnimationEnd will not be called and will fail to change state
             if (this._willAnimate() === false) {
-              this._onWebAnimationEnd();
+              this._onAnimationEnd();
             }
           }
         },
@@ -424,7 +427,7 @@ method is called on the element.
          */
         _willAnimate: function () {
           // If CSS Class does not have animation-name considered not be an animation
-          var style = window.getComputedStyle(this);
+          var style = window.getComputedStyle(this.$.contentWrapper);
           return (style.getPropertyValue('animation-name') !== 'none' &&
             style.getPropertyValue('animation-duration') !== '0ms');
         }
