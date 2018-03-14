@@ -11,7 +11,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-behaviors/iron-control-state.html">
 <link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
-<link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
 <!--TODO remove this import -->
 <link rel="import" href="iron-dropdown-scroll-manager.html">
 
@@ -56,6 +55,50 @@ method is called on the element.
         overflow: hidden;
         pointer-events: none;
       }
+
+      #contentWrapper {
+        /* TODO(valdrin) evaluate which props to expose */
+        @apply --iron-dropdown-content-wrapper-animation;
+      }
+
+      :host, #contentWrapper {
+        transform-origin: left top;
+      }
+
+      :host([horizontal-align="right"][vertical-align="top"]),
+      :host([horizontal-align="right"][vertical-align="top"]) #contentWrapper {
+        transform-origin: right top;
+      }
+
+      :host([horizontal-align="left"][vertical-align="bottom"]),
+      :host([horizontal-align="left"][vertical-align="bottom"]) #contentWrapper {
+        transform-origin: left bottom;
+      }
+
+      :host([horizontal-align="right"][vertical-align="bottom"]),
+      :host([horizontal-align="right"][vertical-align="bottom"]) #contentWrapper {
+        transform-origin: right bottom;
+      }
+
+      :host(.fade-in-animation) {
+        animation-name: fade-in-animation;
+      }
+
+      @keyframes fade-in-animation {
+        from {
+          opacity: 0;
+        }
+      }
+
+      :host(.fade-out-animation) {
+        animation-name: fade-out-animation;
+      }
+
+      @keyframes fade-out-animation {
+        to {
+          opacity: 0;
+        }
+      }
     </style>
 
     <div id="contentWrapper">
@@ -73,8 +116,7 @@ method is called on the element.
         behaviors: [
           Polymer.IronControlState,
           Polymer.IronA11yKeysBehavior,
-          Polymer.IronOverlayBehavior,
-          Polymer.NeonAnimationRunnerBehavior
+          Polymer.IronOverlayBehavior
         ],
 
         properties: {
@@ -100,24 +142,12 @@ method is called on the element.
             reflectToAttribute: true
           },
 
-          /**
-           * An animation config. If provided, this will be used to animate the
-           * opening of the dropdown. Pass an Array for multiple animations.
-           * See `neon-animation` documentation for more animation configuration
-           * details.
-           */
-          openAnimationConfig: {
-            type: Object
+          entryAnimation: {
+            type: String
           },
 
-          /**
-           * An animation config. If provided, this will be used to animate the
-           * closing of the dropdown. Pass an Array for multiple animations.
-           * See `neon-animation` documentation for more animation configuration
-           * details.
-           */
-          closeAnimationConfig: {
-            type: Object
+          exitAnimation: {
+            type: String
           },
 
           /**
@@ -153,7 +183,7 @@ method is called on the element.
         },
 
         listeners: {
-          'neon-animation-finish': '_onNeonAnimationFinish'
+          'animationend': '_onAnimationEnd'
         },
 
         observers: [
@@ -181,7 +211,7 @@ method is called on the element.
           this._readied = true;
         },
 
-        attached: function () {
+        attached: function() {
           if (!this.sizingTarget || this.sizingTarget === this) {
             this.sizingTarget = this.containedElement || this;
           }
@@ -191,42 +221,56 @@ method is called on the element.
           this.cancelAnimation();
         },
 
+        cancelAnimation: function() {
+          this.classList.remove(this.entryAnimation);
+          this.classList.remove(this.exitAnimation);
+          this.$.contentWrapper.classList.remove('animating');
+        },
+
+        /**
+         * @param {string=} animation
+         */
+        playAnimation: function(animation) {
+          if (!this.noAnimations && animation) {
+            this.$.contentWrapper.classList.add('animating');
+            this.classList.add(animation);
+            if (this._willAnimate() === false) {
+              console.info(animation + ' animation was not played');
+              this._onAnimationEnd();
+            }
+          } else {
+            this._onAnimationEnd();
+          }
+        },
+
         /**
          * Called when the value of `opened` changes.
          * Overridden from `IronOverlayBehavior`
+         * @private
          */
         _openedChanged: function() {
           if (this.opened && this.disabled) {
             this.cancel();
           } else {
             this.cancelAnimation();
-            this._updateAnimationConfig();
             Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
           }
         },
 
         /**
          * Overridden from `IronOverlayBehavior`.
+         * @private
          */
         _renderOpened: function() {
-          if (!this.noAnimations && this.animationConfig.open) {
-            this.$.contentWrapper.classList.add('animating');
-            this.playAnimation('open');
-          } else {
-            Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this, arguments);
-          }
+          this.playAnimation(this.entryAnimation);
         },
 
         /**
          * Overridden from `IronOverlayBehavior`.
+         * @private
          */
         _renderClosed: function() {
-          if (!this.noAnimations && this.animationConfig.close) {
-            this.$.contentWrapper.classList.add('animating');
-            this.playAnimation('close');
-          } else {
-            Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this, arguments);
-          }
+          this.playAnimation(this.exitAnimation);
         },
 
         /**
@@ -234,36 +278,31 @@ method is called on the element.
          * closing). Responsible for "completing" the process of opening or
          * closing the dropdown by positioning it or setting its display to
          * none.
+         * @param {Event=} event
+         * @private
          */
-        _onNeonAnimationFinish: function() {
+        _onAnimationEnd: function(event) {
+          if (event && event.target !== this) {
+            return;
+          }
           this.$.contentWrapper.classList.remove('animating');
           if (this.opened) {
+            this.classList.remove(this.entryAnimation);
             this._finishRenderOpened();
           } else {
+            // Ensure to update display before removing the 
+            // animation class, so that user doesn't see flickering
+            // e.g. dialog returning to its initial position/opacity.
+            this.style.display = 'none';
+            this.classList.remove(this.exitAnimation);
             this._finishRenderClosed();
           }
-        },
-        
-        /**
-         * Constructs the final animation config from different properties used
-         * to configure specific parts of the opening and closing animations.
-         */
-        _updateAnimationConfig: function() {
-          // Update the animation node to be the containedElement.
-          var animationNode = this.containedElement;
-          var animations = [].concat(this.openAnimationConfig || []).concat(this.closeAnimationConfig || []);
-          for (var i = 0; i < animations.length; i++) {
-            animations[i].node = animationNode;
-          }
-          this.animationConfig = {
-            open: this.openAnimationConfig,
-            close: this.closeAnimationConfig
-          };
         },
 
         /**
          * Updates the overlay position based on configured horizontal
          * and vertical alignment.
+         * @private
          */
         _updateOverlayPosition: function() {
           if (this.isAttached) {
@@ -275,6 +314,7 @@ method is called on the element.
         /**
          * Sets scrollAction according to the value of allowOutsideScroll.
          * Prefer setting directly scrollAction.
+         * @private
          */
         _allowOutsideScrollChanged: function(allowOutsideScroll) {
           // Wait until initial values are all set.
@@ -290,6 +330,7 @@ method is called on the element.
 
         /**
          * Apply focus to focusTarget or containedElement
+         * @private
          */
         _applyFocus: function() {
           var focusTarget = this.focusTarget || this.containedElement;
@@ -298,6 +339,16 @@ method is called on the element.
           } else {
             Polymer.IronOverlayBehaviorImpl._applyFocus.apply(this, arguments);
           }
+        },
+
+        /**
+         * @private
+         */
+        _willAnimate: function() {
+          // If CSS Class does not have animation-name considered not be an animation
+          var style = getComputedStyle(this);
+          return (style.getPropertyValue('animation-name') !== 'none' &&
+            style.getPropertyValue('animation-duration') !== '0ms');
         }
       });
     })();

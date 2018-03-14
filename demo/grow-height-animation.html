@@ -9,28 +9,122 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../neon-animation/neon-animation-behavior.html">
+<dom-module id="grow-height-animations">
+  <template>
+    <style>
 
-<script>
-  Polymer({
-    is: 'expand-animation',
+      iron-dropdown {
+        box-shadow: var(--iron-dropdown-box-shadow, none);
+        border: var(--iron-dropdown-border, none);
+      }
 
-    behaviors: [
-      Polymer.NeonAnimationBehavior
-    ],
+      .expand-animation {
+        overflow: hidden;
+        contain: content;
+        will-change: opacity, transform;
+        animation-duration: 200ms;
+        animation-delay: 150ms;
+        animation-fill-mode: both;
+        animation-timing-function: step-end;
+        animation-name: expand-animation;
+        --iron-dropdown-content-wrapper-animation: {
+          overflow: hidden;
+          contain: content;
+          animation-duration: 200ms;
+          will-change: transform;
+          animation-delay: 150ms;
+          animation-fill-mode: both;
+          animation-timing-function: step-end;
+          animation-name: expand-animationInverse;
+        };
+      }
 
-    configure: function(config) {
-      var node = config.node;
+      /**
+        * Generated with https://valdrinkoshi.github.io/animation-keyframes/#animationName=expand-animation&duration=200&fps=60&presetIndex=6&easeCallbackIndex=4&fromScaleX=1&fromScaleY=0.5&toScaleX=1&toScaleY=1&customizedStyles=transform-origin:%20left%20top;%0A%20animation-fill-mode:%20both;%0A%20animation-delay:%20150ms;
+        * Manually added opacity animation from 0 at 0% to 1 at 25%
+      */
 
-      var height = node.getBoundingClientRect().height;
+      @keyframes expand-animation {
+        0% {
+          transform: scaleY(0.5);
+          opacity: 0;
+        }
+        9.09091% {
+          transform: scaleY(0.57328);
+          opacity: 0.25;
+        }
+        18.18182% {
+          transform: scaleY(0.64116);
+          opacity: 0.5;
+        }
+        27.27273% {
+          transform: scaleY(0.70448);
+          opacity: 1;
+        }
+        36.36364% {
+          transform: scaleY(0.76325);
+        }
+        45.45455% {
+          transform: scaleY(0.81724);
+        }
+        54.54545% {
+          transform: scaleY(0.86603);
+        }
+        63.63636% {
+          transform: scaleY(0.90902);
+        }
+        72.72727% {
+          transform: scaleY(0.94535);
+        }
+        81.81818% {
+          transform: scaleY(0.97387);
+        }
+        90.90909% {
+          transform: scaleY(0.9929);
+        }
+        100% {
+          transform: scaleY(1);
+        }
+      }
 
-      this._effect = new KeyframeEffect(node, [{
-        height: (height / 2) + 'px'
-      }, {
-        height: height + 'px'
-      }], this.timingFromConfig(config));
-
-      return this._effect;
-    }
-  });
-</script>
+      @keyframes expand-animationInverse {
+        0% {
+          transform: scaleY(2);
+        }
+        9.09091% {
+          transform: scaleY(1.74435);
+        }
+        18.18182% {
+          transform: scaleY(1.55967);
+        }
+        27.27273% {
+          transform: scaleY(1.41949);
+        }
+        36.36364% {
+          transform: scaleY(1.31019);
+        }
+        45.45455% {
+          transform: scaleY(1.22363);
+        }
+        54.54545% {
+          transform: scaleY(1.15469);
+        }
+        63.63636% {
+          transform: scaleY(1.10009);
+        }
+        72.72727% {
+          transform: scaleY(1.05781);
+        }
+        81.81818% {
+          transform: scaleY(1.02683);
+        }
+        90.90909% {
+          transform: scaleY(1.00715);
+        }
+        100% {
+          transform: scaleY(1);
+        }
+      }
+    </style>
+  </template>
+</dom-module>
