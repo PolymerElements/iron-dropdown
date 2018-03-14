@@ -325,6 +325,11 @@ method is called on the element.
           if (event && event.target !== this.$.contentWrapper) {
             return;
           }
+          if (this.noValidAnimations !== 0) {
+            // Take One Away until we reach zero - return not complete yet
+            this.noValidAnimations --;
+            return;
+          }
           this.$.contentWrapper.classList.remove('animating');
           if (this.opened) {
             this._finishRenderOpened();
@@ -339,7 +344,6 @@ method is called on the element.
          * directly selects animation.  
          * This work-around is restricted to one animation and if a value is found
          * writes the value found into the openAnimation.  
-         * @todo Fix
          */
         _updateAnimationConfig: function () {
           if (this.openAnimationConfig) {
@@ -400,7 +404,6 @@ method is called on the element.
           if (!this.openAnimation) {
             this._onAnimationEnd();
           } else {
-            console.log("open Animation");
             this.$.contentWrapper.classList.add(this.openAnimation);
             // If not animation _onWebAnimationEnd will not be called and will fail to change state
             if (this._willAnimate() === false) {
@@ -474,9 +477,22 @@ method is called on the element.
          */
         _willAnimate: function () {
           // If CSS Class does not have animation-name considered not be an animation
+          // Number of animations events depend upon if they are valid.  This also calculates
+          // them by adding up commas for example if animation-name: animation1,animation2 
+          // there is 1 comma thus one animation should be ignored as it is not completed.
+          // If the animation is not valid, no event is fired.  We can be waiting forever
+          // or if we only do one event we finish before the animation is complete.
           var style = window.getComputedStyle(this.$.contentWrapper);
-          return (style.getPropertyValue('animation-name') !== 'none' &&
-            style.getPropertyValue('animation-duration') !== '0ms');
+          if (style.getPropertyValue('animation-name') !== 'none' &&
+            style.getPropertyValue('animation-duration') !== '0ms') {
+              // How many Animations are legal?  Count the commas!
+              for(var count=-1,index=-2; index != -1; count++,index=style.animationName.indexOf(",",index+1) );
+              this.noValidAnimations = count;
+              return true;
+            } else {
+              this.noValidAnimations = 0;
+              return false;
+            }
         }
 
       });
