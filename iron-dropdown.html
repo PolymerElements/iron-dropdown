@@ -99,9 +99,14 @@ method is called on the element.
       }
 
       .animation-open {
-        animation-name: var(--animation-names);
-        animation-duration: var(--animation-durations);
-        animation-delay: var(--animation-names);
+        animation-name: var(--animation-open-names);
+        animation-duration: var(--animation-open-durations);
+        animation-delay: var(--animation-open-names);
+      }
+      .animation-close {
+        animation-name: var(--animation-close-names);
+        animation-duration: var(--animation-close-durations);
+        animation-delay: var(--animation-close-names);
       }
     </style>
 
@@ -351,16 +356,31 @@ method is called on the element.
               animationDurations += comma + this.openAnimationConfig[i].timing.duration + "ms";
             }
             this.updateStyles({
-              '--animation-names': animationNames,
-              '--animation-durations': animationDurations,
-              '--animation-delays': animationDelays
+              '--animation-open-names': animationNames,
+              '--animation-open-durations': animationDurations,
+              '--animation-open-delays': animationDelays
             });
             this.openAnimation = "animation-open";
           }
           if (this.closeAnimationConfig) {
-            if (this.closeAnimationConfig.length === 1) {
-              this.closeAnimation = this.closeAnimationConfig[0].name;
+            var animationNames = "",
+              animationDurations = "",
+              animationDelays = "",
+              comma = "";
+            for (var i = 0; i < this.closeAnimationConfig.length; i++) {
+              if (i === 1) {
+                comma = ",";
+              }
+              animationNames += comma + this.closeAnimationConfig[i].name;
+              animationDelays += comma + this.closeAnimationConfig[i].timing.delay + "ms";
+              animationDurations += comma + this.closeAnimationConfig[i].timing.duration + "ms";
             }
+            this.updateStyles({
+              '--animation-close-names': animationNames,
+              '--animation-close-durations': animationDurations,
+              '--animation-close-delays': animationDelays
+            });
+            this.closeAnimation = "animation-close";
           }
         },
 
