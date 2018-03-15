@@ -103,6 +103,7 @@ method is called on the element.
         animation-duration: var(--animation-open-durations);
         animation-delay: var(--animation-open-names);
       }
+
       .animation-close {
         animation-name: var(--animation-close-names);
         animation-duration: var(--animation-close-durations);
@@ -327,7 +328,7 @@ method is called on the element.
           }
           if (this.noValidAnimations !== 0) {
             // Take One Away until we reach zero - return not complete yet
-            this.noValidAnimations --;
+            this.noValidAnimations--;
             return;
           }
           this.$.contentWrapper.classList.remove('animating');
@@ -356,8 +357,13 @@ method is called on the element.
                 comma = ",";
               }
               animationNames += comma + this.openAnimationConfig[i].name;
-              animationDelays += comma + this.openAnimationConfig[i].timing.delay + "ms";
-              animationDurations += comma + this.openAnimationConfig[i].timing.duration + "ms";
+              if (this.openAnimationConfig[i].timing !== undefined) {
+                animationDelays += comma + this.openAnimationConfig[i].timing.delay + "ms";
+                animationDurations += comma + this.openAnimationConfig[i].timing.duration + "ms";
+              } else {
+                animationDelays = "";
+                animationDurations = "";
+              }
             }
             this.updateStyles({
               '--animation-open-names': animationNames,
@@ -376,8 +382,13 @@ method is called on the element.
                 comma = ",";
               }
               animationNames += comma + this.closeAnimationConfig[i].name;
-              animationDelays += comma + this.closeAnimationConfig[i].timing.delay + "ms";
-              animationDurations += comma + this.closeAnimationConfig[i].timing.duration + "ms";
+              if (this.closeAnimationConfig[i].timing !== undefined) {
+                animationDelays += comma + this.closeAnimationConfig[i].timing.delay + "ms";
+                animationDurations += comma + this.closeAnimationConfig[i].timing.duration + "ms";
+              } else {
+                animationDelays = "";
+                animationDurations = "";
+              }
             }
             this.updateStyles({
               '--animation-close-names': animationNames,
@@ -485,14 +496,15 @@ method is called on the element.
           var style = window.getComputedStyle(this.$.contentWrapper);
           if (style.getPropertyValue('animation-name') !== 'none' &&
             style.getPropertyValue('animation-duration') !== '0ms') {
-              // How many Animations are legal?  Count the commas!
-              for(var count=-1,index=-2; index != -1; count++,index=style.animationName.indexOf(",",index+1) );
-              this.noValidAnimations = count;
-              return true;
-            } else {
-              this.noValidAnimations = 0;
-              return false;
-            }
+            // How many Animations are legal?  Count the commas!
+            for (var count = -1, index = -2; index != -1; count++, index = style.animationName.indexOf(",",
+                index + 1));
+            this.noValidAnimations = count;
+            return true;
+          } else {
+            this.noValidAnimations = 0;
+            return false;
+          }
         }
 
       });
