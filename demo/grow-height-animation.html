@@ -12,31 +12,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="grow-height-animations">
   <template>
     <style>
-
-      iron-dropdown {
+      iron-dropdown,
+      iron-dropdown>* {
         box-shadow: var(--iron-dropdown-box-shadow, none);
         border: var(--iron-dropdown-border, none);
-      }
-
-      .expand-animation {
-        overflow: hidden;
-        contain: content;
         will-change: opacity, transform;
         animation-duration: 200ms;
+      }
+
+      .expand-animation,
+      .expand-animation>* {
+        overflow: hidden;
+        contain: content;
         animation-delay: 150ms;
         animation-fill-mode: both;
         animation-timing-function: step-end;
+        /* animation-iteration-count: infinite; */
+      }
+
+      .expand-animation {
         animation-name: expand-animation;
-        --iron-dropdown-content-wrapper-animation: {
-          overflow: hidden;
-          contain: content;
-          animation-duration: 200ms;
-          will-change: transform;
-          animation-delay: 150ms;
-          animation-fill-mode: both;
-          animation-timing-function: step-end;
-          animation-name: expand-animationInverse;
-        };
+      }
+
+      .expand-animation>* {
+        animation-name: expand-animationInverse;
       }
 
       /**

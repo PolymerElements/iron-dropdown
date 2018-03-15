@@ -29,9 +29,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       scroll-action="[[scrollAction]]"
       entry-animation="expand-animation"
       exit-animation="fade-out-animation">
-      <!-- <div slot="dropdown-content"> -->
-        <slot name="dropdown-content" slot="dropdown-content"></slot>
-      <!-- </div> -->
+      <div slot="dropdown-content">
+        <slot name="dropdown-content"></slot>
+      </div>
     </iron-dropdown>
   </template>
   <script>
