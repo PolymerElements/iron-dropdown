@@ -18,13 +18,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: inline-block;
         margin: 1em;
       }
+
+      /* ShadyCSS has some scoping issues, see https://github.com/webcomponents/shadycss/issues/168 */
+
+      iron-dropdown,
+      iron-dropdown > * {
+        box-shadow: var(--iron-dropdown-box-shadow, none);
+        border: var(--iron-dropdown-border, none);
+        animation-duration: 200ms;
+      }
+
+      .expand-animation,
+      .expand-animation > * {
+        animation-delay: 150ms;
+      }
     </style>
     <div on-tap="open">
       <slot name="dropdown-trigger"></slot>
     </div>
     <iron-dropdown id="dropdown"
-      vertical-align$="[[verticalAlign]]"
-      horizontal-align$="[[horizontalAlign]]"
+      vertical-align="[[verticalAlign]]"
+      horizontal-align="[[horizontalAlign]]"
       disabled="[[disabled]]"
       scroll-action="[[scrollAction]]"
       entry-animation="expand-animation"

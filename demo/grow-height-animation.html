@@ -12,38 +12,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="grow-height-animations">
   <template>
     <style>
-      iron-dropdown,
-      iron-dropdown>* {
-        box-shadow: var(--iron-dropdown-box-shadow, none);
-        border: var(--iron-dropdown-border, none);
-        will-change: opacity, transform;
-        animation-duration: 200ms;
+      .fade-out-animation {
+        animation-name: fade-out-animation;
+      }
+
+      @keyframes fade-out-animation {
+        to {
+          opacity: 0;
+        }
       }
 
       .expand-animation,
-      .expand-animation>* {
+      .expand-animation > * {
         overflow: hidden;
         contain: content;
-        animation-delay: 150ms;
+        will-change: opacity, transform;
         animation-fill-mode: both;
         animation-timing-function: step-end;
-        /* animation-iteration-count: infinite; */
       }
 
       .expand-animation {
-        animation-name: expand-animation;
+        animation-name: expand-animation-200ms;
       }
 
-      .expand-animation>* {
-        animation-name: expand-animationInverse;
+      .expand-animation > * {
+        animation-name: expand-animation-200ms-inverse;
       }
 
       /**
-        * Generated with https://valdrinkoshi.github.io/animation-keyframes/#animationName=expand-animation&duration=200&fps=60&presetIndex=6&easeCallbackIndex=4&fromScaleX=1&fromScaleY=0.5&toScaleX=1&toScaleY=1&customizedStyles=transform-origin:%20left%20top;%0A%20animation-fill-mode:%20both;%0A%20animation-delay:%20150ms;
+        * Generated with https://valdrinkoshi.github.io/animation-keyframes/#animationName=expand-animation-200ms&duration=200&fps=60&presetIndex=6&easeCallbackIndex=4&fromScaleX=1&fromScaleY=0.5&toScaleX=1&toScaleY=1&customizedStyles=transform-origin:%20left%20top;%0A%20animation-fill-mode:%20both;%0A%20animation-delay:%20150ms;
         * Manually added opacity animation from 0 at 0% to 1 at 25%
       */
 
-      @keyframes expand-animation {
+      @keyframes expand-animation-200ms {
         0% {
           transform: scaleY(0.5);
           opacity: 0;
@@ -86,7 +87,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       }
 
-      @keyframes expand-animationInverse {
+      @keyframes expand-animation-200ms-inverse {
         0% {
           transform: scaleY(2);
         }

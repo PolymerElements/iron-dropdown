@@ -45,14 +45,10 @@ method is called on the element.
     <style>
       :host {
         position: fixed;
-        will-change: opacity, transform;
-        animation-duration: 200ms;
-        transform-origin: left top;
       }
 
       ::slotted(*) {
         overflow: auto;
-        transform-origin: left top;
       }
 
       :host(.animating) ::slotted(*) {
@@ -60,13 +56,18 @@ method is called on the element.
         pointer-events: none;
       }
 
-      :host([horizontal-align="right"][vertical-align="top"]),
-      :host([horizontal-align="right"][vertical-align="top"]) ::slotted(*) {
+      :host,
+      ::slotted(*) {
+        transform-origin: left top;
+      }
+
+      :host([horizontal-align="right"]),
+      :host([horizontal-align="right"]) ::slotted(*) {
         transform-origin: right top;
       }
 
-      :host([horizontal-align="left"][vertical-align="bottom"]),
-      :host([horizontal-align="left"][vertical-align="bottom"]) ::slotted(*) {
+      :host([vertical-align="bottom"]),
+      :host([vertical-align="bottom"]) ::slotted(*) {
         transform-origin: left bottom;
       }
 
@@ -74,50 +75,7 @@ method is called on the element.
       :host([horizontal-align="right"][vertical-align="bottom"]) ::slotted(*) {
         transform-origin: right bottom;
       }
-
-      /* same as paper-dialog */
-
-      :host(.fade-in-animation) {
-        animation-name: fade-in-animation;
-      }
-
-      @keyframes fade-in-animation {
-        from {
-          opacity: 0;
-        }
-      }
-
-      :host(.fade-out-animation) {
-        animation-name: fade-out-animation;
-      }
-
-      @keyframes fade-out-animation {
-        to {
-          opacity: 0;
-        }
-      }
-
-      :host(.scale-up-animation) {
-        animation-name: scale-up-animation;
-      }
-
-      @keyframes scale-up-animation {
-        from {
-          transform: scale(0);
-        }
-      }
-
-      :host(.scale-down-animation) {
-        animation-name: scale-down-animation;
-      }
-
-      @keyframes scale-down-animation {
-        to {
-          transform: scale(0);
-        }
-      }
     </style>
-
     <slot id="content" name="dropdown-content"></slot>
   </template>
 
@@ -131,7 +89,7 @@ method is called on the element.
         behaviors: [
           Polymer.IronControlState,
           Polymer.IronA11yKeysBehavior,
-          Polymer.IronOverlayBehavior
+          Polymer.IronOverlayBehavior,
         ],
 
         properties: {
