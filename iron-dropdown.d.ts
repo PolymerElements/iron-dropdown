@@ -11,7 +11,6 @@
 /// <reference path="../polymer/types/polymer.d.ts" />
 /// <reference path="../iron-behaviors/iron-control-state.d.ts" />
 /// <reference path="../iron-overlay-behavior/iron-overlay-behavior.d.ts" />
-/// <reference path="../neon-animation/neon-animation-runner-behavior.d.ts" />
 /// <reference path="iron-dropdown-scroll-manager.d.ts" />
 
 /**
@@ -37,7 +36,7 @@
  * hidden until the dropdown element has `opened` set to true, or when the `open`
  * method is called on the element.
  */
-interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState, Polymer.IronA11yKeysBehavior, Polymer.IronOverlayBehavior, Polymer.NeonAnimationRunnerBehavior {
+interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState, Polymer.IronA11yKeysBehavior, Polymer.IronOverlayBehavior {
 
   /**
    * The orientation against which to align the dropdown content
@@ -52,22 +51,8 @@ interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState,
    * Overridden from `Polymer.IronFitBehavior`.
    */
   verticalAlign: string|null|undefined;
-
-  /**
-   * An animation config. If provided, this will be used to animate the
-   * opening of the dropdown. Pass an Array for multiple animations.
-   * See `neon-animation` documentation for more animation configuration
-   * details.
-   */
-  openAnimationConfig: object|null|undefined;
-
-  /**
-   * An animation config. If provided, this will be used to animate the
-   * closing of the dropdown. Pass an Array for multiple animations.
-   * See `neon-animation` documentation for more animation configuration
-   * details.
-   */
-  closeAnimationConfig: object|null|undefined;
+  entryAnimation: string|null|undefined;
+  exitAnimation: string|null|undefined;
 
   /**
    * If provided, this will be the element that will be focused when
@@ -99,53 +84,8 @@ interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState,
   ready(): void;
   attached(): void;
   detached(): void;
-
-  /**
-   * Called when the value of `opened` changes.
-   * Overridden from `IronOverlayBehavior`
-   */
-  _openedChanged(): void;
-
-  /**
-   * Overridden from `IronOverlayBehavior`.
-   */
-  _renderOpened(): void;
-
-  /**
-   * Overridden from `IronOverlayBehavior`.
-   */
-  _renderClosed(): void;
-
-  /**
-   * Apply focus to focusTarget or containedElement
-   */
-  _applyFocus(): void;
-
-  /**
-   * Called when animation finishes on the dropdown (when opening or
-   * closing). Responsible for "completing" the process of opening or
-   * closing the dropdown by positioning it or setting its display to
-   * none.
-   */
-  _onNeonAnimationFinish(): void;
-
-  /**
-   * Constructs the final animation config from different properties used
-   * to configure specific parts of the opening and closing animations.
-   */
-  _updateAnimationConfig(): void;
-
-  /**
-   * Updates the overlay position based on configured horizontal
-   * and vertical alignment.
-   */
-  _updateOverlayPosition(): void;
-
-  /**
-   * Sets scrollAction according to the value of allowOutsideScroll.
-   * Prefer setting directly scrollAction.
-   */
-  _allowOutsideScrollChanged(allowOutsideScroll: any): void;
+  cancelAnimation(): void;
+  playAnimation(animation?: string): void;
 }
 
 interface HTMLElementTagNameMap {
