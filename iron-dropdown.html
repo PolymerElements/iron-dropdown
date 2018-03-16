@@ -332,6 +332,8 @@ method is called on the element.
             return;
           }
           this.$.contentWrapper.classList.remove('animating');
+          this.$.contentWrapper.classList.remove(this.openAnimation);
+          this.$.contentWrapper.classList.remove(this.closeAnimation);
           if (this.opened) {
             this._finishRenderOpened();
           } else {
