@@ -104,9 +104,11 @@ method is called on the element.
 
       @keyframes expand-animation {
         from {
-          transform: scaleY(0.0);
+          transform-origin: top;
+          transform: scaleY(0.5);
         }
         to {
+          transform-origin: top;
           transform: scaleY(1.0);
         }
       }
