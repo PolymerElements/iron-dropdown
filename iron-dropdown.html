@@ -98,6 +98,19 @@ method is called on the element.
         }
       }
 
+      .expand-animation {
+        animation-name: expand-animation;
+      }
+
+      @keyframes expand-animation {
+        from {
+          transform: scaleY(0.0);
+        }
+        to {
+          transform: scaleY(1.0);
+        }
+      }
+
       .animation-open {
         animation-name: var(--animation-open-names);
         animation-duration: var(--animation-open-durations);
