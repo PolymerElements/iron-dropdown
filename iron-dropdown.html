@@ -48,6 +48,11 @@ method is called on the element.
         animation-duration: 500ms;
         animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
       }
+      
+      .fix-max-height {
+        max-height: inherit !important;
+        height: inherit;
+      }
 
       #contentWrapper ::slotted(*) {
         overflow: auto;
@@ -56,6 +61,8 @@ method is called on the element.
       #contentWrapper.animating ::slotted(*) {
         overflow: hidden;
         pointer-events: none;
+        max-height: inherit !important;
+        height: inherit;
       }
 
       .cancel-animation {
@@ -105,11 +112,13 @@ method is called on the element.
       @keyframes expand-animation {
         from {
           transform-origin: top;
-          transform: scaleY(0.5);
+          /* transform: scaleY(0.5); */
+          max-height: calc(var(--animation-height) / 2);
         }
         to {
           transform-origin: top;
-          transform: scaleY(1.0);
+          /* transform: scaleY(1.0); */
+          max-height: var(--animation-height);
         }
       }
 
@@ -511,6 +520,10 @@ method is called on the element.
           // If the animation is not valid, no event is fired.  We can be waiting forever
           // or if we only do one event we finish before the animation is complete.
           var style = window.getComputedStyle(this.$.contentWrapper);
+          this.updateStyles({
+              '--animation-height': this.containedElement.style.maxHeight
+            });
+          
           if (style.getPropertyValue('animation-name') !== 'none' &&
             style.getPropertyValue('animation-duration') !== '0ms') {
             // How many Animations are legal?  Count the commas!
