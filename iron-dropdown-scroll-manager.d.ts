@@ -8,6 +8,6 @@
  *   iron-dropdown-scroll-manager.html
  */
 
-/// <reference path="../iron-overlay-behavior/iron-scroll-manager.d.ts" />
+/// <reference path="bower_components\iron-overlay-behavior\iron-scroll-manager.d.ts" />
 /// <reference path="iron-dropdown-scroll-manager-extra.d.ts" />
 
