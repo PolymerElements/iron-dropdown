@@ -11,7 +11,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-behaviors/iron-control-state.html">
 <link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
-<link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
 <!--TODO remove this import -->
 <link rel="import" href="iron-dropdown-scroll-manager.html">
 
@@ -46,6 +45,13 @@ method is called on the element.
     <style>
       :host {
         position: fixed;
+        animation-duration: 500ms;
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .fix-max-height {
+        max-height: inherit !important;
+        height: inherit;
       }
 
       #contentWrapper ::slotted(*) {
@@ -55,6 +61,73 @@ method is called on the element.
       #contentWrapper.animating ::slotted(*) {
         overflow: hidden;
         pointer-events: none;
+        max-height: inherit !important;
+        height: inherit;
+      }
+
+      .cancel-animation {
+        animation-delay: -30s !important;
+      }
+
+      @keyframes fade-in-animation {
+        from {
+          opacity: 0;
+        }
+      }
+
+      .fade-out-animation {
+        animation-name: fade-out-animation;
+      }
+
+      @keyframes fade-out-animation {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .scale-up-animation {
+        animation-name: scale-up-animation;
+      }
+
+      @keyframes scale-up-animation {
+        from {
+          transform: scale(0.0);
+        }
+      }
+
+      .scale-down-animation {
+        animation-name: scale-down-animation;
+      }
+
+      @keyframes scale-down-animation {
+        to {
+          transform: scale(0.0);
+        }
+      }
+
+      .expand-animation {
+        animation-name: expand-animation;
+      }
+
+      @keyframes expand-animation {
+        from {
+          max-height: calc(var(--animation-height) / 2);
+        }
+        to {
+          max-height: var(--animation-height);
+        }
+      }
+
+      .animation-open {
+        animation-name: var(--animation-open-names);
+        animation-duration: var(--animation-open-durations);
+        animation-delay: var(--animation-open-delays);
+      }
+
+      .animation-close {
+        animation-name: var(--animation-close-names);
+        animation-duration: var(--animation-close-durations);
+        animation-delay: var(--animation-close-delays);
       }
     </style>
 
@@ -64,7 +137,7 @@ method is called on the element.
   </template>
 
   <script>
-    (function() {
+    (function () {
       'use strict';
 
       Polymer({
@@ -73,8 +146,7 @@ method is called on the element.
         behaviors: [
           Polymer.IronControlState,
           Polymer.IronA11yKeysBehavior,
-          Polymer.IronOverlayBehavior,
-          Polymer.NeonAnimationRunnerBehavior
+          Polymer.IronOverlayBehavior
         ],
 
         properties: {
@@ -105,6 +177,7 @@ method is called on the element.
            * opening of the dropdown. Pass an Array for multiple animations.
            * See `neon-animation` documentation for more animation configuration
            * details.
+           * @deprecated neon-animation has been deprecated.  See openAnimation for replacement.
            */
           openAnimationConfig: {
             type: Object
@@ -115,9 +188,31 @@ method is called on the element.
            * closing of the dropdown. Pass an Array for multiple animations.
            * See `neon-animation` documentation for more animation configuration
            * details.
+           * @deprecated neon-animation has been deprecated.  See closeAnimation for replacement.
            */
           closeAnimationConfig: {
             type: Object
+          },
+
+          /**
+           * The animation that will be played on open.  This replaces the
+           * deprecated openAnimationConfig.  Entries here will override the 
+           * animationConfig settings.  You can enter your own animation
+           * by setting it to the css class name.
+           */
+          openAnimation: {
+            type: String,
+            value: ""
+          },
+          /**
+           * The animation that will be played on close.  This replaces the
+           * deprecated closeAnimationConfig.  Entries here will override the 
+           * animationConfig settings.  You can enter your own animation
+           * by setting it to the css class name.
+           */
+          closeAnimation: {
+            type: String,
+            value: ""
           },
 
           /**
@@ -153,7 +248,7 @@ method is called on the element.
         },
 
         listeners: {
-          'neon-animation-finish': '_onNeonAnimationFinish'
+          'webkitAnimationEnd': '_onAnimationEnd',
         },
 
         observers: [
@@ -173,7 +268,7 @@ method is called on the element.
           }
         },
 
-        ready: function() {
+        ready: function () {
           // Ensure scrollAction is set.
           if (!this.scrollAction) {
             this.scrollAction = this.allowOutsideScroll ? 'refit' : 'lock';
@@ -185,21 +280,31 @@ method is called on the element.
           if (!this.sizingTarget || this.sizingTarget === this) {
             this.sizingTarget = this.containedElement || this;
           }
+          this._addListeners();
         },
 
-        detached: function() {
+        detached: function () {
+          this._removeListeners();
           this.cancelAnimation();
+        },
+
+        _addListeners: function () {
+          this.listen(this.$.contentWrapper, 'animationend', '_onAnimationEnd');
+        },
+
+        _removeListeners: function () {
+          this.unlisten(this.$.contentWrapper, 'animationend', '_onAnimationEnd');
         },
 
         /**
          * Called when the value of `opened` changes.
          * Overridden from `IronOverlayBehavior`
          */
-        _openedChanged: function() {
+        _openedChanged: function () {
           if (this.opened && this.disabled) {
             this.cancel();
           } else {
-            this.cancelAnimation();
+            // this.cancelAnimation();
             this._updateAnimationConfig();
             Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
           }
@@ -208,8 +313,8 @@ method is called on the element.
         /**
          * Overridden from `IronOverlayBehavior`.
          */
-        _renderOpened: function() {
-          if (!this.noAnimations && this.animationConfig.open) {
+        _renderOpened: function () {
+          if (!this.noAnimations && this.openAnimation) {
             this.$.contentWrapper.classList.add('animating');
             this.playAnimation('open');
           } else {
@@ -220,8 +325,8 @@ method is called on the element.
         /**
          * Overridden from `IronOverlayBehavior`.
          */
-        _renderClosed: function() {
-          if (!this.noAnimations && this.animationConfig.close) {
+        _renderClosed: function () {
+          if (!this.noAnimations && this.closeAnimation) {
             this.$.contentWrapper.classList.add('animating');
             this.playAnimation('close');
           } else {
@@ -234,38 +339,138 @@ method is called on the element.
          * closing). Responsible for "completing" the process of opening or
          * closing the dropdown by positioning it or setting its display to
          * none.
+         * @param {Event=} event
+         * @private       
          */
-        _onNeonAnimationFinish: function() {
+        _onAnimationEnd: function (event) {
+          if (event && event.target !== this.$.contentWrapper) {
+            return;
+          }
+          if (this.noValidAnimations !== 0) {
+            // Take One Away until we reach zero - return not complete yet
+            this.noValidAnimations--;
+            return;
+          }
           this.$.contentWrapper.classList.remove('animating');
+          this.$.contentWrapper.classList.remove(this.openAnimation);
+          this.$.contentWrapper.classList.remove(this.closeAnimation);
           if (this.opened) {
             this._finishRenderOpened();
           } else {
             this._finishRenderClosed();
           }
         },
-        
+
         /**
-         * Constructs the final animation config from different properties used
-         * to configure specific parts of the opening and closing animations.
+         * Constructs the final animation config using deprecated neon-animation
+         * design.  New method is to use openAnimation and closeAnimation which
+         * directly selects animation.  
+         * This work-around is restricted to one animation and if a value is found
+         * writes the value found into the openAnimation.  
          */
-        _updateAnimationConfig: function() {
-          // Update the animation node to be the containedElement.
-          var animationNode = this.containedElement;
-          var animations = [].concat(this.openAnimationConfig || []).concat(this.closeAnimationConfig || []);
-          for (var i = 0; i < animations.length; i++) {
-            animations[i].node = animationNode;
+        _updateAnimationConfig: function () {
+          if (this.openAnimationConfig) {
+            var animationNames = "",
+              animationDurations = "",
+              animationDelays = "",
+              comma = "";
+            for (var i = 0; i < this.openAnimationConfig.length; i++) {
+              if (i === 1) {
+                comma = ",";
+              }
+              animationNames += comma + this.openAnimationConfig[i].name;
+              if (this.openAnimationConfig[i].timing !== undefined) {
+                animationDelays += comma + this.openAnimationConfig[i].timing.delay + "ms";
+                animationDurations += comma + this.openAnimationConfig[i].timing.duration + "ms";
+              } else {
+                animationDelays = "";
+                animationDurations = "";
+              }
+            }
+            this.updateStyles({
+              '--animation-open-names': animationNames,
+              '--animation-open-durations': animationDurations,
+              '--animation-open-delays': animationDelays
+            });
+            this.openAnimation = "animation-open";
           }
-          this.animationConfig = {
-            open: this.openAnimationConfig,
-            close: this.closeAnimationConfig
-          };
+          if (this.closeAnimationConfig) {
+            var animationNames = "",
+              animationDurations = "",
+              animationDelays = "",
+              comma = "";
+            for (var i = 0; i < this.closeAnimationConfig.length; i++) {
+              if (i === 1) {
+                comma = ",";
+              }
+              animationNames += comma + this.closeAnimationConfig[i].name;
+              if (this.closeAnimationConfig[i].timing !== undefined) {
+                animationDelays += comma + this.closeAnimationConfig[i].timing.delay + "ms";
+                animationDurations += comma + this.closeAnimationConfig[i].timing.duration + "ms";
+              } else {
+                animationDelays = "";
+                animationDurations = "";
+              }
+            }
+            this.updateStyles({
+              '--animation-close-names': animationNames,
+              '--animation-close-durations': animationDurations,
+              '--animation-close-delays': animationDelays
+            });
+            this.closeAnimation = "animation-close";
+          }
+        },
+
+        /**
+         * Replaces Neon-Animation playAnimation - just calls show and hide.
+         * @param {string} type Either `open` or `close`
+         */
+        playAnimation: function (type) {
+          if (type === "open") {
+            this._openAnimation();
+          } else if (type === "close") {
+            this._closeAnimation();
+          }
+        },
+
+        _openAnimation: function () {
+          if (!this.openAnimation) {
+            this._onAnimationEnd();
+          } else {
+            this.$.contentWrapper.classList.add(this.openAnimation);
+            // If not animation _onWebAnimationEnd will not be called and will fail to change state
+            if (this._willAnimate() === false) {
+              this._onAnimationEnd();
+            }
+
+          }
+        },
+
+        _closeAnimation: function () {
+          if (!this.closeAnimation) {
+            this._onAnimationEnd();
+          } else {
+            this.$.contentWrapper.classList.add(this.closeAnimation);
+            // If not animation _onWebAnimationEnd will not be called and will fail to change state
+            if (this._willAnimate() === false) {
+              this._onAnimationEnd();
+            }
+          }
+        },
+
+        /**
+         * Cancels the animation and either fully open or fully close's iron-dropdown
+         */
+        cancelAnimation: function () {
+          // Short-cut and cancel all animations and hide
+          this.$.contentWrapper.classList.add('cancel-animation');
         },
 
         /**
          * Updates the overlay position based on configured horizontal
          * and vertical alignment.
          */
-        _updateOverlayPosition: function() {
+        _updateOverlayPosition: function () {
           if (this.isAttached) {
             // This triggers iron-resize, and iron-overlay-behavior will call refit if needed.
             this.notifyResize();
@@ -276,7 +481,7 @@ method is called on the element.
          * Sets scrollAction according to the value of allowOutsideScroll.
          * Prefer setting directly scrollAction.
          */
-        _allowOutsideScrollChanged: function(allowOutsideScroll) {
+        _allowOutsideScrollChanged: function (allowOutsideScroll) {
           // Wait until initial values are all set.
           if (!this._readied) {
             return;
@@ -291,14 +496,42 @@ method is called on the element.
         /**
          * Apply focus to focusTarget or containedElement
          */
-        _applyFocus: function() {
+        _applyFocus: function () {
           var focusTarget = this.focusTarget || this.containedElement;
           if (focusTarget && this.opened && !this.noAutoFocus) {
             focusTarget.focus();
           } else {
             Polymer.IronOverlayBehaviorImpl._applyFocus.apply(this, arguments);
           }
+        },
+
+        /**
+         * @private
+         */
+        _willAnimate: function () {
+          // If CSS Class does not have animation-name considered not be an animation
+          // Number of animations events depend upon if they are valid.  This also calculates
+          // them by adding up commas for example if animation-name: animation1,animation2 
+          // there is 1 comma thus one animation should be ignored as it is not completed.
+          // If the animation is not valid, no event is fired.  We can be waiting forever
+          // or if we only do one event we finish before the animation is complete.
+          var style = window.getComputedStyle(this.$.contentWrapper);
+          this.updateStyles({
+            '--animation-height': this.containedElement.style.maxHeight
+          });
+          if (style.getPropertyValue('animation-name') !== 'none' &&
+            style.getPropertyValue('animation-duration') !== '0ms') {
+            // How many Animations are legal?  Count the commas!
+            for (var count = -1, index = -2; index != -1; count++, index = style.animationName.indexOf(",",
+                index + 1));
+            this.noValidAnimations = count;
+            return true;
+          } else {
+            this.noValidAnimations = 0;
+            return false;
+          }
         }
+
       });
     })();
   </script>

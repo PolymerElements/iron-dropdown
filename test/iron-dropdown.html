@@ -20,8 +20,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
   <link rel="import" href="../iron-dropdown.html">
-  <link rel="import" href="../../neon-animation/web-animations.html">
-  <link rel="import" href="../../neon-animation/animations/fade-in-animation.html">
 
 </head>
 <style>
@@ -252,67 +250,69 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
 
         suite('correct animationConfig setup', function() {
-          test('as objects', function() {
-            dropdown.openAnimationConfig = {
-              name: 'open-animation'
-            };
-            dropdown.closeAnimationConfig = {
-              name: 'close-animation'
-            };
+          // 
+          // Test is no longer useful.  Will replace with test to see if chosen animation 
+          // is correct set to CSS.
+          //
+          // test('as objects', function() {
+          //   dropdown.openAnimationConfig = {
+          //     name: 'open-animation'
+          //   };
+          //   dropdown.closeAnimationConfig = {
+          //     name: 'close-animation'
+          //   };
 
-            dropdown.opened = true;
+          //   dropdown.opened = true;
 
-            assert.deepEqual(dropdown.openAnimationConfig, {
-              name: 'open-animation',
-              node: content
-            }, 'open animation ok');
+          //   assert.deepEqual(dropdown.openAnimationConfig, {
+          //     name: 'open-animation'
+          //   }, 'open animation ok');
 
-            assert.deepEqual(dropdown.closeAnimationConfig, {
-              name: 'close-animation',
-              node: content
-            }, 'close animation ok');
+          //   assert.deepEqual(dropdown.closeAnimationConfig, {
+          //     name: 'close-animation'
+          //   }, 'close animation ok');
 
-            assert.deepEqual(dropdown.animationConfig, {
-              open: dropdown.openAnimationConfig,
-              close: dropdown.closeAnimationConfig
-            }, 'animationConfig ok');
-          });
+          //   assert.deepEqual(dropdown.animationConfig, {
+          //     open: dropdown.openAnimationConfig,
+          //     close: dropdown.closeAnimationConfig
+          //   }, 'animationConfig ok');
+          // });
 
-          test('as arrays', function() {
-            dropdown.openAnimationConfig = [{
-              name: 'open-animation-1'
-            }, {
-              name: 'open-animation-2'
-            }];
-            dropdown.closeAnimationConfig = [{
-              name: 'close-animation-1'
-            }, {
-              name: 'close-animation-2'
-            }];
+          // test('as arrays', function() {
+          //   dropdown.openAnimationConfig = [{
+          //     name: 'open-animation-1'
+          //   }, {
+          //     name: 'open-animation-2'
+          //   }];
+          //   dropdown.closeAnimationConfig = [{
+          //     name: 'close-animation-1'
+          //   }, {
+          //     name: 'close-animation-2'
+          //   }];
 
-            dropdown.opened = true;
+          //   dropdown.opened = true;
 
-            assert.deepEqual(dropdown.openAnimationConfig, [{
-              name: 'open-animation-1',
-              node: content
-            }, {
-              name: 'open-animation-2',
-              node: content
-            }], 'open animation ok');
+          //   assert.deepEqual(dropdown.openAnimationConfig, [{
+          //     name: 'open-animation-1',
+          //     node: content
+          //   }, {
+          //     name: 'open-animation-2',
+          //     node: content
+          //   }], 'open animation ok');
 
-            assert.deepEqual(dropdown.closeAnimationConfig, [{
-              name: 'close-animation-1',
-              node: content
-            }, {
-              name: 'close-animation-2',
-              node: content
-            }], 'close animation ok');
+          //   assert.deepEqual(dropdown.closeAnimationConfig, [{
+          //     name: 'close-animation-1',
+          //     node: content
+          //   }, {
+          //     name: 'close-animation-2',
+          //     node: content
+          //   }], 'close animation ok');
 
-            assert.deepEqual(dropdown.animationConfig, {
-              open: dropdown.openAnimationConfig,
-              close: dropdown.closeAnimationConfig
-            }, 'animationConfig ok');
-          });
+          //   assert.deepEqual(dropdown.animationConfig, {
+          //     open: dropdown.openAnimationConfig,
+          //     close: dropdown.closeAnimationConfig
+          //   }, 'animationConfig ok');
+          // });
 
           test('no pointer events during animation', function(done) {
             dropdown.openAnimationConfig = [{

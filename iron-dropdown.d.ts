@@ -8,10 +8,9 @@
  *   iron-dropdown.html
  */
 
-/// <reference path="../polymer/types/polymer.d.ts" />
-/// <reference path="../iron-behaviors/iron-control-state.d.ts" />
-/// <reference path="../iron-overlay-behavior/iron-overlay-behavior.d.ts" />
-/// <reference path="../neon-animation/neon-animation-runner-behavior.d.ts" />
+/// <reference path="bower_components\polymer\polymer.d.ts" />
+/// <reference path="bower_components\iron-behaviors\iron-control-state.d.ts" />
+/// <reference path="bower_components\iron-overlay-behavior\iron-overlay-behavior.d.ts" />
 /// <reference path="iron-dropdown-scroll-manager.d.ts" />
 
 /**
@@ -37,7 +36,7 @@
  * hidden until the dropdown element has `opened` set to true, or when the `open`
  * method is called on the element.
  */
-interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState, Polymer.IronA11yKeysBehavior, Polymer.IronOverlayBehavior, Polymer.NeonAnimationRunnerBehavior {
+interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState, Polymer.IronA11yKeysBehavior, Polymer.IronOverlayBehavior {
 
   /**
    * The orientation against which to align the dropdown content
@@ -68,6 +67,22 @@ interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState,
    * details.
    */
   closeAnimationConfig: object|null|undefined;
+
+  /**
+   * The animation that will be played on open.  This replaces the
+   * deprecated openAnimationConfig.  Entries here will override the
+   * animationConfig settings.  You can enter your own animation
+   * by setting it to the css class name.
+   */
+  openAnimation: string|null|undefined;
+
+  /**
+   * The animation that will be played on close.  This replaces the
+   * deprecated closeAnimationConfig.  Entries here will override the
+   * animationConfig settings.  You can enter your own animation
+   * by setting it to the css class name.
+   */
+  closeAnimation: string|null|undefined;
 
   /**
    * If provided, this will be the element that will be focused when
@@ -120,20 +135,31 @@ interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState,
    * Apply focus to focusTarget or containedElement
    */
   _applyFocus(): void;
+  _addListeners(): void;
+  _removeListeners(): void;
 
   /**
-   * Called when animation finishes on the dropdown (when opening or
-   * closing). Responsible for "completing" the process of opening or
-   * closing the dropdown by positioning it or setting its display to
-   * none.
-   */
-  _onNeonAnimationFinish(): void;
-
-  /**
-   * Constructs the final animation config from different properties used
-   * to configure specific parts of the opening and closing animations.
+   * Constructs the final animation config using deprecated neon-animation
+   * design.  New method is to use openAnimation and closeAnimation which
+   * directly selects animation.
+   * This work-around is restricted to one animation and if a value is found
+   * writes the value found into the openAnimation.
    */
   _updateAnimationConfig(): void;
+
+  /**
+   * Replaces Neon-Animation playAnimation - just calls show and hide.
+   *
+   * @param type Either `open` or `close`
+   */
+  playAnimation(type: string): void;
+  _openAnimation(): void;
+  _closeAnimation(): void;
+
+  /**
+   * Cancels the animation and either fully open or fully close's iron-dropdown
+   */
+  cancelAnimation(): void;
 
   /**
    * Updates the overlay position based on configured horizontal
