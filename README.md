@@ -31,5 +31,39 @@ method is called on the element.
 
 ### Changes in 2.0
 - Removed the private property `_focusTarget` which was deprecated.
-- `neon-animation 2.0` doesn't import the Web Animations polyfill, so you'll have to import it ([see example](demo/index.html))
-- Distribution moved from the `class="dropdown-content"` to `slot="dropdown-content"`
+- Distribution moved from the `class="dropdown-content"` to `slot="dropdown-content"`.
+- `<iron-dropdown>` animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations.
+
+### Animations
+
+`<iron-dropdown>` animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations.
+This change reduces code size, and uses the platform. You can implement custom entry/exit animations using CSS keyframe animations; define the animation keyframes, a CSS class for the animation, and assign the class to the `entry/exit-animation`, e.g.
+
+    <style>
+      @keyframes appear-from-below-animation {
+        from {
+          transform: translateY(100px);
+          opacity: 0;
+        }
+      }
+
+      .appear-from-below-animation {
+        animation-name: appear-from-below-animation;
+        animation-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+        animation-duration: 200ms;
+      }
+
+      @keyframes fade-out-animation {
+        to { opacity: 0 }
+      }
+
+      .fade-out-animation {
+        animation-name: fade-out-animation;
+        animation-duration: 100ms;
+      }
+    </style>
+
+    <iron-dropdown entry-animation="appear-from-below-animation"
+                   exit-animation="fade-out-animation">
+      <div slot="dropdown-content">Hello!</div>
+    </iron-dropdown>
