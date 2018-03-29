@@ -141,8 +141,6 @@ interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState,
   ready(): void;
   attached(): void;
   detached(): void;
-  cancelAnimation(): void;
-  playAnimation(animation?: string): void;
 }
 
 interface HTMLElementTagNameMap {

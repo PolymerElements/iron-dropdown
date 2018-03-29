@@ -159,7 +159,7 @@ This change reduces code size, and uses the platform. You can implement custom e
            * @deprecated
            */
           openAnimationConfig: {
-            type: Object,
+            type: Object
           },
 
           /**
@@ -167,7 +167,7 @@ This change reduces code size, and uses the platform. You can implement custom e
            * @deprecated
            */
           closeAnimationConfig: {
-            type: Object,
+            type: Object
           },
 
           /**
@@ -252,29 +252,7 @@ This change reduces code size, and uses the platform. You can implement custom e
         },
 
         detached: function() {
-          this.cancelAnimation();
-        },
-
-        cancelAnimation: function() {
-          this.classList.remove(this.entryAnimation);
-          this.classList.remove(this.exitAnimation);
-          this.classList.remove('animating');
-        },
-
-        /**
-         * @param {string=} animation
-         */
-        playAnimation: function(animation) {
-          if (!this.noAnimations && animation) {
-            this.classList.add('animating');
-            this.classList.add(animation);
-            if (this._willAnimate() === false) {
-              console.info(animation + ' animation was not played');
-              this._onAnimationEnd();
-            }
-          } else {
-            this._onAnimationEnd();
-          }
+          this._cancelAnimation();
         },
 
         /**
@@ -286,7 +264,7 @@ This change reduces code size, and uses the platform. You can implement custom e
           if (this.opened && this.disabled) {
             this.cancel();
           } else {
-            this.cancelAnimation();
+            this._cancelAnimation();
             // Keep this for backwards-compat.
             this.animationConfig = {
               open: this.openAnimationConfig,
@@ -301,7 +279,11 @@ This change reduces code size, and uses the platform. You can implement custom e
          * @private
          */
         _renderOpened: function() {
-          this.playAnimation(this.entryAnimation);
+          if (!this.noAnimations && this.entryAnimation) {
+            this._playAnimation(this.entryAnimation);
+          } else {
+            Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this, arguments);
+          }
         },
 
         /**
@@ -309,7 +291,43 @@ This change reduces code size, and uses the platform. You can implement custom e
          * @private
          */
         _renderClosed: function() {
-          this.playAnimation(this.exitAnimation);
+          if (!this.noAnimations && this.exitAnimation) {
+            this._playAnimation(this.exitAnimation);
+          } else {
+            Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this, arguments);
+          }
+        },
+
+        /**
+         * @private
+         */
+        _cancelAnimation: function() {
+          this.classList.remove(this.entryAnimation);
+          this.classList.remove(this.exitAnimation);
+          this.classList.remove('animating');
+        },
+
+        /**
+         * @param {!string} animation
+         * @private
+         */
+        _playAnimation: function(animation) {
+          this.classList.add('animating');
+          this.classList.add(animation);
+          if (this._willAnimate() === false) {
+            console.info(animation + ' animation was not played');
+            this._onAnimationEnd();
+          }
+        },
+
+        /**
+         * @private
+         */
+        _willAnimate: function() {
+          // If CSS Class does not have animation-name considered not be an animation
+          var style = getComputedStyle(this);
+          return (style.getPropertyValue('animation-name') !== 'none' &&
+            style.getPropertyValue('animation-duration') !== '0ms');
         },
 
         /**
@@ -324,9 +342,9 @@ This change reduces code size, and uses the platform. You can implement custom e
           if (event && event.target !== this) {
             return;
           }
-          this.classList.remove('animating');
           // Fire event for backwards-compat.
           this.fire('neon-animation-finish', null, {bubbles: false});
+          this.classList.remove('animating');
           if (this.opened) {
             this.classList.remove(this.entryAnimation);
             this._finishRenderOpened();
@@ -380,16 +398,6 @@ This change reduces code size, and uses the platform. You can implement custom e
           } else {
             Polymer.IronOverlayBehaviorImpl._applyFocus.apply(this, arguments);
           }
-        },
-
-        /**
-         * @private
-         */
-        _willAnimate: function() {
-          // If CSS Class does not have animation-name considered not be an animation
-          var style = getComputedStyle(this);
-          return (style.getPropertyValue('animation-name') !== 'none' &&
-            style.getPropertyValue('animation-duration') !== '0ms');
         }
       });
     })();
