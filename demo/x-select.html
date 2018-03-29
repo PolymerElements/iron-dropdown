@@ -9,28 +9,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../iron-dropdown.html">
-<link rel="import" href="grow-height-animation.html">
 
 <dom-module id="x-select">
   <template>
-    <style include="grow-height-animations">
+    <style>
       :host {
         display: inline-block;
         margin: 1em;
       }
 
-      /* ShadyCSS has some scoping issues, see https://github.com/webcomponents/shadycss/issues/168 */
+      @keyframes expand-animation {
+        from {
+          max-height: 50px;
+          opacity: 0;
+        }
+        to {
+          max-height: 100vh;
+          opacity: 1;
+        }
+      }
 
-      iron-dropdown,
-      iron-dropdown > * {
-        box-shadow: var(--iron-dropdown-box-shadow, none);
-        border: var(--iron-dropdown-border, none);
+      .expand-animation {
+        overflow: hidden;
+        animation-name: expand-animation;
+        animation-fill-mode: both;
+        animation-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+        animation-delay: 150ms;
         animation-duration: 200ms;
       }
 
-      .expand-animation,
-      .expand-animation > * {
-        animation-delay: 150ms;
+      @keyframes fade-out-animation {
+        to {
+          opacity: 0
+        }
+      }
+
+      .fade-out-animation {
+        animation-name: fade-out-animation;
+        animation-duration: 150ms;
       }
     </style>
     <div on-tap="open">
@@ -43,9 +59,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       scroll-action="[[scrollAction]]"
       entry-animation="expand-animation"
       exit-animation="fade-out-animation">
-      <div slot="dropdown-content">
-        <slot name="dropdown-content"></slot>
-      </div>
+      <slot name="dropdown-content" slot="dropdown-content"></slot>
     </iron-dropdown>
   </template>
   <script>
