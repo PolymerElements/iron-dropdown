@@ -155,6 +155,27 @@ interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState,
   ready(): void;
   attached(): void;
   detached(): void;
+
+  /**
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+   * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+   * now is a no-op.
+   */
+  cancelAnimation(): void;
+
+  /**
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+   * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+   * now is a no-op.
+   */
+  playAnimation(type?: string, cookie?: object): void;
+
+  /**
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+   * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+   * now is a no-op.
+   */
+  getAnimationConfig(type: any): any;
 }
 
 interface HTMLElementTagNameMap {
