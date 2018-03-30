@@ -36,34 +36,37 @@ method is called on the element.
 
 ### Animations
 
-`<iron-dropdown>` animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations.
-This change reduces code size, and uses the platform. You can implement custom entry/exit animations using CSS keyframe animations; define the animation keyframes, a CSS class for the animation, and assign the class to the `entry/exit-animation`, e.g.
+Set the `entry-animation` and/or `exit-animation` attributes to add an animation when the dialog
+is opened or closed. Included in the component are:
+- fade-in-animation
+- fade-out-animation
+- scale-up-animation
+- scale-down-animation
+
+These animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations.
+This change reduces code size, and uses the platform. You can implement custom entry/exit animations using
+CSS keyframe animations; define the animation keyframes, a CSS class for the animation, and assign the class to the `entry/exit-animation`, e.g.
 
     <style>
-      @keyframes appear-from-below-animation {
+      @keyframes expand-animation {
         from {
-          transform: translateY(100px);
+          max-height: 10px;
           opacity: 0;
+        }
+        to {
+          max-height: 100px;
         }
       }
 
-      .appear-from-below-animation {
-        animation-name: appear-from-below-animation;
+      .expand-animation {
+        animation-name: expand-animation;
         animation-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+        animation-delay: 150ms;
         animation-duration: 200ms;
-      }
-
-      @keyframes fade-out-animation {
-        to { opacity: 0 }
-      }
-
-      .fade-out-animation {
-        animation-name: fade-out-animation;
-        animation-duration: 100ms;
       }
     </style>
 
-    <iron-dropdown entry-animation="appear-from-below-animation"
+    <iron-dropdown entry-animation="expand-animation"
                    exit-animation="fade-out-animation">
       <div slot="dropdown-content">Hello!</div>
     </iron-dropdown>

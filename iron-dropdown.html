@@ -44,34 +44,37 @@ method is called on the element.
 
 ### Animations
 
-`<iron-dropdown>` animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations.
-This change reduces code size, and uses the platform. You can implement custom entry/exit animations using CSS keyframe animations; define the animation keyframes, a CSS class for the animation, and assign the class to the `entry/exit-animation`, e.g.
+Set the `entry-animation` and/or `exit-animation` attributes to add an animation when the dialog
+is opened or closed. Included in the component are:
+- fade-in-animation
+- fade-out-animation
+- scale-up-animation
+- scale-down-animation
+
+These animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations.
+This change reduces code size, and uses the platform. You can implement custom entry/exit animations using
+CSS keyframe animations; define the animation keyframes, a CSS class for the animation, and assign the class to the `entry/exit-animation`, e.g.
 
     <style>
-      \@keyframes appear-from-below-animation {
+      \@keyframes expand-animation {
         from {
-          transform: translateY(100px);
+          max-height: 10px;
           opacity: 0;
+        }
+        to {
+          max-height: 100px;
         }
       }
 
-      .appear-from-below-animation {
-        animation-name: appear-from-below-animation;
+      .expand-animation {
+        animation-name: expand-animation;
         animation-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+        animation-delay: 150ms;
         animation-duration: 200ms;
-      }
-
-      \@keyframes fade-out-animation {
-        to { opacity: 0 }
-      }
-
-      .fade-out-animation {
-        animation-name: fade-out-animation;
-        animation-duration: 100ms;
       }
     </style>
 
-    <iron-dropdown entry-animation="appear-from-below-animation"
+    <iron-dropdown entry-animation="expand-animation"
                    exit-animation="fade-out-animation">
       <div slot="dropdown-content">Hello!</div>
     </iron-dropdown>
@@ -84,35 +87,70 @@ This change reduces code size, and uses the platform. You can implement custom e
     <style>
       :host {
         position: fixed;
+        transform-origin: left top;
+      }
+
+      :host([horizontal-align="right"]) {
+        transform-origin: right top;
+      }
+
+      :host([vertical-align="bottom"]) {
+        transform-origin: left bottom;
+      }
+
+      :host([horizontal-align="right"][vertical-align="bottom"]) {
+        transform-origin: right bottom;
       }
 
       ::slotted(*) {
         overflow: auto;
       }
 
-      :host(.animating) ::slotted(*) {
-        overflow: hidden;
+      :host(.animating) {
         pointer-events: none;
+        animation-duration: 500ms;
+        animation-fill-mode: both;
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
       }
 
-      :host,
-      ::slotted(*) {
-        transform-origin: left top;
+      :host(.fade-in-animation) {
+        animation-name: fade-in-animation;
       }
 
-      :host([horizontal-align="right"]),
-      :host([horizontal-align="right"]) ::slotted(*) {
-        transform-origin: right top;
+      @keyframes fade-in-animation {
+        from {
+          opacity: 0;
+        }
       }
 
-      :host([vertical-align="bottom"]),
-      :host([vertical-align="bottom"]) ::slotted(*) {
-        transform-origin: left bottom;
+      :host(.fade-out-animation) {
+        animation-name: fade-out-animation;
       }
 
-      :host([horizontal-align="right"][vertical-align="bottom"]),
-      :host([horizontal-align="right"][vertical-align="bottom"]) ::slotted(*) {
-        transform-origin: right bottom;
+      @keyframes fade-out-animation {
+        to {
+          opacity: 0;
+        }
+      }
+
+      :host(.scale-up-animation) {
+        animation-name: scale-up-animation;
+      }
+
+      @keyframes scale-up-animation {
+        from {
+          transform: scale(0);
+        }
+      }
+
+      :host(.scale-down-animation) {
+        animation-name: scale-down-animation;
+      }
+
+      @keyframes scale-down-animation {
+        to {
+          transform: scale(0);
+        }
       }
     </style>
     <slot id="content" name="dropdown-content"></slot>
@@ -152,22 +190,6 @@ This change reduces code size, and uses the platform. You can implement custom e
             type: String,
             value: 'top',
             reflectToAttribute: true
-          },
-
-          /**
-           * This property is deprecated and will be ignored, use `entryAnimation` instead.
-           * @deprecated
-           */
-          openAnimationConfig: {
-            type: Object
-          },
-
-          /**
-           * This property is deprecated and will be ignored, use `exitAnimation` instead.
-           * @deprecated
-           */
-          closeAnimationConfig: {
-            type: Object
           },
 
           /**
@@ -265,11 +287,6 @@ This change reduces code size, and uses the platform. You can implement custom e
             this.cancel();
           } else {
             this._cancelAnimation();
-            // Keep this for backwards-compat.
-            this.animationConfig = {
-              open: this.openAnimationConfig,
-              close: this.closeAnimationConfig
-            };
             Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
           }
         },
@@ -342,18 +359,11 @@ This change reduces code size, and uses the platform. You can implement custom e
           if (event && event.target !== this) {
             return;
           }
-          // Fire event for backwards-compat.
-          this.fire('neon-animation-finish', null, {bubbles: false});
-          this.classList.remove('animating');
+          // Removes the classes.
+          this._cancelAnimation();
           if (this.opened) {
-            this.classList.remove(this.entryAnimation);
             this._finishRenderOpened();
           } else {
-            // Ensure to update display before removing the 
-            // animation class, so that user doesn't see flickering
-            // e.g. dialog returning to its initial position/opacity.
-            this.style.display = 'none';
-            this.classList.remove(this.exitAnimation);
             this._finishRenderClosed();
           }
         },
