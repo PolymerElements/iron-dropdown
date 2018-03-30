@@ -318,6 +318,32 @@ CSS keyframe animations; define the animation keyframes, a CSS class for the ani
         },
 
         /**
+         * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+         * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+         * now is a no-op.
+         * @deprecated
+         */
+        cancelAnimation: function() {},
+
+        /**
+         * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+         * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+         * now is a no-op.
+         * @param {string=} type
+         * @param {!Object=} cookie
+         * @deprecated
+         */
+        playAnimation: function(type, cookie) {},
+
+        /**
+         * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+         * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+         * now is a no-op.
+         * @deprecated
+         */
+        getAnimationConfig: function(type) { return []; },
+
+        /**
          * Called when the value of `opened` changes.
          * Overridden from `IronOverlayBehavior`
          * @private
