@@ -207,6 +207,36 @@ CSS keyframe animations; define the animation keyframes, a CSS class for the ani
           },
 
           /**
+           * Deprecated, use `entryAnimation` and `exitAnimation` instead.
+           * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+           * here to not break bindings. Setting it won't have effects on the animation.
+           * @deprecated
+           */
+          animationConfig: {
+            type: Object
+          },
+
+          /**
+           * Deprecated, use `entryAnimation` instead.
+           * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+           * here to not break bindings. Setting it won't have effects on the animation.
+           * @deprecated
+           */
+          openAnimationConfig: {
+            type: Object
+          },
+
+          /**
+           * Deprecated, use `exitAnimation` instead.
+           * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+           * here to not break bindings. Setting it won't have effects on the animation.
+           * @deprecated
+           */
+          closeAnimationConfig: {
+            type: Object
+          },
+
+          /**
            * If provided, this will be the element that will be focused when
            * the dropdown opens.
            */
@@ -264,6 +294,16 @@ CSS keyframe animations; define the animation keyframes, a CSS class for the ani
           if (!this.scrollAction) {
             this.scrollAction = this.allowOutsideScroll ? 'refit' : 'lock';
           }
+          if (this.openAnimationConfig || this.closeAnimationConfig || this.animationConfig) {
+            console.warn('Configuring animations through animationConfig, openAnimationConfig, '+
+                         'or closeAnimationConfig is no longer supported.' +
+                         'Use entryAnimation and exitAnimation instead.');
+            // Set this for backwards-compat.
+            this.animationConfig = this.animationConfig || {
+              open: this.openAnimationConfig,
+              close: this.closeAnimationConfig
+            };
+          }
           this._readied = true;
         },
 
@@ -319,9 +359,11 @@ CSS keyframe animations; define the animation keyframes, a CSS class for the ani
          * @private
          */
         _cancelAnimation: function() {
-          this.classList.remove(this.entryAnimation);
-          this.classList.remove(this.exitAnimation);
-          this.classList.remove('animating');
+          if (this._pendingAnimation) {
+            this.classList.remove('animating');
+            this.classList.remove(this._pendingAnimation);
+            this._pendingAnimation = null;
+          }
         },
 
         /**
@@ -331,6 +373,7 @@ CSS keyframe animations; define the animation keyframes, a CSS class for the ani
         _playAnimation: function(animation) {
           this.classList.add('animating');
           this.classList.add(animation);
+          this._pendingAnimation = animation;
           if (this._willAnimate() === false) {
             console.info(animation + ' animation was not played');
             this._onAnimationEnd();

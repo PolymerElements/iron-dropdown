@@ -105,6 +105,27 @@ interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState,
   exitAnimation: string|null|undefined;
 
   /**
+   * Deprecated, use `entryAnimation` and `exitAnimation` instead.
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+   * here to not break bindings. Setting it won't have effects on the animation.
+   */
+  animationConfig: object|null|undefined;
+
+  /**
+   * Deprecated, use `entryAnimation` instead.
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+   * here to not break bindings. Setting it won't have effects on the animation.
+   */
+  openAnimationConfig: object|null|undefined;
+
+  /**
+   * Deprecated, use `exitAnimation` instead.
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+   * here to not break bindings. Setting it won't have effects on the animation.
+   */
+  closeAnimationConfig: object|null|undefined;
+
+  /**
    * If provided, this will be the element that will be focused when
    * the dropdown opens.
    */
