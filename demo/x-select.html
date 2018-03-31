@@ -9,8 +9,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../iron-dropdown.html">
-<link rel="import" href="../../neon-animation/neon-animations.html">
-<link rel="import" href="grow-height-animation.html">
 
 <dom-module id="x-select">
   <template>
@@ -18,6 +16,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       :host {
         display: inline-block;
         margin: 1em;
+      }
+
+      @keyframes expand-animation {
+        from {
+          max-height: 50px;
+          opacity: 0;
+        }
+        to {
+          max-height: 100vh;
+        }
+      }
+
+      .expand-animation {
+        animation-name: expand-animation;
+        animation-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+        animation-delay: 150ms;
+        animation-duration: 200ms;
+      }
+
+      .fade-out-animation {
+        animation-duration: 150ms;
       }
     </style>
     <div on-tap="open">
@@ -28,8 +47,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       horizontal-align="[[horizontalAlign]]"
       disabled="[[disabled]]"
       scroll-action="[[scrollAction]]"
-      open-animation-config="[[openAnimationConfig]]"
-      close-animation-config="[[closeAnimationConfig]]">
+      entry-animation="expand-animation"
+      exit-animation="fade-out-animation">
       <slot name="dropdown-content" slot="dropdown-content"></slot>
     </iron-dropdown>
   </template>
@@ -42,36 +61,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         horizontalAlign: String,
         disabled: Boolean,
         scrollAction: String,
-        openAnimationConfig: {
-          type: Array,
-          value: function() {
-            return [{
-              name: 'fade-in-animation',
-              timing: {
-                delay: 150,
-                duration: 50
-              }
-            }, {
-              name: 'expand-animation',
-              timing: {
-                delay: 150,
-                duration: 200
-              }
-            }];
-          }
-        },
-
-        closeAnimationConfig: {
-          type: Array,
-          value: function() {
-            return [{
-              name: 'fade-out-animation',
-              timing: {
-                duration: 200
-              }
-            }];
-          }
-        }
       },
 
       open: function() {

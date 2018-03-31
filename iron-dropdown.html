@@ -11,7 +11,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-behaviors/iron-control-state.html">
 <link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
-<link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
 <!--TODO remove this import -->
 <link rel="import" href="iron-dropdown-scroll-manager.html">
 
@@ -38,6 +37,48 @@ In the above example, the `<div>` assigned to the `dropdown-content` slot will b
 hidden until the dropdown element has `opened` set to true, or when the `open`
 method is called on the element.
 
+### Changes in 2.0
+- Removed the private property `_focusTarget` which was deprecated.
+- Distribution moved from the `class="dropdown-content"` to `slot="dropdown-content"`.
+- `<iron-dropdown>` animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations
+
+### Animations
+
+Set the `entry-animation` and/or `exit-animation` attributes to add an animation when the dialog
+is opened or closed. Included in the component are:
+- fade-in-animation
+- fade-out-animation
+- scale-up-animation
+- scale-down-animation
+
+These animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations.
+This change reduces code size, and uses the platform. You can implement custom entry/exit animations using
+CSS keyframe animations; define the animation keyframes, a CSS class for the animation, and assign the class to the `entry/exit-animation`, e.g.
+
+    <style>
+      \@keyframes expand-animation {
+        from {
+          max-height: 10px;
+          opacity: 0;
+        }
+        to {
+          max-height: 100px;
+        }
+      }
+
+      .expand-animation {
+        animation-name: expand-animation;
+        animation-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+        animation-delay: 150ms;
+        animation-duration: 200ms;
+      }
+    </style>
+
+    <iron-dropdown entry-animation="expand-animation"
+                   exit-animation="fade-out-animation">
+      <div slot="dropdown-content">Hello!</div>
+    </iron-dropdown>
+
 @demo demo/index.html
 -->
 
@@ -46,21 +87,73 @@ method is called on the element.
     <style>
       :host {
         position: fixed;
+        transform-origin: left top;
       }
 
-      #contentWrapper ::slotted(*) {
+      :host([horizontal-align="right"]) {
+        transform-origin: right top;
+      }
+
+      :host([vertical-align="bottom"]) {
+        transform-origin: left bottom;
+      }
+
+      :host([horizontal-align="right"][vertical-align="bottom"]) {
+        transform-origin: right bottom;
+      }
+
+      ::slotted(*) {
         overflow: auto;
       }
 
-      #contentWrapper.animating ::slotted(*) {
-        overflow: hidden;
+      :host(.animating) {
         pointer-events: none;
+        animation-duration: 500ms;
+        animation-fill-mode: both;
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      :host(.fade-in-animation) {
+        animation-name: fade-in-animation;
+      }
+
+      @keyframes fade-in-animation {
+        from {
+          opacity: 0;
+        }
+      }
+
+      :host(.fade-out-animation) {
+        animation-name: fade-out-animation;
+      }
+
+      @keyframes fade-out-animation {
+        to {
+          opacity: 0;
+        }
+      }
+
+      :host(.scale-up-animation) {
+        animation-name: scale-up-animation;
+      }
+
+      @keyframes scale-up-animation {
+        from {
+          transform: scale(0);
+        }
+      }
+
+      :host(.scale-down-animation) {
+        animation-name: scale-down-animation;
+      }
+
+      @keyframes scale-down-animation {
+        to {
+          transform: scale(0);
+        }
       }
     </style>
-
-    <div id="contentWrapper">
-      <slot id="content" name="dropdown-content"></slot>
-    </div>
+    <slot id="content" name="dropdown-content"></slot>
   </template>
 
   <script>
@@ -74,7 +167,6 @@ method is called on the element.
           Polymer.IronControlState,
           Polymer.IronA11yKeysBehavior,
           Polymer.IronOverlayBehavior,
-          Polymer.NeonAnimationRunnerBehavior
         ],
 
         properties: {
@@ -101,20 +193,44 @@ method is called on the element.
           },
 
           /**
-           * An animation config. If provided, this will be used to animate the
-           * opening of the dropdown. Pass an Array for multiple animations.
-           * See `neon-animation` documentation for more animation configuration
-           * details.
+           * The class defining the entry animation.
+           */
+          entryAnimation: {
+            type: String
+          },
+
+          /**
+           * The class defining the exit animation.
+           */
+          exitAnimation: {
+            type: String
+          },
+
+          /**
+           * Deprecated, use `entryAnimation` and `exitAnimation` instead.
+           * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+           * here to not break bindings. Setting it won't have effects on the animation.
+           * @deprecated
+           */
+          animationConfig: {
+            type: Object
+          },
+
+          /**
+           * Deprecated, use `entryAnimation` instead.
+           * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+           * here to not break bindings. Setting it won't have effects on the animation.
+           * @deprecated
            */
           openAnimationConfig: {
             type: Object
           },
 
           /**
-           * An animation config. If provided, this will be used to animate the
-           * closing of the dropdown. Pass an Array for multiple animations.
-           * See `neon-animation` documentation for more animation configuration
-           * details.
+           * Deprecated, use `exitAnimation` instead.
+           * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+           * here to not break bindings. Setting it won't have effects on the animation.
+           * @deprecated
            */
           closeAnimationConfig: {
             type: Object
@@ -153,7 +269,7 @@ method is called on the element.
         },
 
         listeners: {
-          'neon-animation-finish': '_onNeonAnimationFinish'
+          'animationend': '_onAnimationEnd'
         },
 
         observers: [
@@ -178,40 +294,76 @@ method is called on the element.
           if (!this.scrollAction) {
             this.scrollAction = this.allowOutsideScroll ? 'refit' : 'lock';
           }
+          if (this.openAnimationConfig || this.closeAnimationConfig || this.animationConfig) {
+            console.warn('Configuring animations through animationConfig, openAnimationConfig, ' +
+              'or closeAnimationConfig is no longer supported. ' +
+              'Use entryAnimation and exitAnimation instead.');
+            // Set this for backwards-compat.
+            this.animationConfig = this.animationConfig || {
+              open: this.openAnimationConfig,
+              close: this.closeAnimationConfig
+            };
+          }
           this._readied = true;
         },
 
-        attached: function () {
+        attached: function() {
           if (!this.sizingTarget || this.sizingTarget === this) {
             this.sizingTarget = this.containedElement || this;
           }
         },
 
         detached: function() {
-          this.cancelAnimation();
+          this._cancelAnimation();
         },
+
+        /**
+         * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+         * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+         * now is a no-op.
+         * @deprecated
+         */
+        cancelAnimation: function() {},
+
+        /**
+         * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+         * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+         * now is a no-op.
+         * @param {string=} type
+         * @param {!Object=} cookie
+         * @deprecated
+         */
+        playAnimation: function(type, cookie) {},
+
+        /**
+         * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+         * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+         * now is a no-op.
+         * @deprecated
+         */
+        getAnimationConfig: function(type) { return []; },
 
         /**
          * Called when the value of `opened` changes.
          * Overridden from `IronOverlayBehavior`
+         * @private
          */
         _openedChanged: function() {
           if (this.opened && this.disabled) {
             this.cancel();
           } else {
-            this.cancelAnimation();
-            this._updateAnimationConfig();
+            this._cancelAnimation();
             Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
           }
         },
 
         /**
          * Overridden from `IronOverlayBehavior`.
+         * @private
          */
         _renderOpened: function() {
-          if (!this.noAnimations && this.animationConfig.open) {
-            this.$.contentWrapper.classList.add('animating');
-            this.playAnimation('open');
+          if (!this.noAnimations && this.entryAnimation) {
+            this._playAnimation(this.entryAnimation);
           } else {
             Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this, arguments);
           }
@@ -219,14 +371,49 @@ method is called on the element.
 
         /**
          * Overridden from `IronOverlayBehavior`.
+         * @private
          */
         _renderClosed: function() {
-          if (!this.noAnimations && this.animationConfig.close) {
-            this.$.contentWrapper.classList.add('animating');
-            this.playAnimation('close');
+          if (!this.noAnimations && this.exitAnimation) {
+            this._playAnimation(this.exitAnimation);
           } else {
             Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this, arguments);
           }
+        },
+
+        /**
+         * @private
+         */
+        _cancelAnimation: function() {
+          if (this._pendingAnimation) {
+            this.classList.remove('animating');
+            this.classList.remove(this._pendingAnimation);
+            this._pendingAnimation = null;
+          }
+        },
+
+        /**
+         * @param {!string} animation
+         * @private
+         */
+        _playAnimation: function(animation) {
+          this.classList.add('animating');
+          this.classList.add(animation);
+          this._pendingAnimation = animation;
+          if (this._willAnimate() === false) {
+            console.info(animation + ' animation was not played');
+            this._onAnimationEnd();
+          }
+        },
+
+        /**
+         * @private
+         */
+        _willAnimate: function() {
+          // If CSS Class does not have animation-name considered not be an animation
+          var style = getComputedStyle(this);
+          return (style.getPropertyValue('animation-name') !== 'none' &&
+            style.getPropertyValue('animation-duration') !== '0ms');
         },
 
         /**
@@ -234,36 +421,26 @@ method is called on the element.
          * closing). Responsible for "completing" the process of opening or
          * closing the dropdown by positioning it or setting its display to
          * none.
+         * @param {Event=} event
+         * @private
          */
-        _onNeonAnimationFinish: function() {
-          this.$.contentWrapper.classList.remove('animating');
+        _onAnimationEnd: function(event) {
+          if (event && event.target !== this) {
+            return;
+          }
+          // Removes the classes.
+          this._cancelAnimation();
           if (this.opened) {
             this._finishRenderOpened();
           } else {
             this._finishRenderClosed();
           }
         },
-        
-        /**
-         * Constructs the final animation config from different properties used
-         * to configure specific parts of the opening and closing animations.
-         */
-        _updateAnimationConfig: function() {
-          // Update the animation node to be the containedElement.
-          var animationNode = this.containedElement;
-          var animations = [].concat(this.openAnimationConfig || []).concat(this.closeAnimationConfig || []);
-          for (var i = 0; i < animations.length; i++) {
-            animations[i].node = animationNode;
-          }
-          this.animationConfig = {
-            open: this.openAnimationConfig,
-            close: this.closeAnimationConfig
-          };
-        },
 
         /**
          * Updates the overlay position based on configured horizontal
          * and vertical alignment.
+         * @private
          */
         _updateOverlayPosition: function() {
           if (this.isAttached) {
@@ -275,6 +452,7 @@ method is called on the element.
         /**
          * Sets scrollAction according to the value of allowOutsideScroll.
          * Prefer setting directly scrollAction.
+         * @private
          */
         _allowOutsideScrollChanged: function(allowOutsideScroll) {
           // Wait until initial values are all set.
@@ -290,6 +468,7 @@ method is called on the element.
 
         /**
          * Apply focus to focusTarget or containedElement
+         * @private
          */
         _applyFocus: function() {
           var focusTarget = this.focusTarget || this.containedElement;

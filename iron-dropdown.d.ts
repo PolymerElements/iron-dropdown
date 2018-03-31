@@ -11,7 +11,6 @@
 /// <reference path="../polymer/types/polymer.d.ts" />
 /// <reference path="../iron-behaviors/iron-control-state.d.ts" />
 /// <reference path="../iron-overlay-behavior/iron-overlay-behavior.d.ts" />
-/// <reference path="../neon-animation/neon-animation-runner-behavior.d.ts" />
 /// <reference path="iron-dropdown-scroll-manager.d.ts" />
 
 /**
@@ -36,8 +35,50 @@
  * In the above example, the `<div>` assigned to the `dropdown-content` slot will be
  * hidden until the dropdown element has `opened` set to true, or when the `open`
  * method is called on the element.
+ *
+ * ### Changes in 2.0
+ * - Removed the private property `_focusTarget` which was deprecated.
+ * - Distribution moved from the `class="dropdown-content"` to `slot="dropdown-content"`.
+ * - `<iron-dropdown>` animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations
+ *
+ * ### Animations
+ *
+ * Set the `entry-animation` and/or `exit-animation` attributes to add an animation when the dialog
+ * is opened or closed. Included in the component are:
+ * - fade-in-animation
+ * - fade-out-animation
+ * - scale-up-animation
+ * - scale-down-animation
+ *
+ * These animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations.
+ * This change reduces code size, and uses the platform. You can implement custom entry/exit animations using
+ * CSS keyframe animations; define the animation keyframes, a CSS class for the animation, and assign the class to the `entry/exit-animation`, e.g.
+ *
+ *     <style>
+ *       \@keyframes expand-animation {
+ *         from {
+ *           max-height: 10px;
+ *           opacity: 0;
+ *         }
+ *         to {
+ *           max-height: 100px;
+ *         }
+ *       }
+ *
+ *       .expand-animation {
+ *         animation-name: expand-animation;
+ *         animation-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+ *         animation-delay: 150ms;
+ *         animation-duration: 200ms;
+ *       }
+ *     </style>
+ *
+ *     <iron-dropdown entry-animation="expand-animation"
+ *                    exit-animation="fade-out-animation">
+ *       <div slot="dropdown-content">Hello!</div>
+ *     </iron-dropdown>
  */
-interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState, Polymer.IronA11yKeysBehavior, Polymer.IronOverlayBehavior, Polymer.NeonAnimationRunnerBehavior {
+interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState, Polymer.IronA11yKeysBehavior, Polymer.IronOverlayBehavior {
 
   /**
    * The orientation against which to align the dropdown content
@@ -54,18 +95,33 @@ interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState,
   verticalAlign: string|null|undefined;
 
   /**
-   * An animation config. If provided, this will be used to animate the
-   * opening of the dropdown. Pass an Array for multiple animations.
-   * See `neon-animation` documentation for more animation configuration
-   * details.
+   * The class defining the entry animation.
+   */
+  entryAnimation: string|null|undefined;
+
+  /**
+   * The class defining the exit animation.
+   */
+  exitAnimation: string|null|undefined;
+
+  /**
+   * Deprecated, use `entryAnimation` and `exitAnimation` instead.
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+   * here to not break bindings. Setting it won't have effects on the animation.
+   */
+  animationConfig: object|null|undefined;
+
+  /**
+   * Deprecated, use `entryAnimation` instead.
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+   * here to not break bindings. Setting it won't have effects on the animation.
    */
   openAnimationConfig: object|null|undefined;
 
   /**
-   * An animation config. If provided, this will be used to animate the
-   * closing of the dropdown. Pass an Array for multiple animations.
-   * See `neon-animation` documentation for more animation configuration
-   * details.
+   * Deprecated, use `exitAnimation` instead.
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
+   * here to not break bindings. Setting it won't have effects on the animation.
    */
   closeAnimationConfig: object|null|undefined;
 
@@ -101,51 +157,25 @@ interface IronDropdownElement extends Polymer.Element, Polymer.IronControlState,
   detached(): void;
 
   /**
-   * Called when the value of `opened` changes.
-   * Overridden from `IronOverlayBehavior`
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+   * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+   * now is a no-op.
    */
-  _openedChanged(): void;
+  cancelAnimation(): void;
 
   /**
-   * Overridden from `IronOverlayBehavior`.
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+   * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+   * now is a no-op.
    */
-  _renderOpened(): void;
+  playAnimation(type?: string, cookie?: object): void;
 
   /**
-   * Overridden from `IronOverlayBehavior`.
+   * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+   * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+   * now is a no-op.
    */
-  _renderClosed(): void;
-
-  /**
-   * Apply focus to focusTarget or containedElement
-   */
-  _applyFocus(): void;
-
-  /**
-   * Called when animation finishes on the dropdown (when opening or
-   * closing). Responsible for "completing" the process of opening or
-   * closing the dropdown by positioning it or setting its display to
-   * none.
-   */
-  _onNeonAnimationFinish(): void;
-
-  /**
-   * Constructs the final animation config from different properties used
-   * to configure specific parts of the opening and closing animations.
-   */
-  _updateAnimationConfig(): void;
-
-  /**
-   * Updates the overlay position based on configured horizontal
-   * and vertical alignment.
-   */
-  _updateOverlayPosition(): void;
-
-  /**
-   * Sets scrollAction according to the value of allowOutsideScroll.
-   * Prefer setting directly scrollAction.
-   */
-  _allowOutsideScrollChanged(allowOutsideScroll: any): void;
+  getAnimationConfig(type: any): any;
 }
 
 interface HTMLElementTagNameMap {

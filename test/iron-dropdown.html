@@ -20,8 +20,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
   <link rel="import" href="../iron-dropdown.html">
-  <link rel="import" href="../../neon-animation/web-animations.html">
-  <link rel="import" href="../../neon-animation/animations/fade-in-animation.html">
 
 </head>
 <style>
@@ -252,6 +250,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
 
         suite('correct animationConfig setup', function() {
+          setup(function() {
+            // not supported anymore.
+            this.skip();
+          });
+          
           test('as objects', function() {
             dropdown.openAnimationConfig = {
               name: 'open-animation'
@@ -315,12 +318,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           });
 
           test('no pointer events during animation', function(done) {
-            dropdown.openAnimationConfig = [{
-              name: 'fade-in-animation',
-              timing: {
-                duration: 300
-              }
-            }];
+            dropdown.entryAnimation = 'fade-in-animation';
             dropdown.open();
             setTimeout(function() {
               assert.equal(getComputedStyle(content).pointerEvents, 'none', 'content is interactive');

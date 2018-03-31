@@ -31,5 +31,42 @@ method is called on the element.
 
 ### Changes in 2.0
 - Removed the private property `_focusTarget` which was deprecated.
-- `neon-animation 2.0` doesn't import the Web Animations polyfill, so you'll have to import it ([see example](demo/index.html))
-- Distribution moved from the `class="dropdown-content"` to `slot="dropdown-content"`
+- Distribution moved from the `class="dropdown-content"` to `slot="dropdown-content"`.
+- `<iron-dropdown>` animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations.
+
+### Animations
+
+Set the `entry-animation` and/or `exit-animation` attributes to add an animation when the dialog
+is opened or closed. Included in the component are:
+- fade-in-animation
+- fade-out-animation
+- scale-up-animation
+- scale-down-animation
+
+These animations are not based on the deprecated `neon-animation` component, and use CSS keyframe animations.
+This change reduces code size, and uses the platform. You can implement custom entry/exit animations using
+CSS keyframe animations; define the animation keyframes, a CSS class for the animation, and assign the class to the `entry/exit-animation`, e.g.
+
+    <style>
+      @keyframes expand-animation {
+        from {
+          max-height: 10px;
+          opacity: 0;
+        }
+        to {
+          max-height: 100px;
+        }
+      }
+
+      .expand-animation {
+        animation-name: expand-animation;
+        animation-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+        animation-delay: 150ms;
+        animation-duration: 200ms;
+      }
+    </style>
+
+    <iron-dropdown entry-animation="expand-animation"
+                   exit-animation="fade-out-animation">
+      <div slot="dropdown-content">Hello!</div>
+    </iron-dropdown>
