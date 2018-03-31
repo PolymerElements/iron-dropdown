@@ -295,9 +295,9 @@ CSS keyframe animations; define the animation keyframes, a CSS class for the ani
             this.scrollAction = this.allowOutsideScroll ? 'refit' : 'lock';
           }
           if (this.openAnimationConfig || this.closeAnimationConfig || this.animationConfig) {
-            console.warn('Configuring animations through animationConfig, openAnimationConfig, '+
-                         'or closeAnimationConfig is no longer supported.' +
-                         'Use entryAnimation and exitAnimation instead.');
+            console.warn('Configuring animations through animationConfig, openAnimationConfig, ' +
+              'or closeAnimationConfig is no longer supported. ' +
+              'Use entryAnimation and exitAnimation instead.');
             // Set this for backwards-compat.
             this.animationConfig = this.animationConfig || {
               open: this.openAnimationConfig,
