@@ -45,31 +45,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         openAnimationConfig: {
           type: Array,
           value: function() {
-            return [{
-              name: 'fade-in-animation',
-              timing: {
-                delay: 150,
-                duration: 50
-              }
-            }, {
-              name: 'expand-animation',
-              timing: {
-                delay: 150,
-                duration: 200
-              }
-            }];
+            return [
+              {name: 'fade-in-animation', timing: {delay: 150, duration: 50}},
+              {name: 'expand-animation', timing: {delay: 150, duration: 200}}
+            ];
           }
         },
 
         closeAnimationConfig: {
           type: Array,
           value: function() {
-            return [{
-              name: 'fade-out-animation',
-              timing: {
-                duration: 200
-              }
-            }];
+            return [{name: 'fade-out-animation', timing: {duration: 200}}];
           }
         }
       },
