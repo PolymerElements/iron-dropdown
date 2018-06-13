@@ -22,6 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
     // Don't load the web animations polyfill if we're using neon-animations
     // 1.x, which loads it itself.
+    // TODO(bicknellr): Remove when updating to 3.x, bower.json may be removed.
     (function() {
     const xhr = new XMLHttpRequest();
     xhr.open('GET', '../../neon-animation/bower.json', false);
