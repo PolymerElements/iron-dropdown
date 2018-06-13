@@ -21,11 +21,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <link rel="import" href="../../polymer/polymer.html">
   <script>
-    if (Polymer.Element) {
+    (function() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '../../neon-animation/bower.json', false);
+    xhr.send();
+
+    const majorVersion =
+        parseInt(JSON.parse(xhr.responseText).version.split('.')[0], 10);
+    if (majorVersion !== 1) {
       document.write(
           '<script src="../../web-animations-js/web-animations-next-lite.min.js"></scr' +
           'ipt>');
     }
+    })();
   </script>
 
   <link rel="import" href="../iron-dropdown.html">
