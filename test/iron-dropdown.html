@@ -18,7 +18,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
-  <script src="../../web-animations-js/web-animations-next-lite.min.js"></script>
+
+  <script>
+    // Don't load the web animations polyfill if we're using neon-animations
+    // 1.x, which loads it itself.
+    // TODO(bicknellr): Remove when updating to 3.x, bower.json may be removed.
+    (function() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '../../neon-animation/bower.json', false);
+    xhr.send();
+
+    const bowerJson = JSON.parse(xhr.responseText);
+    if (typeof bowerJson.version !== 'string' ||
+        parseInt(bowerJson.version.split('.')[0], 10) !== 1) {
+      document.write(
+          '<script src="../../web-animations-js/web-animations-next-lite.min.js"></scr' +
+          'ipt>');
+    }
+    })();
+  </script>
 
   <link rel="import" href="../iron-dropdown.html">
   <link rel="import" href="../../neon-animation/animations/fade-in-animation.html">
@@ -316,14 +334,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   getComputedStyle(content).pointerEvents,
                   'none',
                   'content is interactive');
+              dropdown.addEventListener('iron-overlay-opened', function() {
+                assert.notEqual(
+                    getComputedStyle(content).pointerEvents,
+                    'none',
+                    'content is not interactive');
+                done();
+              });
             }, 150);
-            dropdown.addEventListener('iron-overlay-opened', function() {
-              assert.notEqual(
-                  getComputedStyle(content).pointerEvents,
-                  'none',
-                  'content is not interactive');
-              done();
-            });
           });
         });
       });
