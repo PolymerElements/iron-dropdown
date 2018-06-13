@@ -18,7 +18,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
-  <script src="../../web-animations-js/web-animations-next-lite.min.js"></script>
+
+  <link rel="import" href="../../polymer/polymer.html">
+  <script>
+    if (Polymer.Element) {
+      document.write('<script src="../../web-animations-js/web-animations-next-lite.min.js"></scr' + 'ipt>');
+    }
+  </script>
 
   <link rel="import" href="../iron-dropdown.html">
   <link rel="import" href="../../neon-animation/animations/fade-in-animation.html">
