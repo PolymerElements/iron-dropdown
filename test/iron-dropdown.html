@@ -316,14 +316,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   getComputedStyle(content).pointerEvents,
                   'none',
                   'content is interactive');
+              dropdown.addEventListener('iron-overlay-opened', function() {
+                assert.notEqual(
+                    getComputedStyle(content).pointerEvents,
+                    'none',
+                    'content is not interactive');
+                done();
+              });
             }, 150);
-            dropdown.addEventListener('iron-overlay-opened', function() {
-              assert.notEqual(
-                  getComputedStyle(content).pointerEvents,
-                  'none',
-                  'content is not interactive');
-              done();
-            });
           });
         });
       });
