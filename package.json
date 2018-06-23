@@ -1,19 +1,47 @@
 {
-  "name": "@polymer/iron-dropdown",
-  "private": true,
   "description": "An unstyled element that works similarly to a native browser select",
+  "keywords": [
+    "web-components",
+    "web-component",
+    "polymer"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/PolymerElements/iron-dropdown"
   },
+  "homepage": "https://github.com/PolymerElements/iron-dropdown",
+  "name": "@polymer/iron-dropdown",
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@polymer/gen-typescript-declarations": "^1.2.2",
     "bower": "^1.8.0",
-    "webmat": "^0.2.0"
+    "webmat": "^0.2.0",
+    "@polymer/iron-component-page": "^3.0.0-pre.20",
+    "@polymer/iron-demo-helpers": "^3.0.0-pre.20",
+    "@polymer/iron-test-helpers": "^3.0.0-pre.20",
+    "web-animations-js": "^2.3.1",
+    "@polymer/iron-image": "^3.0.0-pre.20",
+    "wct-browser-legacy": "^1.0.1",
+    "@webcomponents/webcomponentsjs": "^2.0.0"
   },
   "scripts": {
     "update-types": "bower install && gen-typescript-declarations --deleteExisting --outDir .",
     "format": "webmat && npm run update-types"
+  },
+  "version": "3.0.0-pre.20",
+  "resolutions": {
+    "inherits": "2.0.3",
+    "samsam": "1.1.3",
+    "supports-color": "3.1.2",
+    "type-detect": "1.0.0",
+    "@webcomponents/webcomponentsjs": "2.0.0-beta.2"
+  },
+  "main": "iron-dropdown.js",
+  "author": "The Polymer Authors",
+  "dependencies": {
+    "@polymer/polymer": "^3.0.0",
+    "@polymer/iron-behaviors": "^3.0.0-pre.20",
+    "@polymer/iron-overlay-behavior": "^3.0.0-pre.20",
+    "@polymer/neon-animation": "^3.0.0-pre.20"
   }
 }
