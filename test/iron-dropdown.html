@@ -9,70 +9,46 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <html>
-
 <head>
   <meta charset="UTF-8">
   <title>iron-dropdown basic tests</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+  <script src="../node_modules/wct-browser-legacy/browser.js"></script>
+  <script src="../node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
 
-  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-  <script src="../../../wct-browser-legacy/browser.js"></script>
-  <script src="../../iron-test-helpers/mock-interactions.js" type="module"></script>
+    .container {
+      display: block;
+      position: relative;
+      width: 100px;
+      height: 100px;
+      background-color: yellow;
+    }
 
-  <script type="module">
-import '../iron-dropdown.js';
-import '@polymer/neon-animation/animations/fade-in-animation.js';
-const xhr = new XMLHttpRequest();
-xhr.open('GET', '../../neon-animation/bower.json', false);
-xhr.send();
+    .positioned {
+      position: absolute;
+      top: 40px;
+      left: 40px;
+    }
 
-const bowerJson = JSON.parse(xhr.responseText);
-if (typeof bowerJson.version !== 'string' ||
-    parseInt(bowerJson.version.split('.')[0], 10) !== 1) {
-  document.write(
-      '<script src="../../web-animations-js/web-animations-next-lite.min.js"></scr' +
-      'ipt>');
-}
-</script>
+    [slot="dropdown-content"] {
+      width: 50px;
+      height: 50px;
+      background-color: orange;
+    }
 
-  <script type="module" src="../iron-dropdown.js"></script>
-  <script type="module" src="../../neon-animation/animations/fade-in-animation.js"></script>
-
+    .big {
+      width: 3000px;
+      height: 3000px;
+    }
+  </style>
 </head>
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-  }
-
-  .container {
-    display: block;
-    position: relative;
-    width: 100px;
-    height: 100px;
-    background-color: yellow;
-  }
-
-  .positioned {
-    position: absolute;
-    top: 40px;
-    left: 40px;
-  }
-
-  [slot="dropdown-content"] {
-    width: 50px;
-    height: 50px;
-    background-color: orange;
-  }
-
-  .big {
-    width: 3000px;
-    height: 3000px;
-  }
-</style>
-
 <body>
-
   <test-fixture id="TrivialDropdown">
     <template>
       <iron-dropdown>
@@ -166,11 +142,13 @@ if (typeof bowerJson.version !== 'string' ||
     </template>
   </test-fixture>
 
-  <script type="module">
+<script type="module">
+import '@polymer/iron-test-helpers/mock-interactions.js';
 import '../iron-dropdown.js';
 import '@polymer/neon-animation/animations/fade-in-animation.js';
 import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
 import { IronDropdownScrollManager } from '../iron-dropdown-scroll-manager.js';
+
 function elementIsVisible(element) {
   var contentRect = element.getBoundingClientRect();
   var computedStyle = window.getComputedStyle(element);
@@ -636,5 +614,4 @@ suite('<iron-dropdown>', function() {
 });
 </script>
 </body>
-
 </html>
