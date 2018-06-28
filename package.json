@@ -14,7 +14,6 @@
   "license": "BSD-3-Clause",
   "devDependencies": {
     "webmat": "^0.2.0",
-    "@polymer/iron-component-page": "^3.0.0-pre.20",
     "@polymer/iron-demo-helpers": "^3.0.0-pre.20",
     "@polymer/iron-test-helpers": "^3.0.0-pre.20",
     "web-animations-js": "^2.3.1",
