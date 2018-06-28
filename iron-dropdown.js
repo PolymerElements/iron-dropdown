@@ -8,7 +8,18 @@ found at http://polymer.github.io/CONTRIBUTORS.txt Code distributed by Google as
 part of the polymer project is also subject to an additional IP rights grant
 found at http://polymer.github.io/PATENTS.txt
 */
-/*TODO remove this import */
+import '@polymer/polymer/polymer-legacy.js';
+// TODO: remove this import
+import './iron-dropdown-scroll-manager.js';
+
+import {IronA11yKeysBehavior} from '@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
+import {IronControlState} from '@polymer/iron-behaviors/iron-control-state.js';
+import {IronOverlayBehavior, IronOverlayBehaviorImpl} from '@polymer/iron-overlay-behavior/iron-overlay-behavior.js';
+import {NeonAnimationRunnerBehavior} from '@polymer/neon-animation/neon-animation-runner-behavior.js';
+import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import {dom} from '@polymer/polymer/lib/legacy/polymer.dom.js';
+import {html} from '@polymer/polymer/lib/utils/html-tag.js';
+
 /**
 `<iron-dropdown>` is a generalized element that is useful when you have
 hidden content (`dropdown-content`) that is revealed due to some change in
@@ -34,22 +45,6 @@ be hidden until the dropdown element has `opened` set to true, or when the
 
 @demo demo/index.html
 */
-/*
-  FIXME(polymer-modulizer): the above comments were extracted
-  from HTML and may be out of place here. Review them and
-  then delete this comment!
-*/
-import '@polymer/polymer/polymer-legacy.js';
-import './iron-dropdown-scroll-manager.js';
-
-import {IronA11yKeysBehavior} from '@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
-import {IronControlState} from '@polymer/iron-behaviors/iron-control-state.js';
-import {IronOverlayBehavior, IronOverlayBehaviorImpl} from '@polymer/iron-overlay-behavior/iron-overlay-behavior.js';
-import {NeonAnimationRunnerBehavior} from '@polymer/neon-animation/neon-animation-runner-behavior.js';
-import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import {dom} from '@polymer/polymer/lib/legacy/polymer.dom.js';
-import {html} from '@polymer/polymer/lib/utils/html-tag.js';
-
 Polymer({
   _template: html`
     <style>
