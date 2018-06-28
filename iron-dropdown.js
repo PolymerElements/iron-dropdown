@@ -1,11 +1,12 @@
 /**
 @license
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+This code may only be used under the BSD style license found at
+http://polymer.github.io/LICENSE.txt The complete set of authors may be found at
+http://polymer.github.io/AUTHORS.txt The complete set of contributors may be
+found at http://polymer.github.io/CONTRIBUTORS.txt Code distributed by Google as
+part of the polymer project is also subject to an additional IP rights grant
+found at http://polymer.github.io/PATENTS.txt
 */
 /*TODO remove this import */
 /**
@@ -27,9 +28,9 @@ configured.
       <div slot="dropdown-content">Hello!</div>
     </iron-dropdown>
 
-In the above example, the `<div>` assigned to the `dropdown-content` slot will be
-hidden until the dropdown element has `opened` set to true, or when the `open`
-method is called on the element.
+In the above example, the `<div>` assigned to the `dropdown-content` slot will
+be hidden until the dropdown element has `opened` set to true, or when the
+`open` method is called on the element.
 
 @demo demo/index.html
 */
@@ -39,15 +40,15 @@ method is called on the element.
   then delete this comment!
 */
 import '@polymer/polymer/polymer-legacy.js';
-
-import { IronControlState } from '@polymer/iron-behaviors/iron-control-state.js';
-import { IronOverlayBehavior, IronOverlayBehaviorImpl } from '@polymer/iron-overlay-behavior/iron-overlay-behavior.js';
-import { NeonAnimationRunnerBehavior } from '@polymer/neon-animation/neon-animation-runner-behavior.js';
 import './iron-dropdown-scroll-manager.js';
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import { html } from '@polymer/polymer/lib/utils/html-tag.js';
-import { IronA11yKeysBehavior } from '@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
-import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
+
+import {IronA11yKeysBehavior} from '@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
+import {IronControlState} from '@polymer/iron-behaviors/iron-control-state.js';
+import {IronOverlayBehavior, IronOverlayBehaviorImpl} from '@polymer/iron-overlay-behavior/iron-overlay-behavior.js';
+import {NeonAnimationRunnerBehavior} from '@polymer/neon-animation/neon-animation-runner-behavior.js';
+import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import {dom} from '@polymer/polymer/lib/legacy/polymer.dom.js';
+import {html} from '@polymer/polymer/lib/utils/html-tag.js';
 
 Polymer({
   _template: html`
