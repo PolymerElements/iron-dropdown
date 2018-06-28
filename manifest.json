@@ -33,10 +33,6 @@
     "test/iron-dropdown.html": {
       "convertedUrl": "test/iron-dropdown.html",
       "exports": {}
-    },
-    "test/x-scrollable-element.html": {
-      "convertedUrl": "test/x-scrollable-element.html",
-      "exports": {}
     }
   }
 }
