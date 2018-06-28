@@ -11,6 +11,8 @@ found at http://polymer.github.io/PATENTS.txt
 import '../iron-dropdown.js';
 
 import './grow-height-animation.js';
+import '@polymer/neon-animation/animations/fade-in-animation.js';
+import '@polymer/neon-animation/animations/fade-out-animation.js';
 import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import {html} from '@polymer/polymer/lib/utils/html-tag.js';
 Polymer({

@@ -202,13 +202,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     document.body.appendChild($_documentContainer.content);
   </script>
   <script type="module">
+    import {dom} from '@polymer/polymer/lib/legacy/polymer.dom.js';
+
     const $_documentContainer = document.createElement('template');
 
-    $_documentContainer.innerHTML = `<demo-snippet class="centered-demo">
+    $_documentContainer.innerHTML = `<demo-snippet class="centered-demo" id="contentDemo">
         <template>
           <x-select horizontal-align="left" vertical-align="top">
             <button slot="dropdown-trigger">Content</button>
-            <iron-image slot="dropdown-content" src="../../iron-image/demo/polymer.svg"></iron-image>
+            <iron-image slot="dropdown-content" src="../node_modules/@polymer/iron-image/demo/polymer.svg"></iron-image>
           </x-select>
           <x-select horizontal-align="right" vertical-align="top">
             <button slot="dropdown-trigger">Unordered list</button>
@@ -220,43 +222,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </dom-repeat>
             </ul>
           </x-select>
-
-          <script>
-            Demo.items = [
-              'allosaurus',
-              'brontosaurus',
-              'carcharodontosaurus',
-              'diplodocus',
-              'ekrixinatosaurus',
-              'fukuiraptor',
-              'gallimimus',
-              'hadrosaurus',
-              'iguanodon',
-              'jainosaurus',
-              'kritosaurus',
-              'liaoceratops',
-              'megalosaurus',
-              'nemegtosaurus',
-              'ornithomimus',
-              'protoceratops',
-              'quetecsaurus',
-              'rajasaurus',
-              'stegosaurus',
-              'triceratops',
-              'utahraptor',
-              'vulcanodon',
-              'wannanosaurus',
-              'xenoceratops',
-              'yandusaurus',
-              'zephyrosaurus'
-            ];
-            // Support hybrid mode.
-            Demo.firstElementChild.items = Demo.items;
-          &lt;/script>
         </template>
       </demo-snippet>`;
 
     document.body.appendChild($_documentContainer.content);
+
+    // Wait for the <x-select> containing #Demo in the template above to be
+    // cloned and inserted in the page.
+    const contentDemoDOM = dom(dom(document).querySelector('#contentDemo'));
+    const observerHandle = contentDemoDOM.observeNodes(function() {
+      const demoSelect = dom(document).querySelector('#contentDemo #Demo');
+      if (!demoSelect) return;
+
+      contentDemoDOM.unobserveNodes(observerHandle);
+
+      demoSelect.items = [
+        'allosaurus',
+        'brontosaurus',
+        'carcharodontosaurus',
+        'diplodocus',
+        'ekrixinatosaurus',
+        'fukuiraptor',
+        'gallimimus',
+        'hadrosaurus',
+        'iguanodon',
+        'jainosaurus',
+        'kritosaurus',
+        'liaoceratops',
+        'megalosaurus',
+        'nemegtosaurus',
+        'ornithomimus',
+        'protoceratops',
+        'quetecsaurus',
+        'rajasaurus',
+        'stegosaurus',
+        'triceratops',
+        'utahraptor',
+        'vulcanodon',
+        'wannanosaurus',
+        'xenoceratops',
+        'yandusaurus',
+        'zephyrosaurus'
+      ];
+      // Support hybrid mode.
+      demoSelect.firstElementChild.items = demoSelect.items;
+    });
   </script>
 </body>
 </html>
