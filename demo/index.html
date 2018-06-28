@@ -9,98 +9,98 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <html>
-
 <head>
 
   <title>iron-dropdown</title>
 
-  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-  <script src="../../../web-animations-js/web-animations-next-lite.min.js"></script>
+  <script src="https://unpkg.com/@webcomponents/webcomponentsjs@^2.0.0/webcomponents-loader.js"></script>
+  <script src="https://unpkg.com/web-animations-js@^2.3.1/web-animations-next-lite.min.js"></script>
 
-  <script type="module" src="../../iron-image/iron-image.js"></script>
-  <script type="module" src="../../iron-demo-helpers/demo-snippet.js"></script>
-  <script type="module" src="../../iron-demo-helpers/demo-pages-shared-styles.js"></script>
+  <script type="module">
+    import '@polymer/iron-image/iron-image.js';
+    import '@polymer/iron-demo-helpers/demo-snippet.js';
+    import '@polymer/iron-demo-helpers/demo-pages-shared-styles.js';
+    import './x-select.js';
+  </script>
 
-  <script type="module" src="./x-select.js"></script>
+  <!--
+    FIXME(polymer-modulizer):
+      These imperative modules that innerHTML your HTML are
+      a hacky way to be sure that any mixins in included style
+      modules are ready before any elements that reference them are
+      instantiated, otherwise the CSS @apply mixin polyfill won't be
+      able to expand the underlying CSS custom properties.
+      See: https://github.com/Polymer/polymer-modulizer/issues/154
+  -->
+  <script type="module">
+    const $_documentContainer = document.createElement('template');
 
-  <!-- FIXME(polymer-modulizer):
-        These imperative modules that innerHTML your HTML are
-        a hacky way to be sure that any mixins in included style
-        modules are ready before any elements that reference them are
-        instantiated, otherwise the CSS @apply mixin polyfill won't be
-        able to expand the underlying CSS custom properties.
-        See: https://github.com/Polymer/polymer-modulizer/issues/154
-        -->
-    <script type="module">
-      const $_documentContainer = document.createElement('template');
-
-      $_documentContainer.innerHTML =
-          `<custom-style><style is="custom-style" include="demo-pages-shared-styles">
-          demo-snippet {
-            --demo-snippet-code: {
-              max-height: 250px;
-            }
+    $_documentContainer.innerHTML =
+        `<custom-style><style is="custom-style" include="demo-pages-shared-styles">
+        demo-snippet {
+          --demo-snippet-code: {
+            max-height: 250px;
           }
+        }
 
-          [slot="dropdown-content"] {
-            background-color: white;
-            line-height: 20px;
-            border-radius: 3px;
-            box-shadow: 0px 2px 6px #ccc;
-          }
+        [slot="dropdown-content"] {
+          background-color: white;
+          line-height: 20px;
+          border-radius: 3px;
+          box-shadow: 0px 2px 6px #ccc;
+        }
 
-          .random-content {
-            padding: 1.5em 2em;
-            max-width: 250px;
-          }
+        .random-content {
+          padding: 1.5em 2em;
+          max-width: 250px;
+        }
 
-          button {
-            border: 1px solid #ccc;
-            background-color: #eee;
-            padding: 1em;
-            border-radius: 3px;
-            cursor: pointer;
-          }
+        button {
+          border: 1px solid #ccc;
+          background-color: #eee;
+          padding: 1em;
+          border-radius: 3px;
+          cursor: pointer;
+        }
 
-          button:focus {
-            outline: none;
-            border-color: blue;
-          }
+        button:focus {
+          outline: none;
+          border-color: blue;
+        }
 
-          ul, li {
-            display: block;
-            position: relative;
-            margin: 0;
-            padding: 0;
-          }
+        ul, li {
+          display: block;
+          position: relative;
+          margin: 0;
+          padding: 0;
+        }
 
-          a {
-            display: block;
-            position: relative;
-            padding: 1em;
-            text-decoration: none;
-          }
+        a {
+          display: block;
+          position: relative;
+          padding: 1em;
+          text-decoration: none;
+        }
 
-          li:not(:last-of-type) {
-            border-bottom: 1px solid #eee;
-          }
+        li:not(:last-of-type) {
+          border-bottom: 1px solid #eee;
+        }
 
-          a:hover {
-            text-decoration: underline;
-          }
+        a:hover {
+          text-decoration: underline;
+        }
 
-          iron-image {
-            padding: 1em;
-            background-color: #fff;
-            box-shadow: 0px 2px 6px #ccc;
-            border-radius: 3px;
-          }
-        </style></custom-style>`;
+        iron-image {
+          padding: 1em;
+          background-color: #fff;
+          box-shadow: 0px 2px 6px #ccc;
+          border-radius: 3px;
+        }
+      </style></custom-style>`;
 
-      document.body.appendChild($_documentContainer.content);
-    </script>
+    document.body.appendChild($_documentContainer.content);
+  </script>
 </head>
-
 <body unresolved class="centered">
   <script type="module">
     const $_documentContainer = document.createElement('template');
@@ -258,3 +258,5 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     document.body.appendChild($_documentContainer.content);
   </script>
+</body>
+</html>
