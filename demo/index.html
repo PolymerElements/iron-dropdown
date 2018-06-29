@@ -31,71 +31,75 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     const template = document.createElement('template');
     template.innerHTML = `
       <custom-style>
-        <style is="custom-style" include="demo-pages-shared-styles">
-          demo-snippet {
-            --demo-snippet-code: {
-              max-height: 250px;
-            }
-          }
-
-          [slot="dropdown-content"] {
-            background-color: white;
-            line-height: 20px;
-            border-radius: 3px;
-            box-shadow: 0px 2px 6px #ccc;
-          }
-
-          .random-content {
-            padding: 1.5em 2em;
-            max-width: 250px;
-          }
-
-          button {
-            border: 1px solid #ccc;
-            background-color: #eee;
-            padding: 1em;
-            border-radius: 3px;
-            cursor: pointer;
-          }
-
-          button:focus {
-            outline: none;
-            border-color: blue;
-          }
-
-          ul, li {
-            display: block;
-            position: relative;
-            margin: 0;
-            padding: 0;
-          }
-
-          a {
-            display: block;
-            position: relative;
-            padding: 1em;
-            text-decoration: none;
-          }
-
-          li:not(:last-of-type) {
-            border-bottom: 1px solid #eee;
-          }
-
-          a:hover {
-            text-decoration: underline;
-          }
-
-          iron-image {
-            padding: 1em;
-            background-color: #fff;
-            box-shadow: 0px 2px 6px #ccc;
-            border-radius: 3px;
-          }
-        </style>
+        <style is="custom-style" include="demo-pages-shared-styles"></style>
       </custom-style>
     `;
     document.body.appendChild(template.content);
   </script>
+
+  <custom-style>
+    <style is="custom-style">
+      demo-snippet {
+        --demo-snippet-code: {
+          max-height: 250px;
+        }
+      }
+
+      [slot="dropdown-content"] {
+        background-color: white;
+        line-height: 20px;
+        border-radius: 3px;
+        box-shadow: 0px 2px 6px #ccc;
+      }
+
+      .random-content {
+        padding: 1.5em 2em;
+        max-width: 250px;
+      }
+
+      button {
+        border: 1px solid #ccc;
+        background-color: #eee;
+        padding: 1em;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      button:focus {
+        outline: none;
+        border-color: blue;
+      }
+
+      ul, li {
+        display: block;
+        position: relative;
+        margin: 0;
+        padding: 0;
+      }
+
+      a {
+        display: block;
+        position: relative;
+        padding: 1em;
+        text-decoration: none;
+      }
+
+      li:not(:last-of-type) {
+        border-bottom: 1px solid #eee;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      iron-image {
+        padding: 1em;
+        background-color: #fff;
+        box-shadow: 0px 2px 6px #ccc;
+        border-radius: 3px;
+      }
+    </style>
+  </custom-style>
 
   <h3>Basic</h3>
   <demo-snippet class="centered-demo">
