@@ -10,6 +10,7 @@
         "Polymer.IronDropdownScrollManager": "IronDropdownScrollManager"
       }
     },
+    "index.html": null,
     "demo/index.html": {
       "convertedUrl": "demo/index.html",
       "exports": {}
