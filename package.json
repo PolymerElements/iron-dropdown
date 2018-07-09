@@ -13,13 +13,13 @@
   "name": "@polymer/iron-dropdown",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "webmat": "^0.2.0",
     "@polymer/iron-demo-helpers": "^3.0.0-pre.20",
-    "@polymer/iron-test-helpers": "^3.0.0-pre.20",
-    "web-animations-js": "^2.3.1",
     "@polymer/iron-image": "^3.0.0-pre.20",
+    "@polymer/iron-test-helpers": "^3.0.0-pre.20",
+    "@webcomponents/webcomponentsjs": "^2.0.0",
     "wct-browser-legacy": "^1.0.1",
-    "@webcomponents/webcomponentsjs": "^2.0.0"
+    "web-animations-js": "^2.3.1",
+    "webmat": "^0.2.2"
   },
   "scripts": {
     "format": "webmat"
