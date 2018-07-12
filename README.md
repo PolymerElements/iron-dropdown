@@ -26,7 +26,7 @@ See: [Documentation](https://www.webcomponents.org/element/@polymer/iron-dropdow
 npm install --save @polymer/iron-dropdown
 ```
 
-### In an html file
+### In an HTML file
 
 ```html
 <html>
