@@ -4,16 +4,8 @@
 
 ## &lt;iron-dropdown&gt;
 
-`<iron-dropdown>` is a generalized element that is useful when you have hidden
-content that is revealed due to some change in state.
-
-Note that this is a low-level element intended to be used as part of other
-composite elements that cause dropdowns to be revealed. Examples of elements
-that might be implemented using an `iron-dropdown` include comboboxes, menu
-buttons, selects.
-
-The `<iron-dropdown>` element exposes attributes that allow the position of the
-`dropdown-content` relative to the `dropdown-trigger` to be configured.
+`<iron-dropdown>` displays content inside a fixed-position container,
+positioned relative to another element.
 
 See: [Documentation](https://www.webcomponents.org/element/@polymer/iron-dropdown),
  [Demo](https://www.webcomponents.org/element/@polymer/iron-dropdown/demo/demo/index.html).
