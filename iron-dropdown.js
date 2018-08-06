@@ -9,8 +9,6 @@ part of the polymer project is also subject to an additional IP rights grant
 found at http://polymer.github.io/PATENTS.txt
 */
 import '@polymer/polymer/polymer-legacy.js';
-// TODO: remove this import
-import './iron-dropdown-scroll-manager.js';
 
 import {IronA11yKeysBehavior} from '@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
 import {IronControlState} from '@polymer/iron-behaviors/iron-control-state.js';
