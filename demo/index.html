@@ -31,14 +31,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // before this element is created.
     const template = html`
       <custom-style>
-        <style is="custom-style" include="demo-pages-shared-styles"></style>
+        <style include="demo-pages-shared-styles"></style>
       </custom-style>
     `;
     document.body.appendChild(template.content);
   </script>
 
   <custom-style>
-    <style is="custom-style">
+    <style>
       demo-snippet {
         --demo-snippet-code: {
           max-height: 250px;
@@ -176,7 +176,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <button slot="dropdown-trigger">Unordered list</button>
         <ul slot="dropdown-content" tabindex="0">
           <dom-repeat id="Demo">
-            <template is="dom-repeat">
+            <template>
               <li><a href="javascript:void(0)">[[item]]</a></li>
             </template>
           </dom-repeat>
@@ -207,8 +207,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         'utahraptor',       'vulcanodon',    'wannanosaurus',       'xenoceratops',
         'yandusaurus',      'zephyrosaurus'
       ];
-      // Support hybrid mode.
-      demoSelect.firstElementChild.items = demoSelect.items;
     });
 
     // Last, force ShadyCSS to recalculate styles because of the mixins
