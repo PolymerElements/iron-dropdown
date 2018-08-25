@@ -13,9 +13,9 @@
   "name": "@polymer/iron-dropdown",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "@polymer/iron-demo-helpers": "^3.0.0-pre.20",
-    "@polymer/iron-image": "^3.0.0-pre.20",
-    "@polymer/iron-test-helpers": "^3.0.0-pre.20",
+    "@polymer/iron-demo-helpers": "^3.0.0-pre.22",
+    "@polymer/iron-image": "^3.0.0-pre.22",
+    "@polymer/iron-test-helpers": "^3.0.0-pre.22",
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "wct-browser-legacy": "^1.0.1",
     "web-animations-js": "^2.3.1",
@@ -24,7 +24,7 @@
   },
   "scripts": {
     "format": "webmat",
-    "generate-types": "gen-typescript-declarations --deleteExisting --outDir .",
+    "generate-types": "gen-typescript-declarations --deleteExisting --outDir . --verify",
     "prepack": "npm run generate-types"
   },
   "version": "3.0.0-pre.22",
@@ -32,8 +32,8 @@
   "author": "The Polymer Authors",
   "dependencies": {
     "@polymer/polymer": "^3.0.0",
-    "@polymer/iron-behaviors": "^3.0.0-pre.20",
-    "@polymer/iron-overlay-behavior": "^3.0.0-pre.20",
-    "@polymer/neon-animation": "^3.0.0-pre.20"
+    "@polymer/iron-behaviors": "^3.0.0-pre.22",
+    "@polymer/iron-overlay-behavior": "^3.0.0-pre.23",
+    "@polymer/neon-animation": "^3.0.0-pre.22"
   }
 }
