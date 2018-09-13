@@ -14,8 +14,8 @@
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@polymer/iron-demo-helpers": "^3.0.1",
-    "@polymer/iron-image": "^3.0.0-pre.25",
-    "@polymer/iron-test-helpers": "^3.0.0-pre.25",
+    "@polymer/iron-image": "^3.0.0-pre.26",
+    "@polymer/iron-test-helpers": "^3.0.0-pre.26",
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "wct-browser-legacy": "^1.0.1",
     "web-animations-js": "^2.3.1",
@@ -32,8 +32,8 @@
   "author": "The Polymer Authors",
   "dependencies": {
     "@polymer/polymer": "^3.0.0",
-    "@polymer/iron-behaviors": "^3.0.0-pre.25",
-    "@polymer/iron-overlay-behavior": "^3.0.0-pre.26",
-    "@polymer/neon-animation": "^3.0.0-pre.25"
+    "@polymer/iron-behaviors": "^3.0.0-pre.26",
+    "@polymer/iron-overlay-behavior": "^3.0.0-pre.27",
+    "@polymer/neon-animation": "^3.0.0-pre.26"
   }
 }
