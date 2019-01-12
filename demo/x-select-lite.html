@@ -1,0 +1,72 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../iron-dropdown-lite.html">
+
+<dom-module id="x-select-lite">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+        margin: 1em;
+      }
+
+      @keyframes expand-animation {
+        from {
+          max-height: 50px;
+          opacity: 0;
+        }
+        to {
+          max-height: 100vh;
+        }
+      }
+
+      .expand-animation {
+        animation-name: expand-animation;
+        animation-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+        animation-delay: 150ms;
+        animation-duration: 200ms;
+      }
+
+      .fade-out-animation {
+        animation-duration: 150ms;
+      }
+    </style>
+    <div on-tap="open">
+      <slot name="dropdown-trigger"></slot>
+    </div>
+    <iron-dropdown-lite
+        id="dropdown"
+        vertical-align="[[verticalAlign]]"
+        horizontal-align="[[horizontalAlign]]"
+        disabled="[[disabled]]"
+        scroll-action="[[scrollAction]]"
+        entry-animation="expand-animation"
+        exit-animation="fade-out-animation">
+      <slot name="dropdown-content" slot="dropdown-content"></slot>
+    </iron-dropdown-lite>
+  </template>
+  <script>
+    Polymer({
+      is: 'x-select-lite',
+
+      properties: {
+        verticalAlign: String,
+        horizontalAlign: String,
+        disabled: Boolean,
+        scrollAction: String,
+      },
+
+      open: function() {
+        this.$.dropdown.open();
+      }
+    });
+  </script>
+</dom-module>
