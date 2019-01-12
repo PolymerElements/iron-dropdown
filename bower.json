@@ -10,7 +10,7 @@
     "web-component",
     "polymer"
   ],
-  "main": "iron-dropdown.html",
+  "main": ["iron-dropdown.html", "iron-dropdown-lite.html"],
   "private": true,
   "repository": {
     "type": "git",
