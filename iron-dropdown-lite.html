@@ -158,327 +158,306 @@ CSS keyframe animations; define the animation keyframes, a CSS class for the ani
 
   <script>
     (function() {
-      'use strict';
+    'use strict';
 
-      Polymer({
-        is: 'iron-dropdown-lite',
+    Polymer({
+      is: 'iron-dropdown-lite',
 
-        behaviors: [
-          Polymer.IronControlState,
-          Polymer.IronA11yKeysBehavior,
-          Polymer.IronOverlayBehavior,
-        ],
+      behaviors: [
+        Polymer.IronControlState,
+        Polymer.IronA11yKeysBehavior,
+        Polymer.IronOverlayBehavior,
+      ],
 
-        properties: {
-          /**
-           * The orientation against which to align the dropdown content
-           * horizontally relative to the dropdown trigger.
-           * Overridden from `Polymer.IronFitBehavior`.
-           */
-          horizontalAlign: {
-            type: String,
-            value: 'left',
-            reflectToAttribute: true
-          },
-
-          /**
-           * The orientation against which to align the dropdown content
-           * vertically relative to the dropdown trigger.
-           * Overridden from `Polymer.IronFitBehavior`.
-           */
-          verticalAlign: {
-            type: String,
-            value: 'top',
-            reflectToAttribute: true
-          },
-
-          /**
-           * The class defining the entry animation.
-           */
-          entryAnimation: {
-            type: String
-          },
-
-          /**
-           * The class defining the exit animation.
-           */
-          exitAnimation: {
-            type: String
-          },
-
-          /**
-           * Deprecated, use `entryAnimation` and `exitAnimation` instead.
-           * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
-           * here to not break bindings. Setting it won't have effects on the animation.
-           * @deprecated
-           */
-          animationConfig: {
-            type: Object
-          },
-
-          /**
-           * Deprecated, use `entryAnimation` instead.
-           * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
-           * here to not break bindings. Setting it won't have effects on the animation.
-           * @deprecated
-           */
-          openAnimationConfig: {
-            type: Object
-          },
-
-          /**
-           * Deprecated, use `exitAnimation` instead.
-           * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this property is kept
-           * here to not break bindings. Setting it won't have effects on the animation.
-           * @deprecated
-           */
-          closeAnimationConfig: {
-            type: Object
-          },
-
-          /**
-           * If provided, this will be the element that will be focused when
-           * the dropdown opens.
-           */
-          focusTarget: {
-            type: Object
-          },
-
-          /**
-           * Set to true to disable animations when opening and closing the
-           * dropdown.
-           */
-          noAnimations: {
-            type: Boolean,
-            value: false
-          },
-
-          /**
-           * By default, the dropdown will constrain scrolling on the page
-           * to itself when opened.
-           * Set to true in order to prevent scroll from being constrained
-           * to the dropdown when it opens.
-           * This property is a shortcut to set `scrollAction` to lock or refit.
-           * Prefer directly setting the `scrollAction` property.
-           */
-          allowOutsideScroll: {
-            type: Boolean,
-            value: false,
-            observer: '_allowOutsideScrollChanged'
-          }
-        },
-
-        listeners: {
-          'animationend': '_onAnimationEnd'
-        },
-
-        observers: [
-          '_updateOverlayPosition(positionTarget, verticalAlign, horizontalAlign, verticalOffset, horizontalOffset)'
-        ],
-
+      properties: {
         /**
-         * The element that is contained by the dropdown, if any.
+         * The orientation against which to align the dropdown content
+         * horizontally relative to the dropdown trigger.
+         * Overridden from `Polymer.IronFitBehavior`.
          */
-        get containedElement() {
-          // Polymer 2.x returns slot.assignedNodes which can contain text nodes.
-          var nodes = Polymer.dom(this.$.content).getDistributedNodes();
-          for (var i = 0, l = nodes.length; i < l; i++) {
-            if (nodes[i].nodeType === Node.ELEMENT_NODE) {
-              return nodes[i];
-            }
-          }
-        },
-
-        ready: function() {
-          // Ensure scrollAction is set.
-          if (!this.scrollAction) {
-            this.scrollAction = this.allowOutsideScroll ? 'refit' : 'lock';
-          }
-          if (this.openAnimationConfig || this.closeAnimationConfig || this.animationConfig) {
-            console.warn('Configuring animations through animationConfig, openAnimationConfig, ' +
-              'or closeAnimationConfig is no longer supported. ' +
-              'Use entryAnimation and exitAnimation instead.');
-            // Set this for backwards-compat.
-            this.animationConfig = this.animationConfig || {
-              open: this.openAnimationConfig,
-              close: this.closeAnimationConfig
-            };
-          }
-          this._readied = true;
-        },
-
-        attached: function() {
-          if (!this.sizingTarget || this.sizingTarget === this) {
-            this.sizingTarget = this.containedElement || this;
-          }
-        },
-
-        detached: function() {
-          this._cancelAnimation();
-        },
+        horizontalAlign: {type: String, value: 'left', reflectToAttribute: true},
 
         /**
-         * `iron-dropdown` doesn't depend anymore on `neon-animation`.
-         * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
-         * now is a no-op.
+         * The orientation against which to align the dropdown content
+         * vertically relative to the dropdown trigger.
+         * Overridden from `Polymer.IronFitBehavior`.
+         */
+        verticalAlign: {type: String, value: 'top', reflectToAttribute: true},
+
+        /**
+         * The class defining the entry animation.
+         */
+        entryAnimation: {type: String},
+
+        /**
+         * The class defining the exit animation.
+         */
+        exitAnimation: {type: String},
+
+        /**
+         * Deprecated, use `entryAnimation` and `exitAnimation` instead.
+         * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this
+         * property is kept here to not break bindings. Setting it won't have
+         * effects on the animation.
          * @deprecated
          */
-        cancelAnimation: function() {},
+        animationConfig: {type: Object},
 
         /**
-         * `iron-dropdown` doesn't depend anymore on `neon-animation`.
-         * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
-         * now is a no-op.
-         * @param {string=} type
-         * @param {!Object=} cookie
+         * Deprecated, use `entryAnimation` instead.
+         * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this
+         * property is kept here to not break bindings. Setting it won't have
+         * effects on the animation.
          * @deprecated
          */
-        playAnimation: function(type, cookie) {},
+        openAnimationConfig: {type: Object},
 
         /**
-         * `iron-dropdown` doesn't depend anymore on `neon-animation`.
-         * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
-         * now is a no-op.
+         * Deprecated, use `exitAnimation` instead.
+         * `iron-dropdown` doesn't depend anymore on `neon-animation`, and this
+         * property is kept here to not break bindings. Setting it won't have
+         * effects on the animation.
          * @deprecated
          */
-        getAnimationConfig: function(type) { return []; },
+        closeAnimationConfig: {type: Object},
 
         /**
-         * Called when the value of `opened` changes.
-         * Overridden from `IronOverlayBehavior`
-         * @private
+         * If provided, this will be the element that will be focused when
+         * the dropdown opens.
          */
-        _openedChanged: function() {
-          if (this.opened && this.disabled) {
-            this.cancel();
-          } else {
-            this._cancelAnimation();
-            Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
-          }
-        },
+        focusTarget: {type: Object},
 
         /**
-         * Overridden from `IronOverlayBehavior`.
-         * @private
+         * Set to true to disable animations when opening and closing the
+         * dropdown.
          */
-        _renderOpened: function() {
-          if (!this.noAnimations && this.entryAnimation) {
-            this._playAnimation(this.entryAnimation);
-          } else {
-            Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this, arguments);
-          }
-        },
+        noAnimations: {type: Boolean, value: false},
 
         /**
-         * Overridden from `IronOverlayBehavior`.
-         * @private
+         * By default, the dropdown will constrain scrolling on the page
+         * to itself when opened.
+         * Set to true in order to prevent scroll from being constrained
+         * to the dropdown when it opens.
+         * This property is a shortcut to set `scrollAction` to lock or refit.
+         * Prefer directly setting the `scrollAction` property.
          */
-        _renderClosed: function() {
-          if (!this.noAnimations && this.exitAnimation) {
-            this._playAnimation(this.exitAnimation);
-          } else {
-            Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this, arguments);
-          }
-        },
+        allowOutsideScroll:
+            {type: Boolean, value: false, observer: '_allowOutsideScrollChanged'}
+      },
 
-        /**
-         * @private
-         */
-        _cancelAnimation: function() {
-          if (this._pendingAnimation) {
-            this.classList.remove('animating');
-            this.classList.remove(this._pendingAnimation);
-            this._pendingAnimation = null;
-          }
-        },
+      listeners: {'animationend': '_onAnimationEnd'},
 
-        /**
-         * @param {!string} animation
-         * @private
-         */
-        _playAnimation: function(animation) {
-          this.classList.add('animating');
-          this.classList.add(animation);
-          this._pendingAnimation = animation;
-          if (this._willAnimate() === false) {
-            console.info(animation + ' animation was not played');
-            this._onAnimationEnd();
-          }
-        },
+      observers: [
+        '_updateOverlayPosition(positionTarget, verticalAlign, horizontalAlign, verticalOffset, horizontalOffset)'
+      ],
 
-        /**
-         * @private
-         */
-        _willAnimate: function() {
-          // If CSS Class does not have animation-name considered not be an animation
-          var style = getComputedStyle(this);
-          return (style.getPropertyValue('animation-name') !== 'none' &&
-            style.getPropertyValue('animation-duration') !== '0ms');
-        },
-
-        /**
-         * Called when animation finishes on the dropdown (when opening or
-         * closing). Responsible for "completing" the process of opening or
-         * closing the dropdown by positioning it or setting its display to
-         * none.
-         * @param {Event=} event
-         * @private
-         */
-        _onAnimationEnd: function(event) {
-          if (event && event.target !== this) {
-            return;
-          }
-          // Removes the classes.
-          this._cancelAnimation();
-          if (this.opened) {
-            this._finishRenderOpened();
-          } else {
-            this._finishRenderClosed();
-          }
-        },
-
-        /**
-         * Updates the overlay position based on configured horizontal
-         * and vertical alignment.
-         * @private
-         */
-        _updateOverlayPosition: function() {
-          if (this.isAttached) {
-            // This triggers iron-resize, and iron-overlay-behavior will call refit if needed.
-            this.notifyResize();
-          }
-        },
-
-        /**
-         * Sets scrollAction according to the value of allowOutsideScroll.
-         * Prefer setting directly scrollAction.
-         * @private
-         */
-        _allowOutsideScrollChanged: function(allowOutsideScroll) {
-          // Wait until initial values are all set.
-          if (!this._readied) {
-            return;
-          }
-          if (!allowOutsideScroll) {
-            this.scrollAction = 'lock';
-          } else if (!this.scrollAction || this.scrollAction === 'lock') {
-            this.scrollAction = 'refit';
-          }
-        },
-
-        /**
-         * Apply focus to focusTarget or containedElement
-         * @private
-         */
-        _applyFocus: function() {
-          var focusTarget = this.focusTarget || this.containedElement;
-          if (focusTarget && this.opened && !this.noAutoFocus) {
-            focusTarget.focus();
-          } else {
-            Polymer.IronOverlayBehaviorImpl._applyFocus.apply(this, arguments);
+      /**
+       * The element that is contained by the dropdown, if any.
+       */
+      get containedElement() {
+        // Polymer 2.x returns slot.assignedNodes which can contain text nodes.
+        var nodes = Polymer.dom(this.$.content).getDistributedNodes();
+        for (var i = 0, l = nodes.length; i < l; i++) {
+          if (nodes[i].nodeType === Node.ELEMENT_NODE) {
+            return nodes[i];
           }
         }
-      });
+      },
+
+      ready: function() {
+        // Ensure scrollAction is set.
+        if (!this.scrollAction) {
+          this.scrollAction = this.allowOutsideScroll ? 'refit' : 'lock';
+        }
+        if (this.openAnimationConfig || this.closeAnimationConfig ||
+            this.animationConfig) {
+          console.warn(
+              'Configuring animations through animationConfig, openAnimationConfig, ' +
+              'or closeAnimationConfig is no longer supported. ' +
+              'Use entryAnimation and exitAnimation instead.');
+          // Set this for backwards-compat.
+          this.animationConfig = this.animationConfig ||
+              {open: this.openAnimationConfig, close: this.closeAnimationConfig};
+        }
+        this._readied = true;
+      },
+
+      attached: function() {
+        if (!this.sizingTarget || this.sizingTarget === this) {
+          this.sizingTarget = this.containedElement || this;
+        }
+      },
+
+      detached: function() {
+        this._cancelAnimation();
+      },
+
+      /**
+       * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+       * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+       * now is a no-op.
+       * @deprecated
+       */
+      cancelAnimation: function() {},
+
+      /**
+       * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+       * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+       * now is a no-op.
+       * @param {string=} type
+       * @param {!Object=} cookie
+       * @deprecated
+       */
+      playAnimation: function(type, cookie) {},
+
+      /**
+       * `iron-dropdown` doesn't depend anymore on `neon-animation`.
+       * This method was previously inherited from `Polymer.NeonAnimatableBehavior`,
+       * now is a no-op.
+       * @deprecated
+       */
+      getAnimationConfig: function(type) {
+        return [];
+      },
+
+      /**
+       * Called when the value of `opened` changes.
+       * Overridden from `IronOverlayBehavior`
+       * @private
+       */
+      _openedChanged: function() {
+        if (this.opened && this.disabled) {
+          this.cancel();
+        } else {
+          this._cancelAnimation();
+          Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
+        }
+      },
+
+      /**
+       * Overridden from `IronOverlayBehavior`.
+       * @private
+       */
+      _renderOpened: function() {
+        if (!this.noAnimations && this.entryAnimation) {
+          this._playAnimation(this.entryAnimation);
+        } else {
+          Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this, arguments);
+        }
+      },
+
+      /**
+       * Overridden from `IronOverlayBehavior`.
+       * @private
+       */
+      _renderClosed: function() {
+        if (!this.noAnimations && this.exitAnimation) {
+          this._playAnimation(this.exitAnimation);
+        } else {
+          Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this, arguments);
+        }
+      },
+
+      /**
+       * @private
+       */
+      _cancelAnimation: function() {
+        if (this._pendingAnimation) {
+          this.classList.remove('animating');
+          this.classList.remove(this._pendingAnimation);
+          this._pendingAnimation = null;
+        }
+      },
+
+      /**
+       * @param {!string} animation
+       * @private
+       */
+      _playAnimation: function(animation) {
+        this.classList.add('animating');
+        this.classList.add(animation);
+        this._pendingAnimation = animation;
+        if (this._willAnimate() === false) {
+          console.info(animation + ' animation was not played');
+          this._onAnimationEnd();
+        }
+      },
+
+      /**
+       * @private
+       */
+      _willAnimate: function() {
+        // If CSS Class does not have animation-name considered not be an animation
+        var style = getComputedStyle(this);
+        return (
+            style.getPropertyValue('animation-name') !== 'none' &&
+            style.getPropertyValue('animation-duration') !== '0ms');
+      },
+
+      /**
+       * Called when animation finishes on the dropdown (when opening or
+       * closing). Responsible for "completing" the process of opening or
+       * closing the dropdown by positioning it or setting its display to
+       * none.
+       * @param {Event=} event
+       * @private
+       */
+      _onAnimationEnd: function(event) {
+        if (event && event.target !== this) {
+          return;
+        }
+        // Removes the classes.
+        this._cancelAnimation();
+        if (this.opened) {
+          this._finishRenderOpened();
+        } else {
+          this._finishRenderClosed();
+        }
+      },
+
+      /**
+       * Updates the overlay position based on configured horizontal
+       * and vertical alignment.
+       * @private
+       */
+      _updateOverlayPosition: function() {
+        if (this.isAttached) {
+          // This triggers iron-resize, and iron-overlay-behavior will call refit if
+          // needed.
+          this.notifyResize();
+        }
+      },
+
+      /**
+       * Sets scrollAction according to the value of allowOutsideScroll.
+       * Prefer setting directly scrollAction.
+       * @private
+       */
+      _allowOutsideScrollChanged: function(allowOutsideScroll) {
+        // Wait until initial values are all set.
+        if (!this._readied) {
+          return;
+        }
+        if (!allowOutsideScroll) {
+          this.scrollAction = 'lock';
+        } else if (!this.scrollAction || this.scrollAction === 'lock') {
+          this.scrollAction = 'refit';
+        }
+      },
+
+      /**
+       * Apply focus to focusTarget or containedElement
+       * @private
+       */
+      _applyFocus: function() {
+        var focusTarget = this.focusTarget || this.containedElement;
+        if (focusTarget && this.opened && !this.noAutoFocus) {
+          focusTarget.focus();
+        } else {
+          Polymer.IronOverlayBehaviorImpl._applyFocus.apply(this, arguments);
+        }
+      }
+    });
     })();
   </script>
 </dom-module>
