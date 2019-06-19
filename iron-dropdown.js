@@ -44,6 +44,7 @@ be hidden until the dropdown element has `opened` set to true, or when the
 @demo demo/index.html
 */
 Polymer({
+  /** @override */
   _template: html`
     <style>
       :host {
@@ -148,6 +149,7 @@ Polymer({
     }
   },
 
+  /** @override */
   ready: function() {
     // Ensure scrollAction is set.
     if (!this.scrollAction) {
@@ -156,12 +158,14 @@ Polymer({
     this._readied = true;
   },
 
+  /** @override */
   attached: function() {
     if (!this.sizingTarget || this.sizingTarget === this) {
       this.sizingTarget = this.containedElement || this;
     }
   },
 
+  /** @override */
   detached: function() {
     this.cancelAnimation();
   },
